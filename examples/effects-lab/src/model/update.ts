@@ -40,7 +40,7 @@ const fetchResource = <A>(
 export const update = (msg: Msg, m: Model, dispatch: (msg: Msg) => void) => {
   switch (msg.type) {
     case "SET_ACTIVE":
-      return { model: { ...m, active: msg.key }, effects:[] };
+      return { model: { ...m, active: msg.key }, effects: [] };
 
     case "FETCH_RESOURCE": {
       const key = msg.key;
@@ -81,7 +81,7 @@ export const update = (msg: Msg, m: Model, dispatch: (msg: Msg) => void) => {
           },
           logs,
         },
-      effects:[]
+        effects: [],
       };
     }
 
@@ -106,7 +106,7 @@ export const update = (msg: Msg, m: Model, dispatch: (msg: Msg) => void) => {
           [key]: { ...m[key], loading: false, error: msg.error },
           logs,
         },
-        effects:[]
+        effects: [],
       };
     }
 
@@ -120,6 +120,6 @@ export const update = (msg: Msg, m: Model, dispatch: (msg: Msg) => void) => {
     }
 
     default:
-      return { model: m, effects:[] };
+      return { model: m, effects: [] };
   }
 };

@@ -5,16 +5,12 @@ export type HttpEnv = {
   baseUrl?: string;
 };
 
-/** Default error shape for network errors */
 export type DefaultHttpError = {
   status: number;
   message: string;
 };
 
-/**
- * Generic Reader–Task constructor for HTTP.
- * You can parameterize both the success (`A`) and error (`E`) types.
- */
+
 export const httpTask = <E = DefaultHttpError, A = unknown>(
   path: string,
   options?: RequestInit,
@@ -49,10 +45,4 @@ export const httpTask = <E = DefaultHttpError, A = unknown>(
     })
   );
 
-/**
- * Example:
- *
- * const getUsers = httpTask<User[]>("/users");
- * const task = getUsers.run({ fetch, baseUrl: "https://jsonplaceholder.typicode.com" });
- * const result = await task.run();
- */
+

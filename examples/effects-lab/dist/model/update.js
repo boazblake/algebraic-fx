@@ -61,7 +61,7 @@ export const update = (msg, m, dispatch) => {
                     },
                     logs,
                 },
-                effects: []
+                effects: [],
             };
         }
         case "FETCH_ERROR": {
@@ -80,7 +80,7 @@ export const update = (msg, m, dispatch) => {
                     [key]: { ...m[key], loading: false, error: msg.error },
                     logs,
                 },
-                effects: []
+                effects: [],
             };
         }
         case "TOGGLE_THEME": {

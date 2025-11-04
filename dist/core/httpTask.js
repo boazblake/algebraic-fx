@@ -1,8 +1,4 @@
 import { Reader, Task, Either } from "../adt/index.js";
-/**
- * Generic Reader–Task constructor for HTTP.
- * You can parameterize both the success (`A`) and error (`E`) types.
- */
 export const httpTask = (path, options, handleError) => Reader((env) => Task(async () => {
     try {
         const res = await env.fetch(`${env.baseUrl ?? ""}${path}`, options);
@@ -28,10 +24,3 @@ export const httpTask = (path, options, handleError) => Reader((env) => Task(asy
         return Either.Left(err);
     }
 }));
-/**
- * Example:
- *
- * const getUsers = httpTask<User[]>("/users");
- * const task = getUsers.run({ fetch, baseUrl: "https://jsonplaceholder.typicode.com" });
- * const result = await task.run();
- */
