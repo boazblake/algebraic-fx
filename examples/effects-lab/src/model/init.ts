@@ -5,10 +5,9 @@ export const init = IO(() => {
   const env = {
     fetch: window.fetch.bind(window),
     baseUrl: "https://jsonplaceholder.typicode.com",
-    api: "https://jsonplaceholder.typicode.com",
   };
 
-  const empty = { data: [], loading: false };
+  const empty = { data: [], loading: false, page: 1, limit: 10 };
 
   const model: Model = {
     theme: "light",
