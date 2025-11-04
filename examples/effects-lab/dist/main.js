@@ -1,9 +1,8 @@
-import * as edom from "effects-vdom";
+import { renderApp, browserEnv, runDomIO } from "effects-vdom";
+import { renderer } from "./renderer";
 import { program } from "./program";
+import { registerGlobalIO } from "./utils/globalIO";
 const root = document.getElementById("app");
-const instance = edom.app(root, program);
-window.addEventListener("resize", () => instance.dispatch({
-    type: "RESIZE",
-    width: window.innerWidth,
-    height: window.innerHeight,
-}));
+export const app = renderApp(renderer)(root, program);
+const resizeEffect = registerGlobalIO(app.dispatch);
+runDomIO(resizeEffect, browserEnv());

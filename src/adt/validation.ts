@@ -2,12 +2,24 @@ export type Validation<E, A> =
   | { _tag: "Failure"; errors: E[] }
   | { _tag: "Success"; value: A };
 
-export const Failure = <E>(errors: E[]): Validation<E, never> => ({ _tag: "Failure", errors });
-export const Success = <A>(value: A): Validation<never, A> => ({ _tag: "Success", value });
+export const Failure = <E>(errors: E[]): Validation<E, never> => ({
+  _tag: "Failure",
+  errors,
+});
 
-export const map = <E, A, B>(f: (a: A) => B, v: Validation<E, A>): Validation<E, B> =>
+export const Success = <A>(value: A): Validation<never, A> => ({
+  _tag: "Success",
+  value,
+});
+
+/** Functor map */
+export const map = <E, A, B>(
+  f: (a: A) => B,
+  v: Validation<E, A>
+): Validation<E, B> =>
   v._tag === "Success" ? Success(f(v.value)) : v;
 
+/** Applicative apply */
 export const ap = <E, A, B>(
   vf: Validation<E, (a: A) => B>,
   va: Validation<E, A>
@@ -19,4 +31,23 @@ export const ap = <E, A, B>(
   return Success(vf.value(va.value));
 };
 
+/** Monad chain */
+export const chain = <E, A, B>(
+  f: (a: A) => Validation<E, B>,
+  v: Validation<E, A>
+): Validation<E, B> =>
+  v._tag === "Success" ? f(v.value) : v;
+
+/** Lift value */
 export const of = <A>(a: A): Validation<never, A> => Success(a);
+
+/** Fold */
+export const fold = <E, A, B>(
+  onFail: (errs: E[]) => B,
+  onSucc: (a: A) => B,
+  v: Validation<E, A>
+): B => (v._tag === "Failure" ? onFail(v.errors) : onSucc(v.value));
+
+/** Unified object export */
+export const Validation = { Failure, Success, map, ap, chain, of, fold };
+export default Validation;

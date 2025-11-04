@@ -1,12 +1,49 @@
-export const update = (msg, m) => {
+import { Writer, IO, httpTask } from "effects-vdom";
+export const update = (msg, m, dispatch) => {
     switch (msg.type) {
-        case "SET_VIEW":
-            return { model: { ...m, activeView: msg.view } };
-        case "SET_THEME":
-            document.documentElement.classList.toggle("dark", msg.theme === "dark");
-            return { model: { ...m, theme: msg.theme } };
-        case "RESIZE":
-            return { model: { ...m, width: msg.width, height: msg.height } };
+        case "SET_ACTIVE":
+            return { model: { ...m, active: msg.key } };
+        case "FETCH_RESOURCE": {
+            const key = msg.key;
+            const readerTask = httpTask(`/${key}`).run(m.env);
+            const effect = IO(async () => {
+                const result = await readerTask.run();
+                if (result._tag === "Right")
+                    dispatch({ type: "FETCH_SUCCESS", key, data: result.right });
+                else
+                    dispatch({ type: "FETCH_ERROR", key, error: result.left.message });
+            });
+            const logs = m.logs.chain(() => Writer(() => ["", [`Fetching ${key}`]]));
+            return {
+                model: { ...m, [key]: { ...m[key], loading: true }, logs },
+                effects: [effect],
+            };
+        }
+        case "FETCH_SUCCESS": {
+            const logs = m.logs.chain(() => Writer(() => ["", [`Fetched ${msg.key}`]]));
+            return {
+                model: {
+                    ...m,
+                    [msg.key]: { data: msg.data, loading: false, error: undefined },
+                    logs,
+                },
+            };
+        }
+        case "FETCH_ERROR": {
+            const logs = m.logs.chain(() => Writer(() => ["", [`Error fetching ${msg.key}: ${msg.error}`]]));
+            return {
+                model: {
+                    ...m,
+                    [msg.key]: { ...m[msg.key], loading: false, error: msg.error },
+                    logs,
+                },
+            };
+        }
+        case "TOGGLE_THEME": {
+            const next = m.theme === "light" ? "dark" : "light";
+            document.documentElement.classList.toggle("dark", next === "dark");
+            return { model: { ...m, theme: next } };
+        }
         default:
             return { model: m };
     }

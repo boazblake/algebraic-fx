@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
     "target": "ES2020",
     "module": "ES2020",
     "moduleResolution": "Bundler",
-    "rootDir": "src",
-    "outDir": "dist",
     "strict": true,
-    "jsx": "react-jsx",
-    "jsxImportSource": "effects-vdom"
+    "declaration": true,
+    "emitDeclarationOnly": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
-  "include": [
-    "src","src/global.d.ts"
-  ]
+  "include": ["src"]
 }

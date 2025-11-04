@@ -13,3 +13,14 @@ export type VNode = {
   key?: string | number;
 };
 export type Dispatch = (msg: any) => void
+
+export type EffectLike = {
+  run: () => any;
+  cancel?: () => void;
+};
+
+export type Program<M, Msg> = {
+  init: { run: () => { model: M; effects?: EffectLike[] } };
+  update: (msg: Msg, model: M, dispatch: Dispatch) => { model: M; effects?: EffectLike[] };
+  view: (model: M, dispatch: Dispatch) => any;
+};

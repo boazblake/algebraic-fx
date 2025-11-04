@@ -1,17 +1,27 @@
 import { IO, Writer } from "effects-vdom";
 import type { Model } from "./types";
 
-export const init = IO(() => ({
-  model: {
-    activeView: "Writer",
+export const init = IO(() => {
+  const env = {
+    fetch: window.fetch.bind(window),
+    baseUrl: "https://jsonplaceholder.typicode.com",
+    api: "https://jsonplaceholder.typicode.com",
+  };
+
+  const empty = { data: [], loading: false };
+
+  const model: Model = {
     theme: "light",
-    width: typeof window !== "undefined" ? window.innerWidth : 0,
-    height: typeof window !== "undefined" ? window.innerHeight : 0,
+    env,
+    active: "posts",
+    logs: Writer.of("", []),
+    posts: empty,
+    users: empty,
+    comments: empty,
+    albums: empty,
+    photos: empty,
+    todos: empty,
+  };
 
-    writerEffect: Writer<string[], string>(() => ["", []]),
-    counter: 0,
-
-    streamRunning: false,
-  } as Model,
-  effects: [] as any[],
-}));
+  return { model, effects: [] };
+});

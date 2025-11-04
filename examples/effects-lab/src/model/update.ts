@@ -1,48 +1,63 @@
-import type { Model, Msg } from "./types";
+import { Reader, Task, Either, Writer, IO, httpTask } from "effects-vdom";
+import type { Model, Msg, Env } from "./types";
 
-export const update = (msg: Msg, m: Model): { model: Model; effects?: any[] } => {
+export const update = (msg: Msg, m: Model, dispatch: (msg: Msg) => void) => {
   switch (msg.type) {
-    case "SET_VIEW":
-      return { model: { ...m, activeView: msg.view } };
+    case "SET_ACTIVE":
+      return { model: { ...m, active: msg.key } };
 
-    case "SET_THEME":
-      if (typeof document !== "undefined") {
-        document.documentElement.classList.toggle("dark", msg.theme === "dark");
-      }
-      return { model: { ...m, theme: msg.theme } };
+    case "FETCH_RESOURCE": {
+      const key = msg.key;
+      const readerTask = httpTask<any[]>(`/${key}`).run(m.env);
 
-    case "RESIZE":
-      return { model: { ...m, width: msg.width, height: msg.height } };
+      const effect = IO(async () => {
+        const result = await readerTask.run();
+        if (result._tag === "Right")
+          dispatch({ type: "FETCH_SUCCESS", key, data: result.right });
+        else dispatch({ type: "FETCH_ERROR", key, error: result.left.message });
+      });
 
-    case "ID_RESULT":
-      return { model: { ...m, id: msg.value, idError: undefined } };
-    case "ID_ERROR":
-      return { model: { ...m, idError: msg.error } };
+      const logs = m.logs.chain(() =>
+        Writer(() => ["", [`Fetching ${key}`]])
+      );
 
-    case "IO_RUN":
-      return { model: { ...m, ioValue: msg.value } };
+      return {
+        model: { ...m, [key]: { ...m[key], loading: true }, logs },
+        effects: [effect],
+      };
+    }
 
-    case "READER_RUN":
-      return { model: { ...m, readerValue: msg.value, readerEnv: msg.env } };
+    case "FETCH_SUCCESS": {
+      const logs = m.logs.chain(() =>
+        Writer(() => ["", [`Fetched ${msg.key}`]])
+      );
+      return {
+        model: {
+          ...m,
+          [msg.key]: { data: msg.data, loading: false, error: undefined },
+          logs,
+        },
+      };
+    }
 
-    case "WRITER_UPDATE":
-      return { model: { ...m, writerEffect: msg.writerEffect } };
+    case "FETCH_ERROR": {
+      const logs = m.logs.chain(() =>
+        Writer(() => ["", [`Error fetching ${msg.key}: ${msg.error}`]])
+      );
+      return {
+        model: {
+          ...m,
+          [msg.key]: { ...m[msg.key], loading: false, error: msg.error },
+          logs,
+        },
+      };
+    }
 
-    case "STATE_SET":
-      return { model: { ...m, counter: msg.value } };
-
-    case "TASK_DONE":
-      return { model: { ...m, taskValue: msg.value } };
-
-    case "VALIDATION_RUN":
-      return { model: { ...m, validation: msg.result } };
-
-    case "STREAM_NEXT":
-      return { model: { ...m, streamLast: msg.value } };
-    case "STREAM_START":
-      return { model: { ...m, streamRunning: true } };
-    case "STREAM_STOP":
-      return { model: { ...m, streamRunning: false } };
+    case "TOGGLE_THEME": {
+      const next: "light" | "dark" = m.theme === "light" ? "dark" : "light";
+      document.documentElement.classList.toggle("dark", next === "dark");
+      return { model: { ...m, theme: next } };
+    }
 
     default:
       return { model: m };

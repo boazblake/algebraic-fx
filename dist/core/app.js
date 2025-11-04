@@ -1,4 +1,3 @@
-import m from "mithril";
 const render = (root, vnode) => m.render(root, vnode);
 export const app = (root, prog) => {
     let model;

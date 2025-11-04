@@ -4,25 +4,34 @@ export type State<S, A> = {
   chain: <B>(f: (a: A) => State<S, B>) => State<S, B>;
 };
 
-type StateConstructor = {
-  <S, A>(run: (s: S) => [A, S]): State<S, A>;
-  of: <S, A>(a: A) => State<S, A>;
-  get: <S>() => State<S, S>;
-  put: <S>(s: S) => State<S, void>;
-};
-
-export const State = (<S, A>(run: (s: S) => [A, S]) => ({
+export const State = <S, A>(run: (s: S) => [A, S]): State<S, A> => ({
   run,
-  map: <B>(f: (a: A) => B) => State((s: S) => {
-    const [a, s1] = run(s);
-    return [f(a), s1];
-  }),
-  chain: <B>(f: (a: A) => State<S, B>) => State((s: S) => {
-    const [a, s1] = run(s);
-    return f(a).run(s1);
-  }),
-})) as StateConstructor;
+  map: (f) =>
+    State((s: S) => {
+      const [a, s1] = run(s);
+      return [f(a), s1];
+    }),
+  chain: (f) =>
+    State((s: S) => {
+      const [a, s1] = run(s);
+      return f(a).run(s1);
+    }),
+});
 
 State.of = <S, A>(a: A): State<S, A> => State((s) => [a, s]);
 State.get = <S>(): State<S, S> => State((s) => [s, s]);
 State.put = <S>(s: S): State<S, void> => State(() => [undefined, s]);
+
+/** Point-free combinators */
+State.map = <S, A, B>(f: (a: A) => B) => (st: State<S, A>): State<S, B> =>
+  st.map(f);
+State.chain =
+  <S, A, B>(f: (a: A) => State<S, B>) =>
+  (st: State<S, A>): State<S, B> =>
+    st.chain(f);
+State.run =
+  <S, A>(s: S) =>
+  (st: State<S, A>): [A, S] =>
+    st.run(s);
+
+export default State;
