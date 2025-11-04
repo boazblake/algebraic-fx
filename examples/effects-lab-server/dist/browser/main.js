@@ -783,7 +783,10 @@ Id.extract = (id) => id.run();
 
 // ../../dist/adt/either.js
 var Left = (l) => ({ _tag: "Left", left: l });
-var Right = (r) => ({ _tag: "Right", right: r });
+var Right = (r) => ({
+  _tag: "Right",
+  right: r
+});
 var map = (f, e) => e._tag === "Right" ? Right(f(e.right)) : e;
 var ap = (ef, ea) => {
   if (ef._tag === "Left")
@@ -1278,21 +1281,22 @@ Task.toPromise = (t) => t.run().then((ea) => {
 });
 
 // ../../dist/core/httpTask.js
-var httpTask = (path, options) => Reader((env) => Task(async () => {
+var httpTask = (path, options, handleError) => Reader((env) => Task(async () => {
   try {
-    const r = await env.fetch(`${env.baseUrl ?? ""}${path}`, options);
-    if (!r.ok) {
-      return Either.Left({
-        status: r.status,
-        message: r.statusText || "HTTP error"
-      });
+    const res = await env.fetch(`${env.baseUrl ?? ""}${path}`, options);
+    if (!res.ok) {
+      const message = res.statusText || "HTTP error";
+      const err = handleError ? handleError({ status: res.status, message }) : { status: res.status, message };
+      return Either.Left(err);
     }
-    const data = await r.json();
+    const data = await res.json();
     return Either.Right(data);
   } catch (e) {
-    return Either.Left({
+    const err = handleError ? handleError(e) : {
+      status: 0,
       message: e instanceof Error ? e.message : String(e)
-    });
+    };
+    return Either.Left(err);
   }
 }));
 
@@ -1315,7 +1319,13 @@ var { div, h1, h2, p, button, section, input, ul, li, span } = (0, import_hypers
 // src/model/init.ts
 var init = IO(() => {
   const isBrowser = typeof window !== "undefined";
-  const env = isBrowser ? { fetch: window.fetch.bind(window), baseUrl: "https://jsonplaceholder.typicode.com" } : { fetch: globalThis.fetch, baseUrl: "https://jsonplaceholder.typicode.com" };
+  const env = isBrowser ? {
+    fetch: window.fetch.bind(window),
+    baseUrl: "https://jsonplaceholder.typicode.com"
+  } : {
+    fetch: globalThis.fetch,
+    baseUrl: "https://jsonplaceholder.typicode.com"
+  };
   const empty = { data: [], loading: false, page: 1, limit: 10 };
   const model = {
     theme: "light",
@@ -1333,6 +1343,27 @@ var init = IO(() => {
 });
 
 // src/model/update.ts
+var fetchResource = (key, page, limit, env, dispatch) => IO(async () => {
+  const task = httpTask(
+    `/${key}?_page=${page}&_limit=${limit}`
+  ).run(env);
+  const either = await task.run();
+  if (Either.isRight(either)) {
+    dispatch({
+      type: "FETCH_SUCCESS",
+      key,
+      data: either.right,
+      page
+    });
+  } else {
+    const err = either.left;
+    dispatch({
+      type: "FETCH_ERROR",
+      key,
+      error: typeof err === "string" ? { status: 0, message: err } : err || { status: 0, message: "Unknown error" }
+    });
+  }
+});
 var update = (msg, m, dispatch) => {
   switch (msg.type) {
     case "SET_ACTIVE":
@@ -1340,60 +1371,32 @@ var update = (msg, m, dispatch) => {
     case "FETCH_RESOURCE": {
       const key = msg.key;
       const { limit } = m[key];
-      const task = httpTask(`/${key}?_page=1&_limit=${limit}`).run(m.env);
-      const io = IO(async () => {
-        const res = await task.run();
-        if (res._tag === "Right")
-          dispatch({ type: "FETCH_SUCCESS", key, data: res.right, page: 1 });
-        else
-          dispatch({
-            type: "FETCH_ERROR",
-            key,
-            error: "status" in res.left ? res.left : { status: 0, message: res.left.message }
-          });
-      });
+      const effect = fetchResource(key, 1, limit, m.env, dispatch);
       return {
-        model: {
-          ...m,
-          [key]: { ...m[key], loading: true }
-        },
-        effects: [io]
+        model: { ...m, [key]: { ...m[key], loading: true } },
+        effects: [effect]
       };
     }
     case "FETCH_PAGE": {
       const key = msg.key;
-      const page = msg.page;
       const { limit } = m[key];
-      const task = httpTask(`/${key}?_page=${page}&_limit=${limit}`).run(m.env);
-      const io = IO(async () => {
-        const res = await task.run();
-        if (res._tag === "Right") {
-          dispatch({ type: "FETCH_SUCCESS", key, data: res.right, page });
-        } else {
-          dispatch({
-            type: "FETCH_ERROR",
-            key,
-            error: "status" in res.left ? res.left : { status: 0, message: res.left.message }
-          });
-        }
-      });
+      const effect = fetchResource(key, msg.page, limit, m.env, dispatch);
       return {
-        model: {
-          ...m,
-          [key]: { ...m[key], loading: true }
-        },
-        effects: [io]
+        model: { ...m, [key]: { ...m[key], loading: true } },
+        effects: [effect]
       };
     }
     case "FETCH_SUCCESS": {
       const key = msg.key;
-      const logs = m.logs.chain(() => Writer(() => ["", [`Fetched ${key} page ${msg.page || 1}`]]));
+      const logs = m.logs.chain(
+        () => Writer(() => ["", [`Fetched ${key} page ${msg.page || 1}`]])
+      );
       return {
         model: {
           ...m,
           [key]: {
             ...m[key],
-            data: [...msg.data],
+            data: msg.data,
             loading: false,
             page: msg.page || 1
           },
@@ -1402,21 +1405,31 @@ var update = (msg, m, dispatch) => {
       };
     }
     case "FETCH_ERROR": {
+      const key = msg.key;
       const logs = m.logs.chain(
-        () => Writer(() => ["", [`Error fetching ${msg.key}: ${msg.error}`]])
+        () => Writer(() => [
+          "",
+          [
+            `Error fetching ${key}: ${typeof msg.error === "string" ? msg.error : JSON.stringify(msg.error)}`
+          ]
+        ])
       );
       return {
         model: {
           ...m,
-          [msg.key]: { ...m[msg.key], loading: false, error: msg.error },
+          [key]: { ...m[key], loading: false, error: msg.error },
           logs
         }
       };
     }
     case "TOGGLE_THEME": {
       const next = m.theme === "light" ? "dark" : "light";
-      document.documentElement.classList.toggle("dark", next === "dark");
-      return { model: { ...m, theme: next } };
+      const effect = IO(() => {
+        if (typeof document !== "undefined") {
+          document.documentElement.classList.toggle("dark", next === "dark");
+        }
+      });
+      return { model: { ...m, theme: next }, effects: [effect] };
     }
     default:
       return { model: m };
@@ -1461,7 +1474,9 @@ var ResourceList = (key, res, dispatch) => {
     res.error && p({ className: "text-red-600" }, `Error: ${JSON.stringify(res.error)}`),
     ul(
       { className: "text-sm space-y-1" },
-      res.data.map((item) => li({ className: "border-b pb-1" }, JSON.stringify(item)))
+      res.data.map(
+        (item) => li({ className: "border-b pb-1" }, JSON.stringify(item))
+      )
     )
   ]);
 };

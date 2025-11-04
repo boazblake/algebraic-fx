@@ -1,4 +1,4 @@
-import { renderToString, runDomIO } from "../../node_modules/effects-vdom/dist/core/index.js";
+import { renderToString, runDomIO, } from "../../node_modules/effects-vdom/dist/core/index.js";
 import { program } from "../browser/program.js";
 import { serverDomEnv } from "./env.js";
 export const renderPage = async () => {

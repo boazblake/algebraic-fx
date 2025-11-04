@@ -5,35 +5,47 @@ export type HttpEnv = {
   baseUrl?: string;
 };
 
-export type HttpError =
-  | { status: number; message: string }
-  | { message: string };
+
+/** Default error shape for network errors */
+export type DefaultHttpError = {
+  status: number;
+  message: string;
+};
 
 /**
- * HTTP Reader–Task abstraction using Either for errors.
+ * Generic Reader–Task constructor for HTTP.
+ * You can parameterize both the success (`A`) and error (`E`) types.
  */
-export const httpTask = <A>(
+export const httpTask = <E = DefaultHttpError, A = unknown>(
   path: string,
-  options?: RequestInit
-): Reader<HttpEnv, Task<HttpError, A>> =>
+  options?: RequestInit,
+  handleError?: (e: unknown) => E
+): Reader<HttpEnv, Task<E, A>> =>
   Reader((env) =>
-    Task<HttpError, A>(async () => {
+    Task<E, A>(async () => {
       try {
-        const r = await env.fetch(`${env.baseUrl ?? ""}${path}`, options);
+        const res = await env.fetch(`${env.baseUrl ?? ""}${path}`, options);
 
-        if (!r.ok) {
-          return Either.Left<HttpError>({
-            status: r.status,
-            message: r.statusText || "HTTP error",
-          });
+        if (!res.ok) {
+          // server error → Left<E>
+          const message = res.statusText || "HTTP error";
+          const err = (handleError
+            ? handleError({ status: res.status, message })
+            : ({ status: res.status, message } as E));
+          return Either.Left<E>(err);
         }
 
-        const data = (await r.json()) as A;
+        // success → Right<A>
+        const data = (await res.json()) as A;
         return Either.Right<A>(data);
       } catch (e: any) {
-        return Either.Left<HttpError>({
-          message: e instanceof Error ? e.message : String(e),
-        });
+        const err = handleError
+          ? handleError(e)
+          : ({
+              status: 0,
+              message: e instanceof Error ? e.message : String(e),
+            } as E);
+        return Either.Left<E>(err);
       }
     })
   );

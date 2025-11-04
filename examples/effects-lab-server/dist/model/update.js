@@ -1,6 +1,29 @@
-import { Writer, IO } from "../../node_modules/effects-vdom/dist/adt/index.js";
+import { Either, Writer, IO, } from "../../node_modules/effects-vdom/dist/adt/index.js";
 import { httpTask } from "../../node_modules/effects-vdom/dist/core/index.js";
-;
+/** IO-based fetch that runs safely on server or client */
+const fetchResource = (key, page, limit, env, dispatch) => IO(async () => {
+    const task = httpTask(`/${key}?_page=${page}&_limit=${limit}`).run(env);
+    const either = await task.run();
+    if (Either.isRight(either)) {
+        dispatch({
+            type: "FETCH_SUCCESS",
+            key,
+            data: either.right,
+            page,
+        });
+    }
+    else {
+        const err = either.left;
+        dispatch({
+            type: "FETCH_ERROR",
+            key,
+            error: typeof err === "string"
+                ? { status: 0, message: err }
+                : err || { status: 0, message: "Unknown error" },
+        });
+    }
+});
+/** Server-compatible update — no direct DOM access */
 export const update = (msg, m, dispatch) => {
     switch (msg.type) {
         case "SET_ACTIVE":
@@ -8,54 +31,19 @@ export const update = (msg, m, dispatch) => {
         case "FETCH_RESOURCE": {
             const key = msg.key;
             const { limit } = m[key];
-            const task = httpTask(`/${key}?_page=1&_limit=${limit}`).run(m.env);
-            const io = IO(async () => {
-                const res = await task.run();
-                if (res._tag === "Right")
-                    dispatch({ type: "FETCH_SUCCESS", key, data: res.right, page: 1 });
-                else
-                    dispatch({
-                        type: "FETCH_ERROR",
-                        key,
-                        error: "status" in res.left
-                            ? res.left
-                            : { status: 0, message: res.left.message },
-                    });
-            });
+            const effect = fetchResource(key, 1, limit, m.env, dispatch);
             return {
-                model: {
-                    ...m,
-                    [key]: { ...m[key], loading: true }
-                },
-                effects: [io],
+                model: { ...m, [key]: { ...m[key], loading: true } },
+                effects: [effect],
             };
         }
         case "FETCH_PAGE": {
             const key = msg.key;
-            const page = msg.page;
             const { limit } = m[key];
-            const task = httpTask(`/${key}?_page=${page}&_limit=${limit}`).run(m.env);
-            const io = IO(async () => {
-                const res = await task.run();
-                if (res._tag === "Right") {
-                    dispatch({ type: "FETCH_SUCCESS", key, data: res.right, page });
-                }
-                else {
-                    dispatch({
-                        type: "FETCH_ERROR",
-                        key,
-                        error: "status" in res.left
-                            ? res.left
-                            : { status: 0, message: res.left.message },
-                    });
-                }
-            });
+            const effect = fetchResource(key, msg.page, limit, m.env, dispatch);
             return {
-                model: {
-                    ...m,
-                    [key]: { ...m[key], loading: true },
-                },
-                effects: [io],
+                model: { ...m, [key]: { ...m[key], loading: true } },
+                effects: [effect],
             };
         }
         case "FETCH_SUCCESS": {
@@ -66,7 +54,7 @@ export const update = (msg, m, dispatch) => {
                     ...m,
                     [key]: {
                         ...m[key],
-                        data: [...msg.data],
+                        data: msg.data,
                         loading: false,
                         page: msg.page || 1,
                     },
@@ -75,19 +63,33 @@ export const update = (msg, m, dispatch) => {
             };
         }
         case "FETCH_ERROR": {
-            const logs = m.logs.chain(() => Writer(() => ["", [`Error fetching ${msg.key}: ${msg.error}`]]));
+            const key = msg.key;
+            const logs = m.logs.chain(() => Writer(() => [
+                "",
+                [
+                    `Error fetching ${key}: ${typeof msg.error === "string"
+                        ? msg.error
+                        : JSON.stringify(msg.error)}`,
+                ],
+            ]));
             return {
                 model: {
                     ...m,
-                    [msg.key]: { ...m[msg.key], loading: false, error: msg.error },
+                    [key]: { ...m[key], loading: false, error: msg.error },
                     logs,
                 },
             };
         }
+        // SSR-safe theme toggle: no direct DOM mutation
         case "TOGGLE_THEME": {
             const next = m.theme === "light" ? "dark" : "light";
-            document.documentElement.classList.toggle("dark", next === "dark");
-            return { model: { ...m, theme: next } };
+            const effect = IO(() => {
+                // Server-safe: check existence
+                if (typeof document !== "undefined") {
+                    document.documentElement.classList.toggle("dark", next === "dark");
+                }
+            });
+            return { model: { ...m, theme: next }, effects: [effect] };
         }
         default:
             return { model: m };

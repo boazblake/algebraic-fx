@@ -3,16 +3,16 @@ export type HttpEnv = {
     fetch: typeof fetch;
     baseUrl?: string;
 };
-export type HttpError = {
+/** Default error shape for network errors */
+export type DefaultHttpError = {
     status: number;
-    message: string;
-} | {
     message: string;
 };
 /**
- * HTTP Reader–Task abstraction using Either for errors.
+ * Generic Reader–Task constructor for HTTP.
+ * You can parameterize both the success (`A`) and error (`E`) types.
  */
-export declare const httpTask: <A>(path: string, options?: RequestInit) => Reader<HttpEnv, Task<HttpError, A>>;
+export declare const httpTask: <E = DefaultHttpError, A = unknown>(path: string, options?: RequestInit, handleError?: (e: unknown) => E) => Reader<HttpEnv, Task<E, A>>;
 /**
  * Example:
  *
