@@ -3,7 +3,7 @@ import { ResourcePanel } from "./ResourcePanel";
 import type { Model, Msg } from "../model/types";
 
 export const Layout = (m: Model, dispatch: (msg: Msg) => void) =>
-  section({ className: "p-6 space-y-6" }, [
+     section({ className: "p-6 space-y-6" }, [
     div({ className: "flex justify-between items-center" }, [
       h1({ className: "text-3xl font-bold" }, "Effects-Lab Dashboard"),
       button(

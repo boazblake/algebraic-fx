@@ -9,9 +9,9 @@ export const httpTask = (path, options, handleError) => Reader((env) => Task(asy
         if (!res.ok) {
             // server error → Left<E>
             const message = res.statusText || "HTTP error";
-            const err = (handleError
+            const err = handleError
                 ? handleError({ status: res.status, message })
-                : { status: res.status, message });
+                : { status: res.status, message };
             return Either.Left(err);
         }
         // success → Right<A>

@@ -20,11 +20,11 @@ export type EffectLike = {
 };
 
 export type Program<M, Msg> = {
-  init: { run: () => { model: M; effects?: EffectLike[] } };
+  init: { run: () => { model: M; effects: EffectLike[] } };
   update: (
     msg: Msg,
     model: M,
     dispatch: Dispatch
-  ) => { model: M; effects?: EffectLike[] };
+  ) => { model: M; effects: EffectLike[] };
   view: (model: M, dispatch: Dispatch) => any;
 };

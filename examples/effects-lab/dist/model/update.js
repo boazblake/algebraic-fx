@@ -28,7 +28,7 @@ const fetchResource = (key, page, limit, env, dispatch) => {
 export const update = (msg, m, dispatch) => {
     switch (msg.type) {
         case "SET_ACTIVE":
-            return { model: { ...m, active: msg.key } };
+            return { model: { ...m, active: msg.key }, effects: [] };
         case "FETCH_RESOURCE": {
             const key = msg.key;
             const { limit } = m[key];
@@ -61,6 +61,7 @@ export const update = (msg, m, dispatch) => {
                     },
                     logs,
                 },
+                effects: []
             };
         }
         case "FETCH_ERROR": {
@@ -79,6 +80,7 @@ export const update = (msg, m, dispatch) => {
                     [key]: { ...m[key], loading: false, error: msg.error },
                     logs,
                 },
+                effects: []
             };
         }
         case "TOGGLE_THEME": {
@@ -87,6 +89,6 @@ export const update = (msg, m, dispatch) => {
             return { model: { ...m, theme: next }, effects: [effect] };
         }
         default:
-            return { model: m };
+            return { model: m, effects: [] };
     }
 };

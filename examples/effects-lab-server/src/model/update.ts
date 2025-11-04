@@ -6,7 +6,7 @@ import {
   IO,
 } from "../../node_modules/effects-vdom/dist/adt/index.js";
 import { httpTask } from "../../node_modules/effects-vdom/dist/core/index.js";
-import type { Model, Msg, Env,EnvResources } from "./types.js";
+import type { Model, Msg, Env, EnvResources } from "./types.js";
 
 /** IO-based fetch that runs safely on server or client */
 const fetchResource = <A>(

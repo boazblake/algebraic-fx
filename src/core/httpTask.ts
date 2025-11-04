@@ -5,7 +5,6 @@ export type HttpEnv = {
   baseUrl?: string;
 };
 
-
 /** Default error shape for network errors */
 export type DefaultHttpError = {
   status: number;
@@ -29,9 +28,9 @@ export const httpTask = <E = DefaultHttpError, A = unknown>(
         if (!res.ok) {
           // server error → Left<E>
           const message = res.statusText || "HTTP error";
-          const err = (handleError
+          const err = handleError
             ? handleError({ status: res.status, message })
-            : ({ status: res.status, message } as E));
+            : ({ status: res.status, message } as E);
           return Either.Left<E>(err);
         }
 

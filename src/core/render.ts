@@ -16,12 +16,15 @@ export const renderApp =
         let queued = false;
 
         const runEffects = (fx?: EffectLike[]) => fx?.forEach((e) => e.run());
+        const run = (m: M, effects: EffectLike[]) => {
+          renderer(root, program.view(m, dispatch));
+          runEffects(effects);
+        };
 
         const step = (msg: Msg) => {
           const { model: next, effects } = program.update(msg, model, dispatch);
           model = next;
-          renderer(root, program.view(model, dispatch));
-          runEffects(effects);
+          run(model, effects);
         };
 
         const dispatch = (msg: Msg) => {
@@ -39,8 +42,7 @@ export const renderApp =
         const start = () => {
           const { model: m0, effects } = program.init.run();
           model = m0;
-          renderer(root, program.view(model, dispatch));
-          runEffects(effects);
+          run(model, effects);
         };
 
         return IO(() => {

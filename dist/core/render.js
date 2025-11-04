@@ -5,11 +5,14 @@ export const renderApp = (renderer) => (rootIO, program) => rootIO
     const queue = [];
     let queued = false;
     const runEffects = (fx) => fx?.forEach((e) => e.run());
+    const run = (model, effects) => {
+        renderer(root, program.view(model, dispatch));
+        runEffects(effects);
+    };
     const step = (msg) => {
         const { model: next, effects } = program.update(msg, model, dispatch);
         model = next;
-        renderer(root, program.view(model, dispatch));
-        runEffects(effects);
+        return run(model, effects);
     };
     const dispatch = (msg) => {
         queue.push(msg);
@@ -25,9 +28,8 @@ export const renderApp = (renderer) => (rootIO, program) => rootIO
     };
     const start = () => {
         const { model: m0, effects } = program.init.run();
-        model = m0;
-        renderer(root, program.view(model, dispatch));
-        runEffects(effects);
+        const model = m0;
+        return run(model, effects);
     };
     return IO(() => {
         start();
