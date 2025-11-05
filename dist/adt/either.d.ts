@@ -35,7 +35,7 @@ export declare const isLeft: <L, A>(e: Either<L, A>) => e is Left<L>;
 /** Check if Either is Right */
 export declare const isRight: <L, A>(e: Either<L, A>) => e is Right<A>;
 /** Convert nullable to Either */
-export declare const fromNullable: <L>(onNull: L) => <A>(a: A | null | undefined) => Either<L, A>;
+export declare const fromNullable: <L>(onNull: L) => <A>(a: A | null | undefined) => Either<L, NonNullable<A>>;
 /** Try-catch wrapper */
 export declare const tryCatch: <A>(f: () => A) => Either<unknown, A>;
 /** Try-catch with error mapper */
@@ -64,7 +64,7 @@ export declare const Either: {
     alt: <L, A>(e1: Either<L, A>, e2: Either<L, A>) => Either<L, A>;
     isLeft: <L, A>(e: Either<L, A>) => e is Left<L>;
     isRight: <L, A>(e: Either<L, A>) => e is Right<A>;
-    fromNullable: <L>(onNull: L) => <A>(a: A | null | undefined) => Either<L, A>;
+    fromNullable: <L>(onNull: L) => <A>(a: A | null | undefined) => Either<L, NonNullable<A>>;
     tryCatch: <A>(f: () => A) => Either<unknown, A>;
     tryCatchK: <E, A>(f: () => A, onError: (e: unknown) => E) => Either<E, A>;
     swap: <L, A>(e: Either<L, A>) => Either<A, L>;

@@ -1,4 +1,5 @@
 import type { Model, Msg } from "./types";
+import { IO } from "effects-vdom";
 
 export const update = (msg: Msg, m: Model) => {
   switch (msg.type) {
@@ -10,8 +11,10 @@ export const update = (msg: Msg, m: Model) => {
 
     case "TOGGLE_THEME": {
       const next = m.theme === "light" ? "dark" : "light";
-      document.documentElement.classList.toggle("dark", next === "dark");
-      return { model: { ...m, theme: next } };
+      const effect = IO(() =>
+        document.documentElement.classList.toggle("dark", next === "dark")
+      );
+      return { model: { ...m, theme: next }, effects: [effect] };
     }
 
     case "RESIZE":

@@ -29,17 +29,17 @@ const hydrateModel = IO(() => {
   return { ...raw, env, logs } as Model;
 });
 
+const model = hydrateModel.run();
+const init = IO(() => {
+  return { model, effects: [] };
+});
+
 const rootIO = IO(() => document.getElementById("app")!);
 
 // pass the IO into renderApp
 export const app = renderApp(renderer)(rootIO, {
   ...program,
-  init: {
-    run: () => {
-      const model = hydrateModel.run();
-      return { model, effects: [] };
-    },
-  },
+  init,
 });
 
 const resizeEffect = registerGlobalIO(app.run().dispatch);

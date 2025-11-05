@@ -13,15 +13,16 @@ export const update = (msg, model) => {
                     ],
                     input: "",
                 },
-                effects: []
+                effects: [],
             };
         case "TOGGLE":
+            console.log(model.todos, msg);
             return {
                 model: {
                     ...model,
                     todos: model.todos.map((t) => t.id === msg.id ? { ...t, done: !t.done } : t),
                 },
-                effects: []
+                effects: [],
             };
         default:
             return { model, effects: [] };

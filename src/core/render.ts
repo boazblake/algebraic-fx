@@ -15,8 +15,16 @@ export const renderApp =
         const queue: Msg[] = [];
         let queued = false;
 
-        const runEffects = (fx?: EffectLike[]) => fx?.forEach((e) => e.run());
-        const run = (m: M, effects: EffectLike[]) => {
+        //This is needs more work as currently it will only run ADTs with a run method that requires no args
+        const runEffects = (fx?: EffectLike[]) => {
+          return fx?.forEach((e) => {
+            if (e.run && typeof e.run === "function") {
+              e.run();
+            }
+          });
+        };
+
+        const renderAndRunEffects = (m: M, effects: EffectLike[]) => {
           renderer(root, program.view(m, dispatch));
           runEffects(effects);
         };
@@ -24,7 +32,7 @@ export const renderApp =
         const step = (msg: Msg) => {
           const { model: next, effects } = program.update(msg, model, dispatch);
           model = next;
-          run(model, effects);
+          renderAndRunEffects(model, effects || []);
         };
 
         const dispatch = (msg: Msg) => {
@@ -42,7 +50,7 @@ export const renderApp =
         const start = () => {
           const { model: m0, effects } = program.init.run();
           model = m0;
-          run(model, effects);
+          renderAndRunEffects(model, effects || []);
         };
 
         return IO(() => {

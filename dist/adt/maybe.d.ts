@@ -26,7 +26,7 @@ export declare const getOrElseW: <A, B>(onNothing: () => B, ma: Maybe<A>) => A |
 /** Alternative - returns first Just */
 export declare const alt: <A>(ma1: Maybe<A>, ma2: Maybe<A>) => Maybe<A>;
 /** Convert nullable to Maybe */
-export declare const fromNullable: <A>(a: A | null | undefined) => Maybe<A>;
+export declare const fromNullable: <A>(a: A | null | undefined) => Maybe<NonNullable<A>>;
 /** Convert Maybe to nullable */
 export declare const toNullable: <A>(ma: Maybe<A>) => A | null;
 /** Convert Maybe to undefined */
@@ -53,7 +53,7 @@ export declare const Maybe: {
     getOrElse: <A>(defaultValue: A, ma: Maybe<A>) => A;
     getOrElseW: <A, B>(onNothing: () => B, ma: Maybe<A>) => A | B;
     alt: <A>(ma1: Maybe<A>, ma2: Maybe<A>) => Maybe<A>;
-    fromNullable: <A>(a: A | null | undefined) => Maybe<A>;
+    fromNullable: <A>(a: A | null | undefined) => Maybe<NonNullable<A>>;
     toNullable: <A>(ma: Maybe<A>) => A | null;
     toUndefined: <A>(ma: Maybe<A>) => A | undefined;
     isJust: <A>(ma: Maybe<A>) => ma is Just<A>;

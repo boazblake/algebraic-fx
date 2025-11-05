@@ -18,7 +18,7 @@ export const getOrElseW = (onNothing, ma) => ma._tag === "Just" ? ma.value : onN
 /** Alternative - returns first Just */
 export const alt = (ma1, ma2) => ma1._tag === "Just" ? ma1 : ma2;
 /** Convert nullable to Maybe */
-export const fromNullable = (a) => a == null ? Nothing : Just(a);
+export const fromNullable = (a) => (a === null ? Nothing : Just(a));
 /** Convert Maybe to nullable */
 export const toNullable = (ma) => ma._tag === "Just" ? ma.value : null;
 /** Convert Maybe to undefined */

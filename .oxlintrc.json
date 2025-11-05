@@ -1,5 +1,7 @@
 {
-  "extends": ["recommended"],
+  "extends": [
+    "recommended"
+  ],
   "env": {
     "browser": true,
     "node": true,
@@ -7,11 +9,24 @@
   },
   "rules": {
     "no-console": "off",
-    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-    "eqeqeq": ["error", "always"],
-    "curly": ["error", "all"],
-    "semi": ["error", "always"],
-    "quotes": ["error", "double"],
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ],
+    "eqeqeq": [
+      "error",
+      "always"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "quotes": [
+      "error",
+      "double"
+    ],
     "prefer-const": "error",
     "no-var": "error"
   },

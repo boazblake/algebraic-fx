@@ -1,4 +1,11 @@
-import { Reader, IO, Writer, httpTask, Either } from "effects-vdom";
+import {
+  IO,
+  Writer,
+  httpTask,
+  Either,
+  type Dispatch,
+  type EffectLike,
+} from "effects-vdom";
 import type { Model, Msg, Env, EnvResources } from "./types";
 
 /** Create an IO that fetches a resource and dispatches results */
@@ -7,35 +14,30 @@ const fetchResource = <A>(
   page: number,
   limit: number,
   env: Env,
-  dispatch: (msg: Msg) => void
-): IO<Promise<void>> => {
-  const task = httpTask<{ status: number; message: string }, A[]>(
-    `/${key}?_page=${page}&_limit=${limit}`
-  ).run(env);
+  dispatch: Dispatch
+): EffectLike =>
+  IO(() => {
+    void (async () => {
+      const task = httpTask<{ status: number; message: string }, A[]>(
+        `/${key}?_page=${page}&_limit=${limit}`
+      ).run(env);
 
-  // Wrap the Task inside an IO
-  return IO(async () => {
-    const either = await task.run();
-    if (Either.isRight(either)) {
-      dispatch({
-        type: "FETCH_SUCCESS",
-        key,
-        data: either.right,
-        page,
-      });
-    } else {
-      const err = either.left;
-      dispatch({
-        type: "FETCH_ERROR",
-        key,
-        error:
-          typeof err === "string"
-            ? { status: 0, message: err }
-            : err || { status: 0, message: "Unknown error" },
-      });
-    }
+      const either = await task.run();
+      if (Either.isRight(either)) {
+        dispatch({ type: "FETCH_SUCCESS", key, data: either.right, page });
+      } else {
+        const err = either.left;
+        dispatch({
+          type: "FETCH_ERROR",
+          key,
+          error:
+            typeof err === "string"
+              ? { status: 0, message: err }
+              : err || { status: 0, message: "Unknown error" },
+        });
+      }
+    })();
   });
-};
 
 export const update = (msg: Msg, m: Model, dispatch: (msg: Msg) => void) => {
   switch (msg.type) {
@@ -112,9 +114,9 @@ export const update = (msg: Msg, m: Model, dispatch: (msg: Msg) => void) => {
 
     case "TOGGLE_THEME": {
       const next: "light" | "dark" = m.theme === "light" ? "dark" : "light";
-      const effect = IO(() =>
-        document.documentElement.classList.toggle("dark", next === "dark")
-      );
+      const effect = IO(() => {
+        document.documentElement.classList.toggle("dark", next === "dark");
+      });
 
       return { model: { ...m, theme: next }, effects: [effect] };
     }

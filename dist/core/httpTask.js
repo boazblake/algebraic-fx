@@ -1,4 +1,8 @@
-import { Reader, Task, Either } from "../adt/index.js";
+import { Reader, Task, Either, IO } from "../adt/index.js";
+export const runTaskAsIO = (task, f) => IO(async () => {
+    const either = await task.run();
+    f(either);
+});
 export const httpTask = (path, options, handleError) => Reader((env) => Task(async () => {
     try {
         const res = await env.fetch(`${env.baseUrl ?? ""}${path}`, options);

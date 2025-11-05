@@ -1,6 +1,6 @@
 import { div, h1, button, p, ul, li, section, span } from "../renderer";
 const ResourceList = (key, res, dispatch) => {
-    const { data, page, limit, loading, error } = res;
+    const { page } = res;
     const nextPage = page + 1;
     const prevPage = page - 1;
     const hasData = res.data.length || res.loading || res.error;
@@ -16,13 +16,13 @@ const ResourceList = (key, res, dispatch) => {
                     id: `${key}-prev-${prevPage}`,
                     className: "px-3 py-1 bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed",
                     disabled: res.page === 1 || res.loading,
-                    onclick: () => dispatch({ type: "FETCH_PAGE", key, page: res.page - 1 }),
+                    onclick: () => dispatch({ type: "FETCH_PAGE", key, page: prevPage }),
                 }, "Prev"),
                 span({ className: "text-sm" }, `Page ${res.page}`),
                 button({
                     id: `${key}-next-${nextPage}`,
                     className: "px-3 py-1 bg-gray-200 rounded",
-                    onclick: () => dispatch({ type: "FETCH_PAGE", key, page: res.page + 1 }),
+                    onclick: () => dispatch({ type: "FETCH_PAGE", key, page: nextPage }),
                 }, "Next"),
             ]),
         res.error && p({ className: "text-red-600" }, `Error: ${res.error}`),

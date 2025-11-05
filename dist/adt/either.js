@@ -35,7 +35,7 @@ export const isLeft = (e) => e._tag === "Left";
 /** Check if Either is Right */
 export const isRight = (e) => e._tag === "Right";
 /** Convert nullable to Either */
-export const fromNullable = (onNull) => (a) => a == null ? Left(onNull) : Right(a);
+export const fromNullable = (onNull) => (a) => a === null ? Left(onNull) : Right(a);
 /** Try-catch wrapper */
 export const tryCatch = (f) => {
     try {

@@ -1,33 +1,30 @@
 import { Either, Writer, IO, } from "../../node_modules/effects-vdom/dist/adt/index.js";
-import { httpTask } from "../../node_modules/effects-vdom/dist/core/index.js";
+import { httpTask, } from "../../node_modules/effects-vdom/dist/core/index.js";
 /** IO-based fetch that runs safely on server or client */
-const fetchResource = (key, page, limit, env, dispatch) => IO(async () => {
-    const task = httpTask(`/${key}?_page=${page}&_limit=${limit}`).run(env);
-    const either = await task.run();
-    if (Either.isRight(either)) {
-        dispatch({
-            type: "FETCH_SUCCESS",
-            key,
-            data: either.right,
-            page,
-        });
-    }
-    else {
-        const err = either.left;
-        dispatch({
-            type: "FETCH_ERROR",
-            key,
-            error: typeof err === "string"
-                ? { status: 0, message: err }
-                : err || { status: 0, message: "Unknown error" },
-        });
-    }
+const fetchResource = (key, page, limit, env, dispatch) => IO(() => {
+    void (async () => {
+        const task = httpTask(`/${key}?_page=${page}&_limit=${limit}`).run(env);
+        const either = await task.run();
+        if (Either.isRight(either)) {
+            dispatch({ type: "FETCH_SUCCESS", key, data: either.right, page });
+        }
+        else {
+            const err = either.left;
+            dispatch({
+                type: "FETCH_ERROR",
+                key,
+                error: typeof err === "string"
+                    ? { status: 0, message: err }
+                    : err || { status: 0, message: "Unknown error" },
+            });
+        }
+    })();
 });
 /** Server-compatible update — no direct DOM access */
 export const update = (msg, m, dispatch) => {
     switch (msg.type) {
         case "SET_ACTIVE":
-            return { model: { ...m, active: msg.key } };
+            return { model: { ...m, active: msg.key }, effects: [] };
         case "FETCH_RESOURCE": {
             const key = msg.key;
             const { limit } = m[key];
@@ -60,6 +57,7 @@ export const update = (msg, m, dispatch) => {
                     },
                     logs,
                 },
+                effects: [],
             };
         }
         case "FETCH_ERROR": {
@@ -78,6 +76,7 @@ export const update = (msg, m, dispatch) => {
                     [key]: { ...m[key], loading: false, error: msg.error },
                     logs,
                 },
+                effects: [],
             };
         }
         // SSR-safe theme toggle: no direct DOM mutation
@@ -92,6 +91,6 @@ export const update = (msg, m, dispatch) => {
             return { model: { ...m, theme: next }, effects: [effect] };
         }
         default:
-            return { model: m };
+            return { model: m, effects: [] };
     }
 };

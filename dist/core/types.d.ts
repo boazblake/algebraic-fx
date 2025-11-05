@@ -1,3 +1,4 @@
+import { IO } from "../adt/io";
 export type VChild = VNode | string | number | boolean | null | undefined;
 export type Props = Record<string, any> & {
     oncreate?: (el: Element) => void;
@@ -11,17 +12,13 @@ export type VNode = {
     key?: string | number;
 };
 export type Dispatch = (msg: any) => void;
-export type EffectLike = {
-    run: () => any;
-    cancel?: () => void;
-};
+export interface EffectLike extends IO<void> {
+}
 export type Program<M, Msg> = {
-    init: {
-        run: () => {
-            model: M;
-            effects: EffectLike[];
-        };
-    };
+    init: IO<{
+        model: M;
+        effects: EffectLike[];
+    }>;
     update: (msg: Msg, model: M, dispatch: Dispatch) => {
         model: M;
         effects: EffectLike[];

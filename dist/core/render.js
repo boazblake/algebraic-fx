@@ -4,15 +4,22 @@ export const renderApp = (renderer) => (rootIO, program) => rootIO
     let model;
     const queue = [];
     let queued = false;
-    const runEffects = (fx) => fx?.forEach((e) => e.run());
-    const run = (m, effects) => {
+    //This is needs more work as currently it will only run ADTs with a run method that requires no args
+    const runEffects = (fx) => {
+        return fx?.forEach((e) => {
+            if (e.run && typeof e.run === "function") {
+                e.run();
+            }
+        });
+    };
+    const renderAndRunEffects = (m, effects) => {
         renderer(root, program.view(m, dispatch));
         runEffects(effects);
     };
     const step = (msg) => {
         const { model: next, effects } = program.update(msg, model, dispatch);
         model = next;
-        run(model, effects);
+        renderAndRunEffects(model, effects || []);
     };
     const dispatch = (msg) => {
         queue.push(msg);
@@ -29,7 +36,7 @@ export const renderApp = (renderer) => (rootIO, program) => rootIO
     const start = () => {
         const { model: m0, effects } = program.init.run();
         model = m0;
-        run(model, effects);
+        renderAndRunEffects(model, effects || []);
     };
     return IO(() => {
         start();

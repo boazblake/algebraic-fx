@@ -1,17 +1,11 @@
-import { IO, Writer, httpTask, Either } from "effects-vdom";
+import { IO, Writer, httpTask, Either, } from "effects-vdom";
 /** Create an IO that fetches a resource and dispatches results */
-const fetchResource = (key, page, limit, env, dispatch) => {
-    const task = httpTask(`/${key}?_page=${page}&_limit=${limit}`).run(env);
-    // Wrap the Task inside an IO
-    return IO(async () => {
+const fetchResource = (key, page, limit, env, dispatch) => IO(() => {
+    void (async () => {
+        const task = httpTask(`/${key}?_page=${page}&_limit=${limit}`).run(env);
         const either = await task.run();
         if (Either.isRight(either)) {
-            dispatch({
-                type: "FETCH_SUCCESS",
-                key,
-                data: either.right,
-                page,
-            });
+            dispatch({ type: "FETCH_SUCCESS", key, data: either.right, page });
         }
         else {
             const err = either.left;
@@ -23,8 +17,8 @@ const fetchResource = (key, page, limit, env, dispatch) => {
                     : err || { status: 0, message: "Unknown error" },
             });
         }
-    });
-};
+    })();
+});
 export const update = (msg, m, dispatch) => {
     switch (msg.type) {
         case "SET_ACTIVE":
@@ -85,7 +79,9 @@ export const update = (msg, m, dispatch) => {
         }
         case "TOGGLE_THEME": {
             const next = m.theme === "light" ? "dark" : "light";
-            const effect = IO(() => document.documentElement.classList.toggle("dark", next === "dark"));
+            const effect = IO(() => {
+                document.documentElement.classList.toggle("dark", next === "dark");
+            });
             return { model: { ...m, theme: next }, effects: [effect] };
         }
         default:

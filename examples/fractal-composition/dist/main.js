@@ -1,7 +1,7 @@
 import { renderApp, browserEnv, runDomIO, IO } from "effects-vdom";
-import { renderer } from "./renderer";
+import { renderer } from "./utils/renderer";
 import { program } from "./program";
-import { registerGlobalIO } from "./globalIO";
+import { registerGlobalIO } from "./utils/globalIO";
 const root = IO(() => document.getElementById("app"));
 const app = renderApp(renderer)(root, program);
 const main = app.chain((app) => IO(() => {

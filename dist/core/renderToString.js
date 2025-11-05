@@ -21,7 +21,7 @@ const VOID = new Set([
     "wbr",
 ]);
 export const renderToString = (node) => {
-    if (node == null || node === false || node === true)
+    if (node === null || node === false || node === true)
         return "";
     if (typeof node === "string" || typeof node === "number")
         return String(node);
@@ -31,7 +31,7 @@ export const renderToString = (node) => {
         return "";
     const { tag, props = {}, children = [] } = node;
     const attrs = Object.entries(props)
-        .filter(([, v]) => v != null && v !== false && typeof v !== "function")
+        .filter(([, v]) => v !== null && v !== false && typeof v !== "function")
         .map(([k, v]) => (v === true ? k : `${k}="${escapeHtml(String(v))}"`))
         .join(" ");
     const open = attrs ? `<${tag} ${attrs}>` : `<${tag}>`;

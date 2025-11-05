@@ -701,15 +701,24 @@ IO.tryCatch = (f, onError) => IO(() => {
 
 // ../../dist/core/render.js
 var renderApp = (renderer2) => (rootIO2, program2) => rootIO2.map((root) => {
-  let model;
+  let model2;
   const queue = [];
   let queued = false;
-  const runEffects = (fx) => fx?.forEach((e) => e.run());
-  const step = (msg) => {
-    const { model: next, effects } = program2.update(msg, model, dispatch);
-    model = next;
-    renderer2(root, program2.view(model, dispatch));
+  const runEffects = (fx) => {
+    return fx?.forEach((e) => {
+      if (e.run && typeof e.run === "function") {
+        e.run();
+      }
+    });
+  };
+  const renderAndRunEffects = (m, effects) => {
+    renderer2(root, program2.view(m, dispatch));
     runEffects(effects);
+  };
+  const step = (msg) => {
+    const { model: next, effects } = program2.update(msg, model2, dispatch);
+    model2 = next;
+    renderAndRunEffects(model2, effects || []);
   };
   const dispatch = (msg) => {
     queue.push(msg);
@@ -725,9 +734,8 @@ var renderApp = (renderer2) => (rootIO2, program2) => rootIO2.map((root) => {
   };
   const start = () => {
     const { model: m0, effects } = program2.init.run();
-    model = m0;
-    renderer2(root, program2.view(model, dispatch));
-    runEffects(effects);
+    model2 = m0;
+    renderAndRunEffects(model2, effects || []);
   };
   return IO(() => {
     start();
@@ -805,7 +813,7 @@ var getOrElseW = (onLeft, e) => e._tag === "Right" ? e.right : onLeft(e.left);
 var alt = (e1, e2) => e1._tag === "Right" ? e1 : e2;
 var isLeft = (e) => e._tag === "Left";
 var isRight = (e) => e._tag === "Right";
-var fromNullable = (onNull) => (a) => a == null ? Left(onNull) : Right(a);
+var fromNullable = (onNull) => (a) => a === null ? Left(onNull) : Right(a);
 var tryCatch = (f) => {
   try {
     return Right(f());
@@ -1327,7 +1335,7 @@ var init = IO(() => {
     baseUrl: "https://jsonplaceholder.typicode.com"
   };
   const empty = { data: [], loading: false, page: 1, limit: 10 };
-  const model = {
+  const model2 = {
     theme: "light",
     env,
     active: "posts",
@@ -1339,35 +1347,32 @@ var init = IO(() => {
     photos: empty,
     todos: empty
   };
-  return { model, effects: [] };
+  return { model: model2, effects: [] };
 });
 
 // src/model/update.ts
-var fetchResource = (key, page, limit, env, dispatch) => IO(async () => {
-  const task = httpTask(
-    `/${key}?_page=${page}&_limit=${limit}`
-  ).run(env);
-  const either = await task.run();
-  if (Either.isRight(either)) {
-    dispatch({
-      type: "FETCH_SUCCESS",
-      key,
-      data: either.right,
-      page
-    });
-  } else {
-    const err = either.left;
-    dispatch({
-      type: "FETCH_ERROR",
-      key,
-      error: typeof err === "string" ? { status: 0, message: err } : err || { status: 0, message: "Unknown error" }
-    });
-  }
+var fetchResource = (key, page, limit, env, dispatch) => IO(() => {
+  void (async () => {
+    const task = httpTask(
+      `/${key}?_page=${page}&_limit=${limit}`
+    ).run(env);
+    const either = await task.run();
+    if (Either.isRight(either)) {
+      dispatch({ type: "FETCH_SUCCESS", key, data: either.right, page });
+    } else {
+      const err = either.left;
+      dispatch({
+        type: "FETCH_ERROR",
+        key,
+        error: typeof err === "string" ? { status: 0, message: err } : err || { status: 0, message: "Unknown error" }
+      });
+    }
+  })();
 });
 var update = (msg, m, dispatch) => {
   switch (msg.type) {
     case "SET_ACTIVE":
-      return { model: { ...m, active: msg.key } };
+      return { model: { ...m, active: msg.key }, effects: [] };
     case "FETCH_RESOURCE": {
       const key = msg.key;
       const { limit } = m[key];
@@ -1401,7 +1406,8 @@ var update = (msg, m, dispatch) => {
             page: msg.page || 1
           },
           logs
-        }
+        },
+        effects: []
       };
     }
     case "FETCH_ERROR": {
@@ -1419,7 +1425,8 @@ var update = (msg, m, dispatch) => {
           ...m,
           [key]: { ...m[key], loading: false, error: msg.error },
           logs
-        }
+        },
+        effects: []
       };
     }
     case "TOGGLE_THEME": {
@@ -1432,53 +1439,58 @@ var update = (msg, m, dispatch) => {
       return { model: { ...m, theme: next }, effects: [effect] };
     }
     default:
-      return { model: m };
+      return { model: m, effects: [] };
   }
 };
 
 // src/shared/views/ResourcePanel.ts
 var ResourceList = (key, res, dispatch) => {
-  const { data, page, limit, loading, error } = res;
+  const { page } = res;
   const nextPage = page + 1;
   const prevPage = page - 1;
   const hasData = res.data.length || res.loading || res.error;
-  return section({ className: "p-4 border rounded" }, [
-    h1({ className: "text-lg font-bold mb-2 capitalize" }, key),
-    button(
-      {
-        className: "bg-blue-600 text-white px-3 py-1 rounded mb-3",
-        onclick: () => dispatch({ type: "FETCH_RESOURCE", key })
-      },
-      res.loading ? "Loading..." : "Fetch"
-    ),
-    hasData && div({ className: "flex items-center gap-3 mt-3" }, [
+  return section(
+    {
+      className: "p-4 border rounded"
+    },
+    [
+      h1({ className: "text-lg font-bold mb-2 capitalize" }, key),
       button(
         {
-          id: `${String(key)}-prev-${prevPage}`,
-          className: "px-3 py-1 bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed",
-          disabled: res.page === 1 || res.loading,
-          onclick: () => dispatch({ type: "FETCH_PAGE", key, page: res.page - 1 })
+          className: "bg-blue-600 text-white px-3 py-1 rounded mb-3",
+          onclick: () => dispatch({ type: "FETCH_RESOURCE", key })
         },
-        "Prev"
+        res.loading ? "Loading..." : "Fetch"
       ),
-      span({ className: "text-sm" }, `Page ${res.page}`),
-      button(
-        {
-          id: `${String(key)}-next-${nextPage}`,
-          className: "px-3 py-1 bg-gray-200 rounded",
-          onclick: () => dispatch({ type: "FETCH_PAGE", key, page: res.page + 1 })
-        },
-        "Next"
+      hasData && div({ className: "flex items-center gap-3 mt-3" }, [
+        button(
+          {
+            id: `${String(key)}-prev-${prevPage}`,
+            className: "px-3 py-1 bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed",
+            disabled: res.page === 1 || res.loading,
+            onclick: () => dispatch({ type: "FETCH_PAGE", key, page: prevPage })
+          },
+          "Prev"
+        ),
+        span({ className: "text-sm" }, `Page ${res.page}`),
+        button(
+          {
+            id: `${String(key)}-next-${nextPage}`,
+            className: "px-3 py-1 bg-gray-200 rounded",
+            onclick: () => dispatch({ type: "FETCH_PAGE", key, page: nextPage })
+          },
+          "Next"
+        )
+      ]),
+      res.error && p({ className: "text-red-600" }, `Error: ${JSON.stringify(res.error)}`),
+      ul(
+        { className: "text-sm space-y-1  max-h-[400px] overflow-auto" },
+        res.data.map(
+          (item) => li({ className: "border-b pb-1" }, JSON.stringify(item))
+        )
       )
-    ]),
-    res.error && p({ className: "text-red-600" }, `Error: ${JSON.stringify(res.error)}`),
-    ul(
-      { className: "text-sm space-y-1" },
-      res.data.map(
-        (item) => li({ className: "border-b pb-1" }, JSON.stringify(item))
-      )
-    )
-  ]);
+    ]
+  );
 };
 var ResourcePanel = (m, dispatch) => div({ className: "grid grid-cols-2 gap-4" }, [
   ResourceList("posts", m.posts, dispatch),
@@ -1540,15 +1552,14 @@ var hydrateModel = IO(() => {
   const env = hydrateEnv.run();
   return { ...raw, env, logs };
 });
+var model = hydrateModel.run();
+var init2 = IO(() => {
+  return { model, effects: [] };
+});
 var rootIO = IO(() => document.getElementById("app"));
 var app = renderApp(renderer)(rootIO, {
   ...program,
-  init: {
-    run: () => {
-      const model = hydrateModel.run();
-      return { model, effects: [] };
-    }
-  }
+  init: init2
 });
 var resizeEffect = registerGlobalIO(app.run().dispatch);
 runDomIO(resizeEffect, browserEnv());

@@ -78,8 +78,8 @@ export const isRight = <L, A>(e: Either<L, A>): e is Right<A> =>
 /** Convert nullable to Either */
 export const fromNullable =
   <L>(onNull: L) =>
-  <A>(a: A | null | undefined): Either<L, A> =>
-    a == null ? Left(onNull) : Right(a);
+  <A>(a: A | null | undefined): Either<L, NonNullable<A>> =>
+    a === null ? Left(onNull) : Right(a as NonNullable<A>);
 
 /** Try-catch wrapper */
 export const tryCatch = <A>(f: () => A): Either<unknown, A> => {

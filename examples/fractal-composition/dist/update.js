@@ -1,39 +1,64 @@
-import { Task, IO, Either } from "effects-vdom";
+import { IO } from "effects-vdom";
 import { program as CounterApp } from "./apps/counter/program";
 import { program as TodoApp } from "./apps/todo/program";
 import { program as WeatherApp } from "./apps/weather/program";
+/** Helper: safely merge sub-effects, lifting dispatch */
+const mapEffects = (effects = []) => effects.map((fx) => IO(() => {
+    if (fx?.run)
+        fx.run();
+}));
+/** Helper: lift child app updates to parent program */
+const liftUpdate = (childUpdate, key, wrap) => {
+    return (msg, m, dispatch) => {
+        const { model, effects } = childUpdate(msg.msg, m[key], (sub) => dispatch(wrap(sub)));
+        return {
+            model: { ...m, [key]: model },
+            effects: mapEffects(effects),
+        };
+    };
+};
+/** Main fractal update */
 export const update = (msg, m, dispatch) => {
     switch (msg.type) {
         case "REFRESH_ALL": {
-            // collect weather + todos (pretend each returns a Task)
-            const weatherTask = Task(async () => {
-                const res = await WeatherApp.update({ type: "FETCH" }, m.weather, () => { }).effects?.[0]?.run?.();
-                return res || Either.Right("weather ok");
-            });
-            const todosTask = Task(async () => Either.Right("todos ok"));
-            const combined = Task.sequence([weatherTask, todosTask]);
-            const io = IO(async () => {
-                const results = await combined.run();
-                dispatch({ type: "ALL_FETCHED", results });
-            });
-            return { model: m, effects: [io] };
+            const weatherFetch = WeatherApp.update({ type: "FETCH" }, m.weather, dispatch);
+            const todosFetch = TodoApp.update({ type: "FETCH_ALL" }, m.todo, dispatch);
+            return {
+                model: {
+                    ...m,
+                    weather: weatherFetch.model,
+                    todo: todosFetch.model,
+                },
+                effects: [
+                    ...(weatherFetch.effects ?? []),
+                    ...(todosFetch.effects ?? []),
+                ],
+            };
         }
         case "ALL_FETCHED": {
-            const logs = IO(() => console.log("Fetched all apps:", msg.results));
-            return { model: m, effects: [logs] };
+            const log = IO(() => console.log("Fetched all apps:", msg.results));
+            return { model: m, effects: [log] };
         }
-        // existing delegation logic
         case "Counter": {
-            const { model: counter } = CounterApp.update(msg.msg, m.counter, (sub) => dispatch({ type: "Counter", msg: sub }));
-            return { model: { ...m, counter }, effects: [] };
+            const lifted = liftUpdate(CounterApp.update, "counter", (sub) => ({
+                type: "Counter",
+                msg: sub,
+            }))(msg, m, dispatch);
+            return lifted;
         }
         case "Todo": {
-            const { model: todo } = TodoApp.update(msg.msg, m.todo, (sub) => dispatch({ type: "Todo", msg: sub }));
-            return { model: { ...m, todo }, effects: [] };
+            const lifted = liftUpdate(TodoApp.update, "todo", (sub) => ({
+                type: "Todo",
+                msg: sub,
+            }))(msg, m, dispatch);
+            return lifted;
         }
         case "Weather": {
-            const { model: weather } = WeatherApp.update(msg.msg, m.weather, (sub) => dispatch({ type: "Weather", msg: sub }));
-            return { model: { ...m, weather }, effects: [] };
+            const lifted = liftUpdate(WeatherApp.update, "weather", (sub) => ({
+                type: "Weather",
+                msg: sub,
+            }))(msg, m, dispatch);
+            return lifted;
         }
         default:
             return { model: m, effects: [] };

@@ -6,7 +6,7 @@ const ResourceList = (
   res: Resource<any>,
   dispatch: (msg: Msg) => void
 ) => {
-  const { data, page, limit, loading, error } = res;
+  const { page } = res;
   const nextPage = page + 1;
   const prevPage = page - 1;
   const hasData = res.data.length || res.loading || res.error;
@@ -30,7 +30,7 @@ const ResourceList = (
               "px-3 py-1 bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed",
             disabled: res.page === 1 || res.loading,
             onclick: () =>
-              dispatch({ type: "FETCH_PAGE", key, page: res.page - 1 }),
+              dispatch({ type: "FETCH_PAGE", key, page: prevPage }),
           },
           "Prev"
         ),
@@ -40,7 +40,7 @@ const ResourceList = (
             id: `${key}-next-${nextPage}`,
             className: "px-3 py-1 bg-gray-200 rounded",
             onclick: () =>
-              dispatch({ type: "FETCH_PAGE", key, page: res.page + 1 }),
+              dispatch({ type: "FETCH_PAGE", key, page: nextPage }),
           },
           "Next"
         ),
@@ -48,7 +48,7 @@ const ResourceList = (
     res.error && p({ className: "text-red-600" }, `Error: ${res.error}`),
 
     ul(
-      { className: "text-sm space-y-1" },
+      { className: "text-sm space-y-1 max-h-[400px] overflow-auto" },
       res.data.map((item: any) =>
         li({ className: "border-b pb-1" }, JSON.stringify(item))
       )

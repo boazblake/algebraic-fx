@@ -30,7 +30,7 @@ const VOID = new Set([
 ]);
 
 export const renderToString = (node: unknown): string => {
-  if (node == null || node === false || node === true) return "";
+  if (node === null || node === false || node === true) return "";
   if (typeof node === "string" || typeof node === "number") return String(node);
   if (Array.isArray(node)) return node.map(renderToString).join("");
   if (!isVNode(node)) return "";
@@ -38,7 +38,7 @@ export const renderToString = (node: unknown): string => {
   const { tag, props = {}, children = [] } = node;
 
   const attrs = Object.entries(props)
-    .filter(([, v]) => v != null && v !== false && typeof v !== "function")
+    .filter(([, v]) => v !== null && v !== false && typeof v !== "function")
     .map(([k, v]) => (v === true ? k : `${k}="${escapeHtml(String(v))}"`))
     .join(" ");
 
