@@ -5,13 +5,15 @@ export type DomEnv = {
   document: Document;
   window: Window;
   localStorage: Storage;
+  sessionStorage: Storage;
   fetch: typeof fetch;
 };
 
 export const askEnv = Reader<DomEnv, DomEnv>((env) => env);
 export const askDocument = askEnv.map((e) => e.document);
 export const askWindow = askEnv.map((e) => e.window);
-export const askStorage = askEnv.map((e) => e.localStorage);
+export const askLocal = askEnv.map((e) => e.localStorage);
+export const askSession = askEnv.map((e) => e.sessionStorage);
 export const askFetch = askEnv.map((e) => e.fetch);
 
 export const select = (selector: string) =>
@@ -69,10 +71,15 @@ export const alertIO = (msg: string) =>
 export const scrollToIO = (x: number, y: number) =>
   askWindow.map((win) => IO(() => win.scrollTo(x, y)));
 
-export const storageSet = (key: string, val: string) =>
-  askStorage.map((s) => IO(() => s.setItem(key, val)));
-export const storageGet = (key: string) =>
-  askStorage.map((s) => IO(() => s.getItem(key)));
+export const localSet = (key: string, val: string) =>
+  askLocal.map((s) => IO(() => s.setItem(key, val)));
+export const localGet = (key: string) =>
+  askLocal.map((s) => IO(() => s.getItem(key)));
+
+export const sessionSet = (key: string, val: string) =>
+  askSession.map((s) => IO(() => s.setItem(key, val)));
+export const sessionGet = (key: string) =>
+  askSession.map((s) => IO(() => s.getItem(key)));
 
 export const fetchIO = (url: string, options?: RequestInit) =>
   askFetch.map((fetchFn) => IO(async () => fetchFn(url, options)));
@@ -86,5 +93,6 @@ export const browserEnv = (): DomEnv => ({
   document,
   window,
   localStorage,
+  sessionStorage,
   fetch,
 });
