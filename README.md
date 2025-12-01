@@ -1,4 +1,4 @@
-# Algebraic-js
+# Algebraic-fx
 
 A tiny TEA-style runtime with explicit algebraic effects over a fast virtual DOM.
 
@@ -63,13 +63,13 @@ app(document.getElementById("app")!, program);
 
 ## Philosophy
 
-Algebraic-js treats effects as first-class algebraic values. No ambient `useEffect`, no lifecycle riddles. You model computation with well-studied abstractions. This yields isolation, testability, and composability across UI and non-UI code.
+Algebraic-fx treats effects as first-class algebraic values. No ambient `useEffect`, no lifecycle riddles. You model computation with well-studied abstractions. This yields isolation, testability, and composability across UI and non-UI code.
 
 ---
 
-## Why Algebraic-js?
+## Why Algebraic-fx?
 
-**Choose Algebraic-js if you want:**
+**Choose Algebraic-fx if you want:**
 
 - TEA semantics: Model + Update + View with explicitly emitted effects
 - Explicit effect composition across domains without framework magic
@@ -80,7 +80,7 @@ Algebraic-js treats effects as first-class algebraic values. No ambient `useEffe
 
 - Rich component ecosystems and idiomatic patterns for those frameworks
 
-Use Algebraic-js when architecture clarity and explicit effects are your primary goals.
+Use Algebraic-fx when architecture clarity and explicit effects are your primary goals.
 
 ---
 
@@ -102,7 +102,7 @@ Use Algebraic-js when architecture clarity and explicit effects are your primary
 
 ## Hyperscript API
 
-Algebraic-js includes **mithril-lite**, a minimal virtual DOM renderer with hyperscript support:
+Algebraic-fx includes **mithril-lite**, a minimal virtual DOM renderer with hyperscript support:
 
 ```ts
 import { m } from "@boazblake/algebraic-js";
@@ -326,7 +326,7 @@ For full details, see [docs/ADT_GUIDE.md](docs/ADT_GUIDE.md).
 
 ## Comparison with Other Frameworks
 
-| Feature                    | Algebraic-js | Elm    | Cycle.js | Hyperapp |
+| Feature                    | Algebraic-fx | Elm    | Cycle.js | Hyperapp |
 | -------------------------- | ------------ | ------ | -------- | -------- |
 | TEA structure              | ✓            | ✓      | ✗        | Partial  |
 | Explicit algebraic effects | ✓            | Cmd    | Drivers  | ✗        |
