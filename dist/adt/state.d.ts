@@ -21,3 +21,4 @@ export declare const State: {
     traverse<S, A, B>(f: (a: A) => State<S, B>): (arr: A[]) => State<S, B[]>;
 };
 export default State;
+//# sourceMappingURL=state.d.ts.map

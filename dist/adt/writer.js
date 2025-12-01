@@ -79,3 +79,4 @@ Writer.traverse =
     (f) => (arr) => Writer.sequence(arr.map(f));
 /** Unified object export */
 export default Writer;
+//# sourceMappingURL=writer.js.map

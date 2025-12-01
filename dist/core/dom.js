@@ -54,3 +54,4 @@ export const browserEnv = () => ({
     sessionStorage,
     fetch,
 });
+//# sourceMappingURL=dom.js.map

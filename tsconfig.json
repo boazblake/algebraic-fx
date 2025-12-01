@@ -7,10 +7,13 @@
     "moduleResolution": "Bundler",
     "strict": true,
     "declaration": true,
+    "declarationMap": true,
     "emitDeclarationOnly": false,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "sourceMap": true
   },
   "types": ["node"],
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }

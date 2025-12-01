@@ -96,3 +96,4 @@ export const Either = {
     sequence,
 };
 export default Either;
+//# sourceMappingURL=either.js.map

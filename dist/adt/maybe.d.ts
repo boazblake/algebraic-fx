@@ -63,3 +63,4 @@ export declare const Maybe: {
     sequence: <A>(arr: Maybe<A>[]) => Maybe<A[]>;
 };
 export default Maybe;
+//# sourceMappingURL=maybe.d.ts.map

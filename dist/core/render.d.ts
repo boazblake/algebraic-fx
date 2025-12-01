@@ -6,3 +6,4 @@ export declare const renderApp: (renderer: Renderer, env?: DomEnv) => <M, Msg>(r
     dispatch: (msg: Msg) => void;
     getModel: () => M;
 }>;
+//# sourceMappingURL=render.d.ts.map

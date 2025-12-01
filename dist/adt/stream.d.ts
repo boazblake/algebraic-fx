@@ -32,3 +32,4 @@ export declare const Stream: {
     distinctUntilChanged<A>(equals?: (a: A, b: A) => boolean): (s: Stream<A>) => Stream<A>;
 };
 export default Stream;
+//# sourceMappingURL=stream.d.ts.map

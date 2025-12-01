@@ -84,3 +84,4 @@ Task.toPromise = (t) => t.run().then((ea) => {
     return ea.right;
 });
 export default Task;
+//# sourceMappingURL=task.js.map

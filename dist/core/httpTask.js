@@ -28,3 +28,4 @@ export const httpTask = (path, options, handleError) => Reader((env) => Task(asy
         return Either.Left(err);
     }
 }));
+//# sourceMappingURL=httpTask.js.map

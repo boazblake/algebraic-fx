@@ -20,3 +20,4 @@ export declare const Reader: {
 };
 /** Unified export */
 export default Reader;
+//# sourceMappingURL=reader.d.ts.map

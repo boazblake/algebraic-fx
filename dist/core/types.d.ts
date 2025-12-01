@@ -25,3 +25,4 @@ export type Program<M, Msg> = {
     };
     view: (model: M, dispatch: Dispatch) => any;
 };
+//# sourceMappingURL=types.d.ts.map

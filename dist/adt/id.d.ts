@@ -20,3 +20,4 @@ export declare const Id: {
 };
 /** Default export object for symmetry with other ADTs */
 export default Id;
+//# sourceMappingURL=id.d.ts.map

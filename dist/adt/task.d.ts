@@ -31,3 +31,4 @@ export declare const Task: {
     toPromise<E, A>(t: Task<E, A>): Promise<A>;
 };
 export default Task;
+//# sourceMappingURL=task.d.ts.map

@@ -29,3 +29,4 @@ Reader.traverse =
     (f) => (arr) => Reader((env) => arr.map((a) => f(a).run(env)));
 /** Unified export */
 export default Reader;
+//# sourceMappingURL=reader.js.map

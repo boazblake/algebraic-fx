@@ -24,3 +24,4 @@ export declare const Writer: {
 };
 /** Unified object export */
 export default Writer;
+//# sourceMappingURL=writer.d.ts.map

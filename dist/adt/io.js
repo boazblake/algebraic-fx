@@ -38,3 +38,4 @@ IO.tryCatch = (f, onError) => IO(() => {
 });
 /** Aggregate under unified export object */
 export default IO;
+//# sourceMappingURL=io.js.map

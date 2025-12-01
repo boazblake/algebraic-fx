@@ -1,0 +1,54 @@
+# Source files (only ship dist/)
+src/
+public/
+examples/
+
+# Build artifacts
+*.tgz
+*.log
+
+# Config files
+tsconfig.json
+.eslintrc.*
+.prettierrc.*
+eslint.config.*
+.editorconfig
+
+# Development files
+*.test.ts
+*.spec.ts
+*.test.js
+*.spec.js
+
+# Documentation (keep README.md)
+docs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Misc
+coverage/
+.nyc_output/
+*.orig
+

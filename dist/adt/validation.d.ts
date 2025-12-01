@@ -76,3 +76,4 @@ export declare const Validation: {
     fromPredicate: <E, A>(predicate: (a: A) => boolean, onFalse: (a: A) => E) => (a: A) => Validation<E, A>;
 };
 export default Validation;
+//# sourceMappingURL=validation.d.ts.map

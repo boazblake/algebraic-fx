@@ -73,3 +73,4 @@ export declare const Either: {
     sequence: <L, A>(arr: Either<L, A>[]) => Either<L, A[]>;
 };
 export default Either;
+//# sourceMappingURL=either.d.ts.map

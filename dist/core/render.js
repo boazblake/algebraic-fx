@@ -56,3 +56,4 @@ export const renderApp = (renderer, env = browserEnv()) => (rootIO, program) => 
     });
 })
     .chain(io => io);
+//# sourceMappingURL=render.js.map

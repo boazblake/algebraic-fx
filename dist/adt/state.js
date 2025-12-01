@@ -50,3 +50,4 @@ State.sequence = (states) => State((s) => {
 State.traverse =
     (f) => (arr) => State.sequence(arr.map(f));
 export default State;
+//# sourceMappingURL=state.js.map

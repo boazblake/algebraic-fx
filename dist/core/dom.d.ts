@@ -36,3 +36,4 @@ export declare const runDomIO: <A>(rio: {
     };
 }, env: DomEnv) => A;
 export declare const browserEnv: () => DomEnv;
+//# sourceMappingURL=dom.d.ts.map

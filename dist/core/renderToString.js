@@ -41,3 +41,4 @@ export const renderToString = (node) => {
     const inner = kids.map(renderToString).join("");
     return `${open}${inner}</${tag}>`;
 };
+//# sourceMappingURL=renderToString.js.map

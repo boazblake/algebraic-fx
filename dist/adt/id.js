@@ -20,3 +20,4 @@ Id.run = (id) => id.run();
 Id.extract = (id) => id.run();
 /** Default export object for symmetry with other ADTs */
 export default Id;
+//# sourceMappingURL=id.js.map
