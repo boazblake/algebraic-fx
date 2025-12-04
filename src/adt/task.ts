@@ -63,7 +63,7 @@ export const Task = <E, A>(
 
   run: () => run0(),
 
-  runWith: (signal?: AbortSignal) => {
+  runWith: (signal: AbortSignal) => {
     if (!signal) {
       throw new Error(
         "Task.runWith requires an AbortSignal. Use run() if cancellation is not needed."
