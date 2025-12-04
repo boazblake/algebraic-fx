@@ -1,7 +1,26 @@
 import { Reader } from "../adt/reader.js";
 import { Task } from "../adt/task.js";
 import { Either, Left, Right } from "../adt/either.js";
+/**
+ * HTTP helper using Reader<HttpEnv, Task<E,A>>.
+ *
+ * Features:
+ *  - Respects AbortSignal from Task.runWith
+ *  - Supports optional custom error mapping
+ *  - Handles JSON decoding errors
+ *  - Non-breaking URL normalization
+ *
+ * Use with:
+ *  - Reader chaining for configuration
+ *  - Task chaining for async workflows
+ */
 
+/**
+ * Environment required by httpTask.
+ *
+ * @property fetch Fetch-like function
+ * @property baseUrl Optional base URL for path resolution
+ */
 export type HttpEnv = {
   fetch: typeof fetch;
   baseUrl?: string;
@@ -28,6 +47,19 @@ export function httpTask<E, A>(
   handleError: (e: DefaultHttpError | unknown) => E
 ): Reader<HttpEnv, Task<E, A>>;
 
+/**
+ * Create an HTTP request Task inside a Reader<HttpEnv,_>.
+ *
+ * @param path URL path (resolved against baseUrl)
+ * @param options Fetch options (optional)
+ * @param handleError Optional mapper to convert default errors to user-defined errors
+ *
+ * @returns Reader<HttpEnv, Task<E, A>>
+ *
+ * @example
+ * const getUser = httpTask<User>("/users/1");
+ * getUser.run(httpEnv).runWith(signal);
+ */
 export function httpTask<E, A>(
   path: string,
   options?: RequestInit,

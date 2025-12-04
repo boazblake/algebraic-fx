@@ -7,7 +7,9 @@ export const askLocal = askEnv.map((env) => env.localStorage);
 export const askSession = askEnv.map((env) => env.sessionStorage);
 export const askFetch = askEnv.map((env) => env.fetch);
 /**
- * Default browser environment constructor.
+ * Construct a DomEnv from global browser objects.
+ *
+ * Throws if called in a non-browser (SSR/Node) environment.
  */
 export const browserEnv = () => {
     if (typeof window === "undefined" || typeof document === "undefined") {

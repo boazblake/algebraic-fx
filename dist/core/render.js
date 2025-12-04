@@ -2,12 +2,21 @@ import { IO } from "../adt/io.js";
 import { IOEffectTag, ReaderEffectTag } from "./types.js";
 import { browserEnv } from "./dom-env.js";
 /**
- * Render app with a given renderer and DOM environment.
+ * Connects a Program<M,P,E> to a DOM renderer and environment.
  *
- * Effects:
- * - IO<void>:     effect.run()
- * - EffectLike:   effect.run()
- * - Reader<E,IO<void>>: effect.run(env).run()
+ * @param renderer Rendering function
+ * @param env Environment used by Reader<E,IO<void>> effects
+ *
+ * @returns IO(run) that, when executed, starts the program.
+ *
+ * Responsibilities:
+ *  - invoke program.init to obtain initial model & effects
+ *  - render view(model)
+ *  - run effects
+ *  - process dispatches in RAF batches
+ *  - expose { dispatch, getModel, destroy }
+ *
+ * `dispatch` queues messages and triggers the update cycle.
  */
 export const renderApp = (renderer, env = browserEnv()) => (rootIO, program) => rootIO
     .map((root) => {
@@ -57,6 +66,15 @@ export const renderApp = (renderer, env = browserEnv()) => (rootIO, program) => 
         model = next;
         renderAndRunEffects(model, effects);
     };
+    /**
+     * Dispatches a payload to the program's update function.
+     *
+     * Dispatch is batched:
+     *  - multiple dispatches in a frame accumulate in `queue`
+     *  - the batch is processed in the next animation frame
+     *
+     * This reduces redundant rendering and improves performance.
+     */
     const dispatch = (payload) => {
         if (destroyed)
             return;
@@ -83,6 +101,14 @@ export const renderApp = (renderer, env = browserEnv()) => (rootIO, program) => 
         return {
             dispatch,
             getModel: () => model,
+            /**
+             * Stops the runtime:
+             *  - prevents new dispatches from being scheduled
+             *  - clears the queue
+             *  - prevents further rendering or effect execution
+             *
+             * Safe to call multiple times.
+             */
             destroy: () => {
                 destroyed = true;
                 queue.length = 0;

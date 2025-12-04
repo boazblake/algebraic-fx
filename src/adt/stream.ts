@@ -1,30 +1,101 @@
+/**
+ * Unique brand for nominally typing Stream values.
+ * Prevents structural type collisions with plain objects.
+ */
 declare const StreamBrand: unique symbol;
 
+/**
+ * Observer interface used by Streams to emit values, errors, and completion.
+ *
+ * @typeParam A - Value type emitted by the Stream
+ */
 export type Observer<A> = {
+  /** Emit a value. Required. */
   next: (a: A) => void;
+
+  /** Optional error handler. */
   error?: (e: unknown) => void;
+
+  /** Optional completion handler. */
   complete?: () => void;
 };
 
+/**
+ * Unsubscribe function returned by `subscribe()`.
+ * Calling it stops the stream from sending further events.
+ */
 export type Unsubscribe = () => void;
 
+/**
+ * Push-based functional stream abstraction.
+ *
+ * Stream<A> is:
+ * - Lazy: nothing happens until `subscribe`
+ * - Cold: each subscription creates its own execution
+ * - Composable: map, chain (switchMap), filter, scan, take, skip, etc.
+ *
+ * This is intentionally minimal and inspired by `most.js` and RxJS primitives,
+ * but with far less surface area.
+ *
+ * @typeParam A - value type
+ */
 export type Stream<A> = {
   readonly [StreamBrand]: true;
+
+  /**
+   * Begin receiving values from the stream.
+   *
+   * @param o Observer callbacks
+   * @return Unsubscribe function
+   */
   subscribe: (o: Observer<A>) => Unsubscribe;
+
+  /** Functor map: transform each emitted value. */
   map: <B>(f: (a: A) => B) => Stream<B>;
+
+  /**
+   * Monadic bind / switchMap:
+   * - Cancels previously active inner stream whenever a new value arrives
+   * - Subscribes to the new inner stream
+   */
   chain: <B>(f: (a: A) => Stream<B>) => Stream<B>;
+
+  /** Filter emitted values by predicate. */
   filter: (predicate: (a: A) => boolean) => Stream<A>;
+
+  /**
+   * Accumulate values using a reducer.
+   *
+   * @param f Reducer function `(acc, value) => newAcc`
+   * @param initial Initial accumulator value
+   */
   scan: <B>(f: (acc: B, a: A) => B, initial: B) => Stream<B>;
+
+  /**
+   * Emit only the first `n` values, then complete.
+   */
   take: (n: number) => Stream<A>;
+
+  /**
+   * Skip the first `n` values and emit the rest.
+   */
   skip: (n: number) => Stream<A>;
 };
 
+/**
+ * Stream constructor.
+ *
+ * All stream combinators ultimately call this function to build new streams.
+ *
+ * @param subscribe Function describing how to produce values for an observer
+ */
 export const Stream = <A>(
   subscribe: (o: Observer<A>) => Unsubscribe
 ): Stream<A> => ({
   [StreamBrand]: true,
   subscribe,
 
+  /** Functor map. */
   map: <B>(f: (a: A) => B): Stream<B> =>
     Stream((o) =>
       subscribe({
@@ -40,6 +111,11 @@ export const Stream = <A>(
       })
     ),
 
+  /**
+   * Monadic bind / switchMap:
+   * - Cancels previous inner stream when a new value arrives
+   * - Subscribes to the next inner stream
+   */
   chain: <B>(f: (a: A) => Stream<B>): Stream<B> =>
     Stream((o) => {
       let innerUnsub: Unsubscribe | null = null;
@@ -64,6 +140,7 @@ export const Stream = <A>(
       };
     }),
 
+  /** Filter values by predicate. */
   filter: (predicate: (a: A) => boolean): Stream<A> =>
     Stream((o) =>
       subscribe({
@@ -79,6 +156,7 @@ export const Stream = <A>(
       })
     ),
 
+  /** Accumulate state over time. */
   scan: <B>(f: (acc: B, a: A) => B, initial: B): Stream<B> =>
     Stream((o) => {
       let acc = initial;
@@ -96,6 +174,7 @@ export const Stream = <A>(
       });
     }),
 
+  /** Emit only first n events then complete. */
   take: (n: number): Stream<A> =>
     Stream((o) => {
       let count = 0;
@@ -116,6 +195,7 @@ export const Stream = <A>(
       return unsub;
     }),
 
+  /** Skip first n events. */
   skip: (n: number): Stream<A> =>
     Stream((o) => {
       let count = 0;
@@ -130,7 +210,9 @@ export const Stream = <A>(
     }),
 });
 
-/** Static constructors */
+/**
+ * Create a Stream that emits a single value then completes.
+ */
 Stream.of = <A>(a: A): Stream<A> =>
   Stream((o) => {
     o.next(a);
@@ -138,6 +220,9 @@ Stream.of = <A>(a: A): Stream<A> =>
     return () => {};
   });
 
+/**
+ * Emit all items of an array synchronously, then complete.
+ */
 Stream.fromArray = <A>(arr: A[]): Stream<A> =>
   Stream((o) => {
     arr.forEach((a) => o.next(a));
@@ -145,14 +230,24 @@ Stream.fromArray = <A>(arr: A[]): Stream<A> =>
     return () => {};
   });
 
+/**
+ * Stream that immediately completes without emitting values.
+ */
 Stream.empty = <A>(): Stream<A> =>
   Stream((o) => {
     o.complete?.();
     return () => {};
   });
 
+/**
+ * Stream that never emits, errors, or completes.
+ */
 Stream.never = <A>(): Stream<A> => Stream(() => () => {});
 
+/**
+ * Convert a Promise into a Stream emitting one value then completing.
+ * Unsubscription cancels the resolution (ignores result/error).
+ */
 Stream.fromPromise = <A>(p: Promise<A>): Stream<A> =>
   Stream((o) => {
     let cancelled = false;
@@ -169,6 +264,9 @@ Stream.fromPromise = <A>(p: Promise<A>): Stream<A> =>
     };
   });
 
+/**
+ * Emit an increasing integer every `ms` milliseconds.
+ */
 Stream.interval = (ms: number): Stream<number> =>
   Stream((o) => {
     let count = 0;
@@ -176,12 +274,21 @@ Stream.interval = (ms: number): Stream<number> =>
     return () => clearInterval(id);
   });
 
+/**
+ * Emit `undefined` every `ms` milliseconds.
+ */
 Stream.periodic = (ms: number): Stream<void> =>
   Stream((o) => {
     const id = setInterval(() => o.next(undefined), ms);
     return () => clearInterval(id);
   });
 
+/**
+ * Create a Stream from DOM events.
+ *
+ * @param target EventTarget to subscribe on
+ * @param eventName Event name string
+ */
 Stream.fromEvent = <E extends Event>(
   target: EventTarget,
   eventName: string
@@ -192,7 +299,7 @@ Stream.fromEvent = <E extends Event>(
     return () => target.removeEventListener(eventName, handler);
   });
 
-/** Combinators */
+/** Merge two streams, interleaving events as they arrive. */
 Stream.merge = <A>(s1: Stream<A>, s2: Stream<A>): Stream<A> =>
   Stream((o) => {
     const unsub1 = s1.subscribe(o);
@@ -203,6 +310,11 @@ Stream.merge = <A>(s1: Stream<A>, s2: Stream<A>): Stream<A> =>
     };
   });
 
+/**
+ * Concatenate two streams:
+ * - consume s1 fully
+ * - then subscribe to s2
+ */
 Stream.concat = <A>(s1: Stream<A>, s2: Stream<A>): Stream<A> =>
   Stream((o) => {
     let unsub2: Unsubscribe | null = null;
@@ -219,6 +331,10 @@ Stream.concat = <A>(s1: Stream<A>, s2: Stream<A>): Stream<A> =>
     };
   });
 
+/**
+ * Combine latest values from two streams.
+ * Emits whenever either stream updates, but only after both have emitted at least once.
+ */
 Stream.combineLatest = <A, B>(sa: Stream<A>, sb: Stream<B>): Stream<[A, B]> =>
   Stream((o) => {
     let latestA: A | undefined;
@@ -256,6 +372,10 @@ Stream.combineLatest = <A, B>(sa: Stream<A>, sb: Stream<B>): Stream<[A, B]> =>
     };
   });
 
+/**
+ * Zip two streams pairwise.
+ * Emits only when both queues have available events.
+ */
 Stream.zip = <A, B>(sa: Stream<A>, sb: Stream<B>): Stream<[A, B]> =>
   Stream((o) => {
     const queueA: A[] = [];
@@ -291,7 +411,9 @@ Stream.zip = <A, B>(sa: Stream<A>, sb: Stream<B>): Stream<[A, B]> =>
     };
   });
 
-/** Utilities */
+/**
+ * Debounce a stream: wait `ms` milliseconds after each event before emitting.
+ */
 Stream.debounce =
   <A>(ms: number) =>
   (s: Stream<A>): Stream<A> =>
@@ -311,6 +433,9 @@ Stream.debounce =
       };
     });
 
+/**
+ * Throttle a stream: emit at most one event every `ms` milliseconds.
+ */
 Stream.throttle =
   <A>(ms: number) =>
   (s: Stream<A>): Stream<A> =>
@@ -329,6 +454,11 @@ Stream.throttle =
       });
     });
 
+/**
+ * Emit only when the value differs from the previous emission.
+ *
+ * @param equals Optional custom equality check
+ */
 Stream.distinctUntilChanged =
   <A>(equals?: (a: A, b: A) => boolean) =>
   (s: Stream<A>): Stream<A> =>

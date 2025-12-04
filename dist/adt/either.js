@@ -1,17 +1,26 @@
-/** Constructors */
+/**
+ * Construct a Left value (failure).
+ */
 export const Left = (l) => ({
     _tag: "Left",
     left: l,
     [EitherBrand]: true,
 });
+/**
+ * Construct a Right value (success).
+ */
 export const Right = (r) => ({
     _tag: "Right",
     right: r,
     [EitherBrand]: true,
 });
-/** Functor map */
+/**
+ * Functor map: transform the Right value, preserve Left as-is.
+ */
 export const map = (f, e) => e._tag === "Right" ? Right(f(e.right)) : e;
-/** Applicative apply */
+/**
+ * Applicative apply: apply a Right-wrapped function to a Right-wrapped value.
+ */
 export const ap = (ef, ea) => {
     if (ef._tag === "Left")
         return Left(ef.left);
@@ -19,28 +28,57 @@ export const ap = (ef, ea) => {
         return Left(ea.left);
     return Right(ef.right(ea.right));
 };
-/** Monad chain */
+/**
+ * Monad chain: bind the Right value to the next computation, short-circuiting on Left.
+ */
 export const chain = (f, e) => (e._tag === "Right" ? f(e.right) : e);
-/** Bifunctor bimap */
+/**
+ * Bifunctor map over Left OR Right.
+ */
 export const bimap = (onLeft, onRight, e) => e._tag === "Left" ? Left(onLeft(e.left)) : Right(onRight(e.right));
-/** Map over Left */
+/**
+ * Map only the Left (error) side.
+ */
 export const mapLeft = (f, e) => (e._tag === "Left" ? Left(f(e.left)) : e);
-/** Fold (pattern match) */
+/**
+ * Pattern match for Either.
+ */
 export const fold = (onLeft, onRight, e) => (e._tag === "Left" ? onLeft(e.left) : onRight(e.right));
-/** Applicative */
+/**
+ * Lift a value into Right (pure).
+ */
 export const of = (a) => Right(a);
-/** Get Right or default */
+/**
+ * Extract the Right or fallback to a default.
+ */
 export const getOrElse = (defaultValue, e) => e._tag === "Right" ? e.right : defaultValue;
-/** Get Right or compute default */
+/**
+ * Extract Right or compute fallback.
+ */
 export const getOrElseW = (onLeft, e) => (e._tag === "Right" ? e.right : onLeft(e.left));
-/** Alternative - returns first Right */
+/**
+ * Alternative: return the first Right encountered.
+ */
 export const alt = (e1, e2) => e1._tag === "Right" ? e1 : e2;
-/** Check if Either is Left */
+/**
+ * Type guard: check if e is Left.
+ */
 export const isLeft = (e) => e._tag === "Left";
+/**
+ * Type guard: check if e is Right.
+ */
 export const isRight = (e) => e._tag === "Right";
-/** Convert nullable to Either */
+/**
+ * Convert nullable to Either.
+ *
+ * @example
+ * fromNullable("missing")(null)    // Left("missing")
+ * fromNullable("missing")(42)      // Right(42)
+ */
 export const fromNullable = (onNull) => (a) => a == null ? Left(onNull) : Right(a);
-/** Try-catch wrapper */
+/**
+ * Try/catch wrapper for synchronous code.
+ */
 export const tryCatch = (f) => {
     try {
         return Right(f());
@@ -49,7 +87,9 @@ export const tryCatch = (f) => {
         return Left(e);
     }
 };
-/** Try-catch with error mapper */
+/**
+ * Try/catch wrapper with custom error mapping.
+ */
 export const tryCatchK = (f, onError) => {
     try {
         return Right(f());
@@ -58,11 +98,17 @@ export const tryCatchK = (f, onError) => {
         return Left(onError(e));
     }
 };
-/** Swap Left and Right */
+/**
+ * Swap Left and Right positions.
+ */
 export const swap = (e) => e._tag === "Left" ? Right(e.left) : Left(e.right);
-/** Filter Right - converts to Left if predicate fails */
+/**
+ * Keep Right only if predicate succeeds; otherwise convert to Left.
+ */
 export const filterOrElse = (predicate, onFalse, e) => e._tag === "Right" && !predicate(e.right) ? Left(onFalse(e.right)) : e;
-/** Traverse an array */
+/**
+ * Traverse an array, short-circuiting on Left.
+ */
 export const traverse = (f, arr) => {
     const result = [];
     for (const a of arr) {
@@ -73,9 +119,13 @@ export const traverse = (f, arr) => {
     }
     return Right(result);
 };
-/** Sequence an array of Eithers */
+/**
+ * Sequence an array of Eithers into Either of array.
+ */
 export const sequence = (arr) => traverse((x) => x, arr);
-/** Combine as a single runtime object */
+/**
+ * Unified namespace export.
+ */
 export const Either = {
     Left,
     Right,

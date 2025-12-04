@@ -1,0 +1,24 @@
+{
+  "entryPoints": [
+    "src/index.ts",
+    "src/adt",
+    "src/core",
+    "src/helpers"
+  ],
+  "out": "docs",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "excludeProtected": true,
+  "excludeExternals": false,
+  "includeVersion": true,
+  "hideGenerator": true,
+  "categorizeByGroup": true,
+  "readme": "none",
+  "plugin": [
+    "typedoc-plugin-markdown"
+  ],
+  "sort": [
+    "static-first",
+    "alphabetical"
+  ]
+}

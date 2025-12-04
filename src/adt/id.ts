@@ -1,18 +1,45 @@
+/**
+ * Nominal brand for Identity values, preventing structural collisions.
+ */
 declare const IdBrand: unique symbol;
 
+/**
+ * Identity monad.
+ *
+ * Represents a pure wrapped value `A` and supports:
+ * - Functor map
+ * - Monad chain
+ * - Applicative apply
+ *
+ * Conceptually:
+ *   Id<A> ≅ A
+ *
+ * It is primarily used to unify APIs that expect a monadic interface
+ * even when effects are not needed.
+ *
+ * @typeParam A Wrapped value type
+ */
 export type Id<A> = {
   readonly [IdBrand]: true;
-  /** Execute the identity computation */
+
+  /** Extract the wrapped value. */
   run: () => A;
-  /** Functor map */
+
+  /** Functor map. */
   map: <B>(f: (a: A) => B) => Id<B>;
-  /** Monad chain */
+
+  /** Monad chain. */
   chain: <B>(f: (a: A) => Id<B>) => Id<B>;
-  /** Applicative apply */
+
+  /** Applicative apply. */
   ap: <B>(fb: Id<(a: A) => B>) => Id<B>;
 };
 
-/** Identity constructor */
+/**
+ * Identity constructor.
+ *
+ * @param a Wrapped value
+ */
 export const Id = <A>(a: A): Id<A> => ({
   [IdBrand]: true,
   run: () => a,
@@ -21,28 +48,46 @@ export const Id = <A>(a: A): Id<A> => ({
   ap: (fb) => Id(fb.run()(a)),
 });
 
-/** Static helper (pure) */
+/**
+ * Lift a pure value into the Identity monad.
+ */
 Id.of = <A>(a: A): Id<A> => Id(a);
 
-/** Applicative apply */
+/**
+ * Point-free applicative apply.
+ */
 Id.ap =
   <A, B>(fb: Id<(a: A) => B>) =>
   (fa: Id<A>): Id<B> =>
     fa.ap(fb);
 
-/** Static utilities for functional composition */
+/**
+ * Point-free functor map.
+ */
 Id.map =
   <A, B>(f: (a: A) => B) =>
   (id: Id<A>): Id<B> =>
     id.map(f);
+
+/**
+ * Point-free monadic chain.
+ */
 Id.chain =
   <A, B>(f: (a: A) => Id<B>) =>
   (id: Id<A>): Id<B> =>
     id.chain(f);
+
+/**
+ * Execute and retrieve the wrapped value.
+ */
 Id.run = <A>(id: Id<A>): A => id.run();
 
-/** Extract value */
+/**
+ * Alias for `run`.
+ */
 Id.extract = <A>(id: Id<A>): A => id.run();
 
-/** Default export object for symmetry with other ADTs */
+/**
+ * Default export for ergonomic usage.
+ */
 export default Id;

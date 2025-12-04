@@ -1,8 +1,20 @@
 import { Left, Right } from "./either.js";
-/** Main constructor */
+/**
+ * Construct a Task given a function that accepts an optional AbortSignal.
+ *
+ * The returned Task is lazy and will not run until `.run()` or `.runWith(signal)` is called.
+ *
+ * @param run0 Underlying async function returning `Either<E, A>`
+ */
 export const Task = (run0) => ({
+    [TaskBrand]: true,
     run: () => run0(),
-    runWith: (signal) => run0(signal),
+    runWith: (signal) => {
+        if (!signal) {
+            throw new Error("Task.runWith requires an AbortSignal. Use run() if cancellation is not needed.");
+        }
+        return run0(signal);
+    },
     map: (f) => Task((signal) => run0(signal).then((ea) => ea._tag === "Right" ? Right(f(ea.right)) : ea)),
     chain: (f) => Task((signal) => run0(signal).then((ea) => ea._tag === "Right"
         ? f(ea.right).runWith(signal)
@@ -19,10 +31,20 @@ export const Task = (run0) => ({
         ? Left(onError(ea.left))
         : Right(onSuccess(ea.right)))),
 });
-/** Simple constructors */
+/**
+ * Lift a value into a successful Task.
+ */
 Task.of = (a) => Task(() => Promise.resolve(Right(a)));
+/**
+ * Construct a failing Task.
+ */
 Task.reject = (e) => Task(() => Promise.resolve(Left(e)));
-/** Abort-aware helper (NOT attached as static to Task to avoid type noise) */
+/**
+ * Wrap an abort-aware async registration function into a Task.
+ *
+ * @param register Function that takes an AbortSignal and returns a Promise<A>
+ * @param onError Map unknown errors into E
+ */
 export const taskFromAbortable = (register, onError) => Task((signal) => {
     const controller = signal === undefined ? new AbortController() : null;
     const effectiveSignal = signal ?? controller.signal;
@@ -30,31 +52,46 @@ export const taskFromAbortable = (register, onError) => Task((signal) => {
         .then((a) => Right(a))
         .catch((e) => Left(onError(e)));
 });
-/** Utilities */
+/**
+ * Wrap a Promise-returning function into a Task that catches errors.
+ */
 Task.tryCatch = (f) => Task(() => f().then(Right).catch(Left));
+/**
+ * tryCatch with custom error mapping.
+ */
 Task.tryCatchK = (f, onError) => Task(() => f()
     .then(Right)
     .catch((e) => Left(onError(e))));
-/** Point-free combinators */
+/** Point-free map. */
 Task.map =
     (f) => (t) => t.map(f);
+/** Point-free chain. */
 Task.chain =
     (f) => (t) => t.chain(f);
+/** Point-free ap. */
 Task.ap =
     (fb) => (fa) => fa.ap(fb);
+/** Point-free mapError. */
 Task.mapError =
     (f) => (t) => t.mapError(f);
+/** Point-free bimap. */
 Task.bimap =
     (onError, onSuccess) => (t) => t.bimap(onError, onSuccess);
-/** Fold - consume the Task */
+/**
+ * Consume a Task by converting its Either result into the final pure value.
+ */
 Task.fold =
     (onError, onSuccess) => (t) => t
         .run()
         .then((ea) => ea._tag === "Left" ? onError(ea.left) : onSuccess(ea.right));
-/** Get Right or default */
+/**
+ * Extract the success value with a default fallback.
+ */
 Task.getOrElse =
     (defaultValue) => (t) => t.run().then((ea) => (ea._tag === "Right" ? ea.right : defaultValue));
-/** Delay execution (abort-safe wrapper) */
+/**
+ * Delay a Task’s execution by N milliseconds (abort-aware).
+ */
 Task.delay =
     (ms) => (t) => Task((signal) => new Promise((resolve) => {
         const id = setTimeout(() => {
@@ -63,7 +100,6 @@ Task.delay =
         if (signal) {
             signal.addEventListener("abort", () => {
                 clearTimeout(id);
-                // Resolve with a Left on abort so the Task always settles.
                 const abortError = {
                     message: "Task.delay aborted",
                 };
@@ -71,11 +107,13 @@ Task.delay =
             }, { once: true });
         }
     }));
-/** Timeout a task */
+/**
+ * Timeout a Task after N ms, returning a Left(onTimeout).
+ */
 Task.timeout =
     (ms, onTimeout) => (t) => Task((signal) => new Promise((resolve) => {
         const timeoutId = setTimeout(() => resolve(Left(onTimeout)), ms);
-        const runPromise = t.runWith(signal).then((ea) => {
+        const chainRun = t.runWith(signal).then((ea) => {
             clearTimeout(timeoutId);
             resolve(ea);
         });
@@ -84,9 +122,11 @@ Task.timeout =
                 clearTimeout(timeoutId);
             });
         }
-        return runPromise;
+        return chainRun;
     }));
-/** Sequence an array of Tasks (sequential execution) */
+/**
+ * Execute Tasks sequentially, short-circuiting on Failure.
+ */
 Task.sequence = (tasks) => Task((signal) => (async () => {
     const results = [];
     for (const task of tasks) {
@@ -97,10 +137,15 @@ Task.sequence = (tasks) => Task((signal) => (async () => {
     }
     return Right(results);
 })());
-/** Traverse an array */
+/**
+ * Traverse an array by mapping each element to a Task and sequencing.
+ */
 Task.traverse =
     (f) => (arr) => Task.sequence(arr.map(f));
-/** Parallel execution - all tasks must succeed */
+/**
+ * Run all Tasks in parallel.
+ * Fails fast if any task fails.
+ */
 Task.all = (tasks) => Task((signal) => Promise.all(tasks.map((t) => t.runWith(signal))).then((results) => {
     const values = [];
     for (const ea of results) {
@@ -110,11 +155,17 @@ Task.all = (tasks) => Task((signal) => Promise.all(tasks.map((t) => t.runWith(si
     }
     return Right(values);
 }));
-/** Race - return first to complete */
+/**
+ * Race multiple Tasks, resolving with the first to finish.
+ */
 Task.race = (tasks) => Task((signal) => Promise.race(tasks.map((t) => t.runWith(signal))));
-/** From Either */
+/**
+ * Lift an Either into a Task.
+ */
 Task.fromEither = (e) => Task(() => Promise.resolve(e));
-/** Convert to Promise (unsafe - throws on Left) */
+/**
+ * Convert a Task into a Promise that throws on Left.
+ */
 Task.toPromise = (t) => t.run().then((ea) => {
     if (ea._tag === "Left")
         throw ea.left;

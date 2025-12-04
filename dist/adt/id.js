@@ -1,4 +1,8 @@
-/** Identity constructor */
+/**
+ * Identity constructor.
+ *
+ * @param a Wrapped value
+ */
 export const Id = (a) => ({
     [IdBrand]: true,
     run: () => a,
@@ -6,19 +10,35 @@ export const Id = (a) => ({
     chain: (f) => f(a),
     ap: (fb) => Id(fb.run()(a)),
 });
-/** Static helper (pure) */
+/**
+ * Lift a pure value into the Identity monad.
+ */
 Id.of = (a) => Id(a);
-/** Applicative apply */
+/**
+ * Point-free applicative apply.
+ */
 Id.ap =
     (fb) => (fa) => fa.ap(fb);
-/** Static utilities for functional composition */
+/**
+ * Point-free functor map.
+ */
 Id.map =
     (f) => (id) => id.map(f);
+/**
+ * Point-free monadic chain.
+ */
 Id.chain =
     (f) => (id) => id.chain(f);
+/**
+ * Execute and retrieve the wrapped value.
+ */
 Id.run = (id) => id.run();
-/** Extract value */
+/**
+ * Alias for `run`.
+ */
 Id.extract = (id) => id.run();
-/** Default export object for symmetry with other ADTs */
+/**
+ * Default export for ergonomic usage.
+ */
 export default Id;
 //# sourceMappingURL=id.js.map

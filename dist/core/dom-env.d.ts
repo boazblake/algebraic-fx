@@ -1,7 +1,20 @@
 import { Reader } from "../adt/reader.js";
 /**
- * Browser DOM environment definition.
- * Core uses this only for environment injection.
+ * DOM environment abstraction for algebraic-fx.
+ *
+ * DomEnv is passed to Reader<E,IO<void>> effects to provide:
+ *  - document
+ *  - window
+ *  - localStorage
+ *  - sessionStorage
+ *  - fetch
+ *
+ * This enables pure programs to run effects that depend on DOM or browser API.
+ */
+/**
+ * Environment contract for DOM-based applications.
+ *
+ * All fields are provided by `browserEnv()`, which throws in SSR.
  */
 export type DomEnv = {
     document: Document;
@@ -23,7 +36,9 @@ export declare const askLocal: Reader<DomEnv, Storage>;
 export declare const askSession: Reader<DomEnv, Storage>;
 export declare const askFetch: Reader<DomEnv, typeof fetch>;
 /**
- * Default browser environment constructor.
+ * Construct a DomEnv from global browser objects.
+ *
+ * Throws if called in a non-browser (SSR/Node) environment.
  */
 export declare const browserEnv: () => DomEnv;
 //# sourceMappingURL=dom-env.d.ts.map

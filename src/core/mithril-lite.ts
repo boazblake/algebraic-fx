@@ -178,7 +178,25 @@ function execSelector(state: { tag: string; attrs: any }, vnode: Vnode): Vnode {
   return vnode;
 }
 
-// m(selector, attrs?, ...children)
+/**
+ * Hyperscript function for building VNodes.
+ *
+ * Syntax:
+ *  - m("div", "text")
+ *  - m("div#id.class1.class2", {...attrs}, children...)
+ *  - m("svg", {...attrs}, [...children])
+ *
+ * Selector grammar:
+ *  - tag (div)
+ *  - #id (#main)
+ *  - .class (.container)
+ *  - combined (div#header.title.highlight)
+ *
+ * Keys:
+ *  - pass { key: string } inside attrs to enable keyed diffing
+ *
+ * @returns VNode
+ */
 export function m(selector: string, ...rest: any[]): Vnode {
   if (typeof selector !== "string") {
     throw new Error("Selector must be a string");
@@ -605,11 +623,16 @@ function updateStyle(dom: any, old: any, style: any) {
   }
 }
 
-// -----------------------------------------------------------------------------
-// PUBLIC RENDER
-// -----------------------------------------------------------------------------
-
-export function render(dom: HTMLElement, vnodes: any | any[]) {
+/**
+ * Patch DOM tree under `root` using mithril-lite's virtual DOM diffing.
+ *
+ * - Supports keyed diffing (O(n log n)) with LIS algorithm
+ * - Supports SVG namespace transitions
+ * - Only minimal DOM updates performed
+ *
+ * @param root Root DOM element
+ * @param vnodes VNode or array of VNodes
+ */ export function render(dom: HTMLElement, vnodes: any | any[]) {
   if (!dom) throw new TypeError("Root DOM is null");
 
   const ns = dom.namespaceURI;
