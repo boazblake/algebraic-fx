@@ -8,7 +8,7 @@
 
 > **ap**\<`S`, `A`, `B`\>(`fb`): (`fa`) => [`State`](../../../type-aliases/State.md)\<`S`, `B`\>
 
-Defined in: [src/adt/state.ts:115](https://github.com/boazblake/algebraic-fx/blob/72ec4b64caa6a6d4d7c07250727f11a44a289f6e/src/adt/state.ts#L115)
+Defined in: [src/adt/state.ts:115](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/state.ts#L115)
 
 Point-free applicative apply.
 

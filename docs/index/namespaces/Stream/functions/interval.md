@@ -8,7 +8,7 @@
 
 > **interval**(`ms`): [`Stream`](../../../type-aliases/Stream.md)\<`number`\>
 
-Defined in: [src/adt/stream.ts:270](https://github.com/boazblake/algebraic-fx/blob/72ec4b64caa6a6d4d7c07250727f11a44a289f6e/src/adt/stream.ts#L270)
+Defined in: [src/adt/stream.ts:270](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/stream.ts#L270)
 
 Emit an increasing integer every `ms` milliseconds.
 

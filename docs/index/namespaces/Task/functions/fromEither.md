@@ -8,7 +8,7 @@
 
 > **fromEither**\<`E`, `A`\>(`e`): [`Task`](../../../type-aliases/Task.md)\<`E`, `A`\>
 
-Defined in: [src/adt/task.ts:330](https://github.com/boazblake/algebraic-fx/blob/72ec4b64caa6a6d4d7c07250727f11a44a289f6e/src/adt/task.ts#L330)
+Defined in: [src/adt/task.ts:330](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/task.ts#L330)
 
 Lift an Either into a Task.
 

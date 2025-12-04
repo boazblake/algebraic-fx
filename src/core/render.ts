@@ -3,55 +3,70 @@ import type { Program, RawEffect, IOEffect, ReaderEffect } from "./types.js";
 import { IOEffectTag, ReaderEffectTag } from "./types.js";
 import { browserEnv } from "./dom-env.js";
 import type { DomEnv } from "./dom-env.js";
-/**
- * Application runtime for algebraic-fx.
- *
- * `renderApp(renderer)` constructs a runtime loop that:
- *  - runs program.init to obtain the initial model + effects
- *  - renders a vnode tree via the provided renderer
- *  - executes RawEffects (IO, Reader, EffectLike)
- *  - batches dispatches using requestAnimationFrame
- *
- * This module is renderer-agnostic. The user provides the renderer function.
- */
 
 /**
- * Renderer function type.
+ * A DOM renderer function.
  *
  * The renderer is responsible for:
- * - receiving a root DOM node
- * - receiving a vnode
- * - updating the DOM
+ * - receiving a root DOM element
+ * - receiving a virtual node (vnode)
+ * - updating the DOM to reflect the vnode
  *
- * mithril-lite provides a compatible renderer.
+ * Compatible with `mithril-lite` and similar virtual DOM renderers.
+ *
+ * @param root Root DOM element to render into
+ * @param vnode Virtual node tree to render
  */
 export type Renderer = (root: Element, vnode: any) => void;
 
 /**
- * Connects a Program<M,P,E> to a DOM renderer and environment.
+ * Connects a `Program<M, P, E>` to a DOM renderer and environment, producing
+ * an `IO` that, when executed, starts the application runtime.
  *
- * @param renderer Rendering function
- * @param env Environment used by Reader<E,IO<void>> effects
+ * The runtime:
+ * - runs `program.init` to obtain the initial model and effects
+ * - renders the view via the provided `renderer`
+ * - executes effects (`IOEffect`, `ReaderEffect`, or legacy `EffectLike`)
+ * - batches dispatches using `requestAnimationFrame`
  *
- * @returns IO(run) that, when executed, starts the program.
+ * @typeParam M Model type
+ * @typeParam P Payload/message type
  *
- * Responsibilities:
- *  - invoke program.init to obtain initial model & effects
- *  - render view(model)
- *  - run effects
- *  - process dispatches in RAF batches
- *  - expose { dispatch, getModel, destroy }
+ * @param renderer Rendering function that updates the DOM
+ * @param env Environment used by `Reader<DomEnv, IO<void>>` effects
  *
- * `dispatch` queues messages and triggers the update cycle.
+ * @returns Function that, given a root `IO<Element>` and a `Program`,
+ *          produces an `IO` which starts the program when run.
  */
 export const renderApp =
   (renderer: Renderer, env: DomEnv = browserEnv()) =>
   <M, P>(
+    /**
+     * An `IO` that yields the root DOM element to render into.
+     */
     rootIO: IO<Element>,
+    /**
+     * The program definition (init, update, view).
+     */
     program: Program<M, P, DomEnv>
   ): IO<{
+    /**
+     * Enqueue a payload for processing by `program.update`.
+     * Dispatches are batched and processed on the next animation frame.
+     */
     dispatch: (payload: P) => void;
+    /**
+     * Retrieve the current model, or `undefined` if not yet initialized.
+     */
     getModel: () => M | undefined;
+    /**
+     * Stop the runtime:
+     * - prevents new dispatches from being processed
+     * - clears the pending queue
+     * - prevents further rendering or effect execution
+     *
+     * Safe to call multiple times.
+     */
     destroy: () => void;
   }> =>
     rootIO
@@ -61,6 +76,16 @@ export const renderApp =
         let queued = false;
         let destroyed = false;
 
+        /**
+         * Execute a list of raw effects against the current environment.
+         *
+         * Handles:
+         * - tagged `IOEffect`
+         * - tagged `ReaderEffect<DomEnv>`
+         * - legacy `EffectLike` with `run()` or `run(env)` signatures
+         *
+         * @param fx Optional array of effects to run
+         */
         const runEffects = (fx?: RawEffect<DomEnv>[]) => {
           fx?.forEach((effect) => {
             if (!effect) return;
@@ -96,11 +121,25 @@ export const renderApp =
           });
         };
 
+        /**
+         * Render the view for the given model and then execute the provided effects.
+         *
+         * @param m Current model to render
+         * @param effects Effects to run after rendering
+         */
         const renderAndRunEffects = (m: M, effects: RawEffect<DomEnv>[]) => {
           renderer(root, program.view(m, dispatch));
           runEffects(effects);
         };
 
+        /**
+         * Process a single payload:
+         * - runs `program.update`
+         * - updates the model
+         * - renders and executes effects
+         *
+         * @param payload Message/payload to process
+         */
         const step = (payload: P) => {
           if (model === undefined || destroyed) return;
           const { model: next, effects } = program.update(
@@ -111,14 +150,17 @@ export const renderApp =
           model = next;
           renderAndRunEffects(model, effects);
         };
+
         /**
          * Dispatches a payload to the program's update function.
          *
          * Dispatch is batched:
-         *  - multiple dispatches in a frame accumulate in `queue`
-         *  - the batch is processed in the next animation frame
+         * - multiple dispatches in a frame accumulate in `queue`
+         * - the batch is processed in the next animation frame
          *
          * This reduces redundant rendering and improves performance.
+         *
+         * @param payload Message/payload to enqueue
          */
         const dispatch = (payload: P) => {
           if (destroyed) return;
@@ -134,6 +176,12 @@ export const renderApp =
           }
         };
 
+        /**
+         * Initialize the program by:
+         * - running `program.init`
+         * - setting the initial model
+         * - rendering and running the initial effects
+         */
         const start = () => {
           const { model: m0, effects } = program.init.run();
           model = m0;
@@ -145,14 +193,6 @@ export const renderApp =
           return {
             dispatch,
             getModel: () => model,
-            /**
-             * Stops the runtime:
-             *  - prevents new dispatches from being scheduled
-             *  - clears the queue
-             *  - prevents further rendering or effect execution
-             *
-             * Safe to call multiple times.
-             */
             destroy: () => {
               destroyed = true;
               queue.length = 0;

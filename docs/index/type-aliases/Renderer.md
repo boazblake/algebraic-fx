@@ -8,16 +8,16 @@
 
 > **Renderer** = (`root`, `vnode`) => `void`
 
-Defined in: [src/core/render.ts:28](https://github.com/boazblake/algebraic-fx/blob/72ec4b64caa6a6d4d7c07250727f11a44a289f6e/src/core/render.ts#L28)
+Defined in: [src/core/render.ts:20](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/core/render.ts#L20)
 
-Renderer function type.
+A DOM renderer function.
 
 The renderer is responsible for:
-- receiving a root DOM node
-- receiving a vnode
-- updating the DOM
+- receiving a root DOM element
+- receiving a virtual node (vnode)
+- updating the DOM to reflect the vnode
 
-mithril-lite provides a compatible renderer.
+Compatible with `mithril-lite` and similar virtual DOM renderers.
 
 ## Parameters
 
@@ -25,9 +25,13 @@ mithril-lite provides a compatible renderer.
 
 `Element`
 
+Root DOM element to render into
+
 ### vnode
 
 `any`
+
+Virtual node tree to render
 
 ## Returns
 

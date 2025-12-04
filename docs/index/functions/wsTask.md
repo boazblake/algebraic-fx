@@ -8,7 +8,7 @@
 
 > **wsTask**\<`E`\>(`url`, `protocols?`, `onError?`): [`Task`](../type-aliases/Task.md)\<`E`, `WebSocket`\>
 
-Defined in: [src/helpers/ws-task.ts:36](https://github.com/boazblake/algebraic-fx/blob/72ec4b64caa6a6d4d7c07250727f11a44a289f6e/src/helpers/ws-task.ts#L36)
+Defined in: [src/helpers/ws-task.ts:36](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/helpers/ws-task.ts#L36)
 
 Create a Task that opens a WebSocket connection.
 

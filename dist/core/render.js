@@ -2,28 +2,48 @@ import { IO } from "../adt/io.js";
 import { IOEffectTag, ReaderEffectTag } from "./types.js";
 import { browserEnv } from "./dom-env.js";
 /**
- * Connects a Program<M,P,E> to a DOM renderer and environment.
+ * Connects a `Program<M, P, E>` to a DOM renderer and environment, producing
+ * an `IO` that, when executed, starts the application runtime.
  *
- * @param renderer Rendering function
- * @param env Environment used by Reader<E,IO<void>> effects
+ * The runtime:
+ * - runs `program.init` to obtain the initial model and effects
+ * - renders the view via the provided `renderer`
+ * - executes effects (`IOEffect`, `ReaderEffect`, or legacy `EffectLike`)
+ * - batches dispatches using `requestAnimationFrame`
  *
- * @returns IO(run) that, when executed, starts the program.
+ * @typeParam M Model type
+ * @typeParam P Payload/message type
  *
- * Responsibilities:
- *  - invoke program.init to obtain initial model & effects
- *  - render view(model)
- *  - run effects
- *  - process dispatches in RAF batches
- *  - expose { dispatch, getModel, destroy }
+ * @param renderer Rendering function that updates the DOM
+ * @param env Environment used by `Reader<DomEnv, IO<void>>` effects
  *
- * `dispatch` queues messages and triggers the update cycle.
+ * @returns Function that, given a root `IO<Element>` and a `Program`,
+ *          produces an `IO` which starts the program when run.
  */
-export const renderApp = (renderer, env = browserEnv()) => (rootIO, program) => rootIO
+export const renderApp = (renderer, env = browserEnv()) => (
+/**
+ * An `IO` that yields the root DOM element to render into.
+ */
+rootIO, 
+/**
+ * The program definition (init, update, view).
+ */
+program) => rootIO
     .map((root) => {
     let model = undefined;
     const queue = [];
     let queued = false;
     let destroyed = false;
+    /**
+     * Execute a list of raw effects against the current environment.
+     *
+     * Handles:
+     * - tagged `IOEffect`
+     * - tagged `ReaderEffect<DomEnv>`
+     * - legacy `EffectLike` with `run()` or `run(env)` signatures
+     *
+     * @param fx Optional array of effects to run
+     */
     const runEffects = (fx) => {
         fx?.forEach((effect) => {
             if (!effect)
@@ -55,10 +75,24 @@ export const renderApp = (renderer, env = browserEnv()) => (rootIO, program) => 
             }
         });
     };
+    /**
+     * Render the view for the given model and then execute the provided effects.
+     *
+     * @param m Current model to render
+     * @param effects Effects to run after rendering
+     */
     const renderAndRunEffects = (m, effects) => {
         renderer(root, program.view(m, dispatch));
         runEffects(effects);
     };
+    /**
+     * Process a single payload:
+     * - runs `program.update`
+     * - updates the model
+     * - renders and executes effects
+     *
+     * @param payload Message/payload to process
+     */
     const step = (payload) => {
         if (model === undefined || destroyed)
             return;
@@ -70,10 +104,12 @@ export const renderApp = (renderer, env = browserEnv()) => (rootIO, program) => 
      * Dispatches a payload to the program's update function.
      *
      * Dispatch is batched:
-     *  - multiple dispatches in a frame accumulate in `queue`
-     *  - the batch is processed in the next animation frame
+     * - multiple dispatches in a frame accumulate in `queue`
+     * - the batch is processed in the next animation frame
      *
      * This reduces redundant rendering and improves performance.
+     *
+     * @param payload Message/payload to enqueue
      */
     const dispatch = (payload) => {
         if (destroyed)
@@ -91,6 +127,12 @@ export const renderApp = (renderer, env = browserEnv()) => (rootIO, program) => 
             });
         }
     };
+    /**
+     * Initialize the program by:
+     * - running `program.init`
+     * - setting the initial model
+     * - rendering and running the initial effects
+     */
     const start = () => {
         const { model: m0, effects } = program.init.run();
         model = m0;
@@ -101,14 +143,6 @@ export const renderApp = (renderer, env = browserEnv()) => (rootIO, program) => 
         return {
             dispatch,
             getModel: () => model,
-            /**
-             * Stops the runtime:
-             *  - prevents new dispatches from being scheduled
-             *  - clears the queue
-             *  - prevents further rendering or effect execution
-             *
-             * Safe to call multiple times.
-             */
             destroy: () => {
                 destroyed = true;
                 queue.length = 0;

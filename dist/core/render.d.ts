@@ -2,47 +2,64 @@ import { IO } from "../adt/io.js";
 import type { Program } from "./types.js";
 import type { DomEnv } from "./dom-env.js";
 /**
- * Application runtime for algebraic-fx.
- *
- * `renderApp(renderer)` constructs a runtime loop that:
- *  - runs program.init to obtain the initial model + effects
- *  - renders a vnode tree via the provided renderer
- *  - executes RawEffects (IO, Reader, EffectLike)
- *  - batches dispatches using requestAnimationFrame
- *
- * This module is renderer-agnostic. The user provides the renderer function.
- */
-/**
- * Renderer function type.
+ * A DOM renderer function.
  *
  * The renderer is responsible for:
- * - receiving a root DOM node
- * - receiving a vnode
- * - updating the DOM
+ * - receiving a root DOM element
+ * - receiving a virtual node (vnode)
+ * - updating the DOM to reflect the vnode
  *
- * mithril-lite provides a compatible renderer.
+ * Compatible with `mithril-lite` and similar virtual DOM renderers.
+ *
+ * @param root Root DOM element to render into
+ * @param vnode Virtual node tree to render
  */
 export type Renderer = (root: Element, vnode: any) => void;
 /**
- * Connects a Program<M,P,E> to a DOM renderer and environment.
+ * Connects a `Program<M, P, E>` to a DOM renderer and environment, producing
+ * an `IO` that, when executed, starts the application runtime.
  *
- * @param renderer Rendering function
- * @param env Environment used by Reader<E,IO<void>> effects
+ * The runtime:
+ * - runs `program.init` to obtain the initial model and effects
+ * - renders the view via the provided `renderer`
+ * - executes effects (`IOEffect`, `ReaderEffect`, or legacy `EffectLike`)
+ * - batches dispatches using `requestAnimationFrame`
  *
- * @returns IO(run) that, when executed, starts the program.
+ * @typeParam M Model type
+ * @typeParam P Payload/message type
  *
- * Responsibilities:
- *  - invoke program.init to obtain initial model & effects
- *  - render view(model)
- *  - run effects
- *  - process dispatches in RAF batches
- *  - expose { dispatch, getModel, destroy }
+ * @param renderer Rendering function that updates the DOM
+ * @param env Environment used by `Reader<DomEnv, IO<void>>` effects
  *
- * `dispatch` queues messages and triggers the update cycle.
+ * @returns Function that, given a root `IO<Element>` and a `Program`,
+ *          produces an `IO` which starts the program when run.
  */
-export declare const renderApp: (renderer: Renderer, env?: DomEnv) => <M, P>(rootIO: IO<Element>, program: Program<M, P, DomEnv>) => IO<{
+export declare const renderApp: (renderer: Renderer, env?: DomEnv) => <M, P>(
+/**
+ * An `IO` that yields the root DOM element to render into.
+ */
+rootIO: IO<Element>, 
+/**
+ * The program definition (init, update, view).
+ */
+program: Program<M, P, DomEnv>) => IO<{
+    /**
+     * Enqueue a payload for processing by `program.update`.
+     * Dispatches are batched and processed on the next animation frame.
+     */
     dispatch: (payload: P) => void;
+    /**
+     * Retrieve the current model, or `undefined` if not yet initialized.
+     */
     getModel: () => M | undefined;
+    /**
+     * Stop the runtime:
+     * - prevents new dispatches from being processed
+     * - clears the pending queue
+     * - prevents further rendering or effect execution
+     *
+     * Safe to call multiple times.
+     */
     destroy: () => void;
 }>;
 //# sourceMappingURL=render.d.ts.map

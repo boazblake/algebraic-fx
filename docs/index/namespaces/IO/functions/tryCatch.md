@@ -8,7 +8,7 @@
 
 > **tryCatch**\<`A`\>(`f`, `onError`): [`IO`](../../../type-aliases/IO.md)\<`A`\>
 
-Defined in: [src/adt/io.ts:118](https://github.com/boazblake/algebraic-fx/blob/72ec4b64caa6a6d4d7c07250727f11a44a289f6e/src/adt/io.ts#L118)
+Defined in: [src/adt/io.ts:118](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/io.ts#L118)
 
 Try-catch wrapper:
 Safely execute a synchronous effect, mapping thrown errors.

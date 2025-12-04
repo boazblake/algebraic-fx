@@ -43,7 +43,7 @@ export declare const writeText: (selector: string, text: string) => Reader<DomEn
  *
  * Returned effect runs `window.alert(message)` when executed.
  *
- * @param message Message to display.
+ * @param msg Message to display.
  *
  * @example
  * runDomIO(alertIO("Hello!"), env);
@@ -67,7 +67,7 @@ export declare const scrollToIO: (x: number, y: number) => Reader<DomEnv, IO<voi
  * Errors such as quota exceeded or disabled storage are logged, not thrown.
  *
  * @param key Storage key.
- * @param value Value to store.
+ * @param val Value to store.
  *
  * @example
  * runDomIO(localSet("theme", "dark"), env);
@@ -92,7 +92,7 @@ export declare const localGet: (key: string) => Reader<DomEnv, IO<string | null>
  * Errors are logged and ignored.
  *
  * @param key Storage key.
- * @param value Value to store.
+ * @param val Value to store.
  *
  * @example
  * runDomIO(sessionSet("token", "abc123"), env);
@@ -137,7 +137,7 @@ export declare const fetchIO: (url: string, options?: RequestInit) => Reader<Dom
  * This helper is convenient for using DOM effects outside of Programs,
  * or for imperative code in development.
  *
- * @param readerIO A Reader<DomEnv, IO<A>> effect.
+ * @param rio A Reader<DomEnv, IO<A>> effect.
  * @param env The DomEnv used to resolve DOM operations.
  * @returns The result of executing the IO.
  *

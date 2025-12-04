@@ -8,7 +8,7 @@
 
 > **VChild** = [`VNode`](VNode-1.md) \| `string` \| `number` \| `boolean` \| `null` \| `undefined`
 
-Defined in: [src/core/types.ts:25](https://github.com/boazblake/algebraic-fx/blob/72ec4b64caa6a6d4d7c07250727f11a44a289f6e/src/core/types.ts#L25)
+Defined in: [src/core/types.ts:25](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/core/types.ts#L25)
 
 Union of all possible vnode children types.
 

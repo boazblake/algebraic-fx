@@ -8,9 +8,16 @@
 
 > **renderApp**(`renderer`, `env`): \<`M`, `P`\>(`rootIO`, `program`) => [`IO`](../type-aliases/IO.md)\<\{ `destroy`: () => `void`; `dispatch`: (`payload`) => `void`; `getModel`: () => `M` \| `undefined`; \}\>
 
-Defined in: [src/core/render.ts:48](https://github.com/boazblake/algebraic-fx/blob/72ec4b64caa6a6d4d7c07250727f11a44a289f6e/src/core/render.ts#L48)
+Defined in: [src/core/render.ts:42](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/core/render.ts#L42)
 
-Connects a Program<M,P,E> to a DOM renderer and environment.
+Connects a `Program<M, P, E>` to a DOM renderer and environment, producing
+an `IO` that, when executed, starts the application runtime.
+
+The runtime:
+- runs `program.init` to obtain the initial model and effects
+- renders the view via the provided `renderer`
+- executes effects (`IOEffect`, `ReaderEffect`, or legacy `EffectLike`)
+- batches dispatches using `requestAnimationFrame`
 
 ## Parameters
 
@@ -18,26 +25,18 @@ Connects a Program<M,P,E> to a DOM renderer and environment.
 
 [`Renderer`](../type-aliases/Renderer.md)
 
-Rendering function
+Rendering function that updates the DOM
 
 ### env
 
 [`DomEnv`](../type-aliases/DomEnv.md) = `...`
 
-Environment used by Reader<E,IO<void>> effects
+Environment used by `Reader<DomEnv, IO<void>>` effects
 
 ## Returns
 
-IO(run) that, when executed, starts the program.
-
-Responsibilities:
- - invoke program.init to obtain initial model & effects
- - render view(model)
- - run effects
- - process dispatches in RAF batches
- - expose { dispatch, getModel, destroy }
-
-`dispatch` queues messages and triggers the update cycle.
+Function that, given a root `IO<Element>` and a `Program`,
+         produces an `IO` which starts the program when run.
 
 > \<`M`, `P`\>(`rootIO`, `program`): [`IO`](../type-aliases/IO.md)\<\{ `destroy`: () => `void`; `dispatch`: (`payload`) => `void`; `getModel`: () => `M` \| `undefined`; \}\>
 
@@ -57,9 +56,13 @@ Responsibilities:
 
 [`IO`](../type-aliases/IO.md)\<`Element`\>
 
+An `IO` that yields the root DOM element to render into.
+
 #### program
 
 [`Program`](../type-aliases/Program.md)\<`M`, `P`, [`DomEnv`](../type-aliases/DomEnv.md)\>
+
+The program definition (init, update, view).
 
 ### Returns
 
