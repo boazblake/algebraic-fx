@@ -1,4 +1,7 @@
+declare const StateBrand: unique symbol;
+
 export type State<S, A> = {
+  readonly [StateBrand]: true;
   run: (s: S) => [A, S];
   map: <B>(f: (a: A) => B) => State<S, B>;
   chain: <B>(f: (a: A) => State<S, B>) => State<S, B>;
@@ -6,6 +9,7 @@ export type State<S, A> = {
 };
 
 export const State = <S, A>(run: (s: S) => [A, S]): State<S, A> => ({
+  [StateBrand]: true,
   run,
 
   map: (f) =>

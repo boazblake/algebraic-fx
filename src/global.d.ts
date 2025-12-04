@@ -1,7 +1,9 @@
+import type { Dispatch, Payload } from "./types.js";
+
 export {};
 
 declare global {
   interface Window {
-    dispatch: (msg: any) => void;
+    dispatch?: Dispatch<Payload>;
   }
 }

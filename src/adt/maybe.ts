@@ -1,10 +1,21 @@
+declare const MaybeBrand: unique symbol;
 export type Just<A> = { _tag: "Just"; value: A };
 export type Nothing = { _tag: "Nothing" };
-export type Maybe<A> = Just<A> | Nothing;
+export type Maybe<A> = (Just<A> | Nothing) & {
+  readonly [MaybeBrand]: true;
+};
 
 /** Constructors */
-export const Just = <A>(value: A): Maybe<A> => ({ _tag: "Just", value });
-export const Nothing: Maybe<never> = { _tag: "Nothing" };
+export const Just = <A>(value: A): Maybe<A> => ({
+  _tag: "Just",
+  value,
+  [MaybeBrand]: true,
+});
+
+export const Nothing: Maybe<never> = {
+  _tag: "Nothing",
+  [MaybeBrand]: true,
+};
 
 /** Functor map */
 export const map = <A, B>(f: (a: A) => B, ma: Maybe<A>): Maybe<B> =>
@@ -54,10 +65,9 @@ export const toUndefined = <A>(ma: Maybe<A>): A | undefined =>
   ma._tag === "Just" ? ma.value : undefined;
 
 /** Check if Maybe is Just */
-export const isJust = <A>(ma: Maybe<A>): ma is Just<A> => ma._tag === "Just";
+export const isJust = <A>(ma: Maybe<A>): ma is Maybe<A> => ma._tag === "Just";
 
-/** Check if Maybe is Nothing */
-export const isNothing = <A>(ma: Maybe<A>): ma is Nothing =>
+export const isNothing = <A>(ma: Maybe<A>): ma is Maybe<never> =>
   ma._tag === "Nothing";
 
 /** Filter - keep Just only if predicate passes */

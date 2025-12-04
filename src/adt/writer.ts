@@ -1,4 +1,7 @@
+declare const WriterBrand: unique symbol;
+
 export type Writer<W, A> = {
+  readonly [WriterBrand]: true;
   run: () => [A, W];
   map: <B>(f: (a: A) => B) => Writer<W, B>;
   chain: <B>(f: (a: A) => Writer<W, B>) => Writer<W, B>;
@@ -7,6 +10,7 @@ export type Writer<W, A> = {
 
 /** Writer constructor */
 export const Writer = <W, A>(run: () => [A, W]): Writer<W, A> => ({
+  [WriterBrand]: true,
   run,
 
   map: <B>(f: (a: A) => B): Writer<W, B> =>

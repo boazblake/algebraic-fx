@@ -1,15 +1,19 @@
+declare const ValidationBrand: unique symbol;
+
 export type Validation<E, A> =
-  | { _tag: "Failure"; errors: E[] }
-  | { _tag: "Success"; value: A };
+  | ({ _tag: "Failure"; errors: E[] } & { readonly [ValidationBrand]: true })
+  | ({ _tag: "Success"; value: A } & { readonly [ValidationBrand]: true });
 
 export const Failure = <E>(errors: E[]): Validation<E, never> => ({
   _tag: "Failure",
   errors,
+  [ValidationBrand]: true,
 });
 
 export const Success = <A>(value: A): Validation<never, A> => ({
   _tag: "Success",
   value,
+  [ValidationBrand]: true,
 });
 
 /** Functor map */
@@ -75,12 +79,11 @@ export const getOrElseW = <E, A, B>(
 /** Check if Validation is Failure */
 export const isFailure = <E, A>(
   v: Validation<E, A>
-): v is { _tag: "Failure"; errors: E[] } => v._tag === "Failure";
+): v is Validation<E, never> => v._tag === "Failure";
 
-/** Check if Validation is Success */
 export const isSuccess = <E, A>(
   v: Validation<E, A>
-): v is { _tag: "Success"; value: A } => v._tag === "Success";
+): v is Validation<never, A> => v._tag === "Success";
 
 /** Create Failure from single error */
 export const fail = <E>(error: E): Validation<E, never> => Failure([error]);

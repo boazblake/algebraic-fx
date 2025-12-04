@@ -1,4 +1,7 @@
+declare const IOBrand: unique symbol;
+
 export type IO<A> = {
+  readonly [IOBrand]: true;
   run: () => A;
   map: <B>(f: (a: A) => B) => IO<B>;
   chain: <B>(f: (a: A) => IO<B>) => IO<B>;
@@ -7,6 +10,7 @@ export type IO<A> = {
 
 /** Main constructor */
 export const IO = <A>(run: () => A): IO<A> => ({
+  [IOBrand]: true,
   run,
   map: (f) => IO(() => f(run())),
   chain: (f) => IO(() => f(run()).run()),

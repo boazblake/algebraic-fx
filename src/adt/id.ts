@@ -1,4 +1,7 @@
+declare const IdBrand: unique symbol;
+
 export type Id<A> = {
+  readonly [IdBrand]: true;
   /** Execute the identity computation */
   run: () => A;
   /** Functor map */
@@ -11,6 +14,7 @@ export type Id<A> = {
 
 /** Identity constructor */
 export const Id = <A>(a: A): Id<A> => ({
+  [IdBrand]: true,
   run: () => a,
   map: (f) => Id(f(a)),
   chain: (f) => f(a),

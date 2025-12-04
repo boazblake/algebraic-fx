@@ -1,6 +1,9 @@
 import { Either, Left, Right } from "./either.js";
 
+declare const TaskBrand: unique symbol;
+
 export type Task<E, A> = {
+  readonly [TaskBrand]: true;
   run: () => Promise<Either<E, A>>;
   map: <B>(f: (a: A) => B) => Task<E, B>;
   chain: <B>(f: (a: A) => Task<E, B>) => Task<E, B>;
@@ -11,6 +14,7 @@ export type Task<E, A> = {
 
 /** Main constructor */
 export const Task = <E, A>(run: () => Promise<Either<E, A>>): Task<E, A> => ({
+  [TaskBrand]: true,
   run,
 
   map: <B>(f: (a: A) => B): Task<E, B> =>
