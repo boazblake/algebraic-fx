@@ -1,5 +1,5 @@
 {
-  "name": "@boazblake/algebraic-js",
+  "name": "algebraic-fx",
   "version": "1.0.0",
   "description": "A tiny TEA-style runtime with explicit algebraic effects over a fast virtual DOM",
   "type": "module",
@@ -23,12 +23,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/boazblake/algebraic-js.git"
+    "url": "git+https://github.com/boazblake/algebraic-fx.git"
   },
   "bugs": {
-    "url": "https://github.com/boazblake/algebraic-js/issues"
+    "url": "https://github.com/boazblake/algebraic-fx/issues"
   },
-  "homepage": "https://github.com/boazblake/algebraic-js#readme",
+  "homepage": "https://github.com/boazblake/algebraic-fx#readme",
   "files": [
     "dist",
     "README.md",
@@ -41,7 +41,7 @@
     },
     "./core/*": "./dist/core/*.js",
     "./adt/*": "./dist/adt/*.js",
-    "./nativescript/*": "./dist/nativescript/*.js"
+    "./helpers/*": "./dist/helpers/*.js"
   },
   "scripts": {
     "build": "tsc -p .",

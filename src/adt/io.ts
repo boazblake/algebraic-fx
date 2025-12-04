@@ -1,4 +1,7 @@
+declare const IOBrand: unique symbol;
+
 export type IO<A> = {
+  readonly [IOBrand]: true;
   run: () => A;
   map: <B>(f: (a: A) => B) => IO<B>;
   chain: <B>(f: (a: A) => IO<B>) => IO<B>;
@@ -7,6 +10,7 @@ export type IO<A> = {
 
 /** Main constructor */
 export const IO = <A>(run: () => A): IO<A> => ({
+  [IOBrand]: true,
   run,
   map: (f) => IO(() => f(run())),
   chain: (f) => IO(() => f(run()).run()),
@@ -39,14 +43,6 @@ IO.traverse =
   <A, B>(f: (a: A) => IO<B>) =>
   (arr: A[]): IO<B[]> =>
     IO(() => arr.map((a) => f(a).run()));
-
-/** Delay execution */
-IO.delay = <A>(ms: number, io: IO<A>): IO<A> =>
-  IO(() => {
-    const start = Date.now();
-    while (Date.now() - start < ms);
-    return io.run();
-  });
 
 /** Try-catch wrapper */
 IO.tryCatch = <A>(f: () => A, onError: (e: unknown) => A): IO<A> =>

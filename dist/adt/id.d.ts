@@ -1,4 +1,6 @@
+declare const IdBrand: unique symbol;
 export type Id<A> = {
+    readonly [IdBrand]: true;
     /** Execute the identity computation */
     run: () => A;
     /** Functor map */

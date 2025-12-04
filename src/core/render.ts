@@ -1,74 +1,118 @@
-import type { Program, EffectLike } from './types.js'
-import { IO } from '../adt/io.js'
-import { browserEnv } from '../core/dom.js'
-import type { DomEnv } from '../core/dom.js'
+import { IO } from "../adt/io.js";
+import type { Program, RawEffect, IOEffect, ReaderEffect } from "./types.js";
+import { IOEffectTag, ReaderEffectTag } from "./types.js";
+import { browserEnv } from "./dom-env.js";
+import type { DomEnv } from "./dom-env.js";
 
-export type Renderer = (root: Element, vnode: any) => void
+export type Renderer = (root: Element, vnode: any) => void;
 
+/**
+ * Render app with a given renderer and DOM environment.
+ *
+ * Effects:
+ * - IO<void>:     effect.run()
+ * - EffectLike:   effect.run()
+ * - Reader<E,IO<void>>: effect.run(env).run()
+ */
 export const renderApp =
   (renderer: Renderer, env: DomEnv = browserEnv()) =>
-  <M, Msg>(
+  <M, P>(
     rootIO: IO<Element>,
-    program: Program<M, Msg>
-  ): IO<{ dispatch: (msg: Msg) => void; getModel: () => M }> =>
+    program: Program<M, P, DomEnv>
+  ): IO<{
+    dispatch: (payload: P) => void;
+    getModel: () => M | undefined;
+    destroy: () => void;
+  }> =>
     rootIO
-      .map(root => {
-        let model!: M
-        const queue: Msg[] = []
-        let queued = false
+      .map((root) => {
+        let model: M | undefined = undefined;
+        const queue: P[] = [];
+        let queued = false;
+        let destroyed = false;
 
-        // Executes both IO and Reader effects
-        const runEffects = (fx?: any[]) => {
-          fx?.forEach(e => {
-            if (!e) return
+        const runEffects = (fx?: RawEffect<DomEnv>[]) => {
+          fx?.forEach((effect) => {
+            if (!effect) return;
 
-            // plain IO
-            if (typeof e.run === 'function' && !('map' in e)) {
-              e.run()
-              return
+            // Tagged IOEffect
+            if ((effect as IOEffect)._tag === IOEffectTag) {
+              (effect as IOEffect).io.run();
+              return;
             }
 
-            // Reader<DomEnv, IO>  (our Reader-based sendMsg)
-            if (typeof e.run === 'function' && 'map' in e) {
-              const io = e.run(env)        // supply the environment
-              if (io && typeof io.run === 'function') io.run()
-              return
+            // Tagged ReaderEffect
+            if ((effect as ReaderEffect<DomEnv>)._tag === ReaderEffectTag) {
+              const r = (effect as ReaderEffect<DomEnv>).reader;
+              const io = r.run(env);
+              io.run();
+              return;
             }
-          })
-        }
 
-        const renderAndRunEffects = (m: M, effects: EffectLike[]) => {
-          renderer(root, program.view(m, dispatch))
-          runEffects(effects)
-        }
+            // Backward compat: EffectLike (IO-like) with no env
+            if (typeof (effect as any).run === "function") {
+              const candidate = effect as any;
 
-        const step = (msg: Msg) => {
-          const { model: next, effects } = program.update(msg, model, dispatch)
-          model = next
-          renderAndRunEffects(model, effects || [])
-        }
+              // If run(env) returns an IO, treat it as Reader<E, IO<void>>
+              if (candidate.run.length >= 1) {
+                const io = candidate.run(env);
+                if (io && typeof io.run === "function") io.run();
+                return;
+              }
 
-        const dispatch = (msg: Msg) => {
-          queue.push(msg)
+              // Otherwise treat as IO<void>/EffectLike: run()
+              candidate.run();
+            }
+          });
+        };
+
+        const renderAndRunEffects = (m: M, effects: RawEffect<DomEnv>[]) => {
+          renderer(root, program.view(m, dispatch));
+          runEffects(effects);
+        };
+
+        const step = (payload: P) => {
+          if (model === undefined || destroyed) return;
+          const { model: next, effects } = program.update(
+            payload,
+            model,
+            dispatch
+          );
+          model = next;
+          renderAndRunEffects(model, effects);
+        };
+
+        const dispatch = (payload: P) => {
+          if (destroyed) return;
+          queue.push(payload);
           if (!queued) {
-            queued = true
+            queued = true;
             requestAnimationFrame(() => {
-              queued = false
-              const msgs = queue.splice(0, queue.length)
-              for (const msg of msgs) step(msg)
-            })
+              if (destroyed) return;
+              const msgs = queue.splice(0, queue.length);
+              queued = false; // reset AFTER draining
+              for (const msg of msgs) step(msg);
+            });
           }
-        }
+        };
 
         const start = () => {
-          const { model: m0, effects } = program.init.run()
-          model = m0
-          renderAndRunEffects(model, effects || [])
-        }
+          const { model: m0, effects } = program.init.run();
+          model = m0;
+          renderAndRunEffects(model, effects);
+        };
 
         return IO(() => {
-          start()
-          return { dispatch, getModel: () => model }
-        })
+          start();
+          return {
+            dispatch,
+            getModel: () => model,
+            destroy: () => {
+              destroyed = true;
+              queue.length = 0;
+              queued = true;
+            },
+          };
+        });
       })
-      .chain(io => io)
+      .chain((io) => io);

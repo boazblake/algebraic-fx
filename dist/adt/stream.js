@@ -1,4 +1,5 @@
 export const Stream = (subscribe) => ({
+    [StreamBrand]: true,
     subscribe,
     map: (f) => Stream((o) => subscribe({
         next: (a) => {

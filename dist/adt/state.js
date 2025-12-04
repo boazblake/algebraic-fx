@@ -1,4 +1,5 @@
 export const State = (run) => ({
+    [StateBrand]: true,
     run,
     map: (f) => State((s) => {
         const [a, s1] = run(s);

@@ -1,5 +1,6 @@
 /** Main constructor */
 export const IO = (run) => ({
+    [IOBrand]: true,
     run,
     map: (f) => IO(() => f(run())),
     chain: (f) => IO(() => f(run()).run()),
@@ -20,13 +21,6 @@ IO.sequence = (ios) => IO(() => ios.map((io) => io.run()));
 /** Traverse an array */
 IO.traverse =
     (f) => (arr) => IO(() => arr.map((a) => f(a).run()));
-/** Delay execution */
-IO.delay = (ms, io) => IO(() => {
-    const start = Date.now();
-    while (Date.now() - start < ms)
-        ;
-    return io.run();
-});
 /** Try-catch wrapper */
 IO.tryCatch = (f, onError) => IO(() => {
     try {

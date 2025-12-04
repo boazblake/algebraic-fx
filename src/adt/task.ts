@@ -2,6 +2,7 @@ import { Either, Left, Right } from "./either.js";
 
 export type Task<E, A> = {
   run: () => Promise<Either<E, A>>;
+  runWith: (signal: AbortSignal) => Promise<Either<E, A>>;
   map: <B>(f: (a: A) => B) => Task<E, B>;
   chain: <B>(f: (a: A) => Task<E, B>) => Task<E, B>;
   ap: <B>(fb: Task<E, (a: A) => B>) => Task<E, B>;
@@ -10,51 +11,80 @@ export type Task<E, A> = {
 };
 
 /** Main constructor */
-export const Task = <E, A>(run: () => Promise<Either<E, A>>): Task<E, A> => ({
-  run,
+export const Task = <E, A>(
+  run0: (signal?: AbortSignal) => Promise<Either<E, A>>
+): Task<E, A> => ({
+  run: () => run0(),
+
+  runWith: (signal: AbortSignal) => run0(signal),
 
   map: <B>(f: (a: A) => B): Task<E, B> =>
-    Task(() =>
-      run().then((ea) => (ea._tag === "Right" ? Right(f(ea.right)) : ea))
+    Task((signal) =>
+      run0(signal).then((ea) =>
+        ea._tag === "Right" ? Right<B>(f(ea.right)) : (ea as Either<E, B>)
+      )
     ),
 
   chain: <B>(f: (a: A) => Task<E, B>): Task<E, B> =>
-    Task(() =>
-      run().then((ea) =>
-        ea._tag === "Right" ? f(ea.right).run() : Promise.resolve(ea)
+    Task((signal) =>
+      run0(signal).then((ea) =>
+        ea._tag === "Right"
+          ? f(ea.right).runWith(signal as AbortSignal)
+          : (Promise.resolve(ea) as Promise<Either<E, B>>)
       )
     ),
 
   ap: <B>(fb: Task<E, (a: A) => B>): Task<E, B> =>
-    Task(() =>
+    Task((signal) =>
       fb
-        .run()
+        .runWith(signal as AbortSignal)
         .then((ef) =>
           ef._tag === "Right"
-            ? run().then((ea) =>
-                ea._tag === "Right" ? Right(ef.right(ea.right)) : ea
+            ? run0(signal).then((ea) =>
+                ea._tag === "Right"
+                  ? Right<B>(ef.right(ea.right))
+                  : (ea as Either<E, B>)
               )
-            : Promise.resolve(ef)
+            : (Promise.resolve(ef) as Promise<Either<E, B>>)
         )
     ),
 
   mapError: <E2>(f: (e: E) => E2): Task<E2, A> =>
-    Task(() =>
-      run().then((ea) => (ea._tag === "Left" ? Left(f(ea.left)) : ea))
+    Task((signal) =>
+      run0(signal).then((ea) =>
+        ea._tag === "Left" ? Left<E2>(f(ea.left)) : (ea as Either<E2, A>)
+      )
     ),
 
   bimap: <E2, B>(onError: (e: E) => E2, onSuccess: (a: A) => B): Task<E2, B> =>
-    Task(() =>
-      run().then((ea) =>
-        ea._tag === "Left" ? Left(onError(ea.left)) : Right(onSuccess(ea.right))
+    Task((signal) =>
+      run0(signal).then((ea) =>
+        ea._tag === "Left"
+          ? Left<E2>(onError(ea.left))
+          : Right<B>(onSuccess(ea.right))
       )
     ),
 });
 
-/** Static constructors */
-Task.of = <A>(a: A): Task<never, A> => Task(() => Promise.resolve(Right(a)));
+/** Simple constructors */
+Task.of = <A>(a: A): Task<never, A> => Task(() => Promise.resolve(Right<A>(a)));
 
-Task.reject = <E>(e: E): Task<E, never> => Task(() => Promise.resolve(Left(e)));
+Task.reject = <E>(e: E): Task<E, never> =>
+  Task(() => Promise.resolve(Left<E>(e)));
+
+/** Abort-aware helper (NOT attached as static to Task to avoid type noise) */
+export const taskFromAbortable = <E, A>(
+  register: (signal: AbortSignal) => Promise<A>,
+  onError: (e: unknown) => E
+): Task<E, A> =>
+  Task((signal) => {
+    const controller = signal === undefined ? new AbortController() : null;
+    const effectiveSignal = signal ?? controller!.signal;
+
+    return register(effectiveSignal)
+      .then((a) => Right<A>(a))
+      .catch((e) => Left<E>(onError(e)));
+  });
 
 /** Utilities */
 Task.tryCatch = <A>(f: () => Promise<A>): Task<unknown, A> =>
@@ -112,39 +142,72 @@ Task.getOrElse =
   (t: Task<E, A>): Promise<A> =>
     t.run().then((ea) => (ea._tag === "Right" ? ea.right : defaultValue));
 
-/** Delay execution */
+/** Delay execution (abort-safe wrapper) */
 Task.delay =
   (ms: number) =>
   <E, A>(t: Task<E, A>): Task<E, A> =>
     Task(
-      () =>
-        new Promise((resolve) => setTimeout(() => t.run().then(resolve), ms))
+      (signal) =>
+        new Promise<Either<E, A>>((resolve) => {
+          const id = setTimeout(() => {
+            t.runWith(signal as AbortSignal).then(resolve);
+          }, ms);
+
+          if (signal) {
+            signal.addEventListener(
+              "abort",
+              () => {
+                clearTimeout(id);
+                // Resolve with a Left on abort so the Task always settles.
+                const abortError = {
+                  message: "Task.delay aborted",
+                } as unknown as E;
+
+                resolve(Left<E>(abortError));
+              },
+              { once: true }
+            );
+          }
+        })
     );
 
 /** Timeout a task */
 Task.timeout =
   <E>(ms: number, onTimeout: E) =>
   <A>(t: Task<E, A>): Task<E, A> =>
-    Task(() =>
-      Promise.race([
-        t.run(),
-        new Promise<Either<E, A>>((resolve) =>
-          setTimeout(() => resolve(Left(onTimeout)), ms)
-        ),
-      ])
+    Task(
+      (signal) =>
+        new Promise<Either<E, A>>((resolve) => {
+          const timeoutId = setTimeout(() => resolve(Left<E>(onTimeout)), ms);
+
+          const runPromise = t.runWith(signal as AbortSignal).then((ea) => {
+            clearTimeout(timeoutId);
+            resolve(ea);
+          });
+
+          if (signal) {
+            signal.addEventListener("abort", () => {
+              clearTimeout(timeoutId);
+            });
+          }
+
+          return runPromise;
+        })
     );
 
 /** Sequence an array of Tasks (sequential execution) */
 Task.sequence = <E, A>(tasks: Task<E, A>[]): Task<E, A[]> =>
-  Task(async () => {
-    const results: A[] = [];
-    for (const task of tasks) {
-      const ea = await task.run();
-      if (ea._tag === "Left") return ea;
-      results.push(ea.right);
-    }
-    return Right(results);
-  });
+  Task((signal) =>
+    (async () => {
+      const results: A[] = [];
+      for (const task of tasks) {
+        const ea = await task.runWith(signal as AbortSignal);
+        if (ea._tag === "Left") return ea;
+        results.push(ea.right);
+      }
+      return Right<A[]>(results);
+    })()
+  );
 
 /** Traverse an array */
 Task.traverse =
@@ -154,21 +217,24 @@ Task.traverse =
 
 /** Parallel execution - all tasks must succeed */
 Task.all = <E, A>(tasks: Task<E, A>[]): Task<E, A[]> =>
-  Task(async () => {
-    const results = await Promise.all(tasks.map((t) => t.run()));
-    const values: A[] = [];
-
-    for (const ea of results) {
-      if (ea._tag === "Left") return ea;
-      values.push(ea.right);
-    }
-
-    return Right(values);
-  });
+  Task((signal) =>
+    Promise.all(tasks.map((t) => t.runWith(signal as AbortSignal))).then(
+      (results) => {
+        const values: A[] = [];
+        for (const ea of results) {
+          if (ea._tag === "Left") return ea;
+          values.push(ea.right);
+        }
+        return Right<A[]>(values);
+      }
+    )
+  );
 
 /** Race - return first to complete */
 Task.race = <E, A>(tasks: Task<E, A>[]): Task<E, A> =>
-  Task(() => Promise.race(tasks.map((t) => t.run())));
+  Task((signal) =>
+    Promise.race(tasks.map((t) => t.runWith(signal as AbortSignal)))
+  );
 
 /** From Either */
 Task.fromEither = <E, A>(e: Either<E, A>): Task<E, A> =>

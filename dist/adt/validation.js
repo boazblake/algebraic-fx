@@ -1,10 +1,12 @@
 export const Failure = (errors) => ({
     _tag: "Failure",
     errors,
+    [ValidationBrand]: true,
 });
 export const Success = (value) => ({
     _tag: "Success",
     value,
+    [ValidationBrand]: true,
 });
 /** Functor map */
 export const map = (f, v) => (v._tag === "Success" ? Success(f(v.value)) : v);
@@ -36,7 +38,6 @@ export const getOrElse = (defaultValue, v) => v._tag === "Success" ? v.value : d
 export const getOrElseW = (onFailure, v) => (v._tag === "Success" ? v.value : onFailure(v.errors));
 /** Check if Validation is Failure */
 export const isFailure = (v) => v._tag === "Failure";
-/** Check if Validation is Success */
 export const isSuccess = (v) => v._tag === "Success";
 /** Create Failure from single error */
 export const fail = (error) => Failure([error]);

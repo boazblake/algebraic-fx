@@ -1,3 +1,5 @@
+declare const StreamBrand: unique symbol;
+
 export type Observer<A> = {
   next: (a: A) => void;
   error?: (e: unknown) => void;
@@ -7,6 +9,7 @@ export type Observer<A> = {
 export type Unsubscribe = () => void;
 
 export type Stream<A> = {
+  readonly [StreamBrand]: true;
   subscribe: (o: Observer<A>) => Unsubscribe;
   map: <B>(f: (a: A) => B) => Stream<B>;
   chain: <B>(f: (a: A) => Stream<B>) => Stream<B>;
@@ -19,6 +22,7 @@ export type Stream<A> = {
 export const Stream = <A>(
   subscribe: (o: Observer<A>) => Unsubscribe
 ): Stream<A> => ({
+  [StreamBrand]: true,
   subscribe,
 
   map: <B>(f: (a: A) => B): Stream<B> =>

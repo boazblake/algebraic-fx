@@ -1,10 +1,15 @@
-export type Validation<E, A> = {
+declare const ValidationBrand: unique symbol;
+export type Validation<E, A> = ({
     _tag: "Failure";
     errors: E[];
-} | {
+} & {
+    readonly [ValidationBrand]: true;
+}) | ({
     _tag: "Success";
     value: A;
-};
+} & {
+    readonly [ValidationBrand]: true;
+});
 export declare const Failure: <E>(errors: E[]) => Validation<E, never>;
 export declare const Success: <A>(value: A) => Validation<never, A>;
 /** Functor map */
@@ -26,15 +31,8 @@ export declare const getOrElse: <E, A>(defaultValue: A, v: Validation<E, A>) => 
 /** Get value or compute default */
 export declare const getOrElseW: <E, A, B>(onFailure: (errs: E[]) => B, v: Validation<E, A>) => A | B;
 /** Check if Validation is Failure */
-export declare const isFailure: <E, A>(v: Validation<E, A>) => v is {
-    _tag: "Failure";
-    errors: E[];
-};
-/** Check if Validation is Success */
-export declare const isSuccess: <E, A>(v: Validation<E, A>) => v is {
-    _tag: "Success";
-    value: A;
-};
+export declare const isFailure: <E, A>(v: Validation<E, A>) => v is Validation<E, never>;
+export declare const isSuccess: <E, A>(v: Validation<E, A>) => v is Validation<never, A>;
 /** Create Failure from single error */
 export declare const fail: <E>(error: E) => Validation<E, never>;
 /** Alternative - returns first Success, accumulates all Failures */
@@ -60,14 +58,8 @@ export declare const Validation: {
     fold: <E, A, B>(onFail: (errs: E[]) => B, onSucc: (a: A) => B, v: Validation<E, A>) => B;
     getOrElse: <E, A>(defaultValue: A, v: Validation<E, A>) => A;
     getOrElseW: <E, A, B>(onFailure: (errs: E[]) => B, v: Validation<E, A>) => A | B;
-    isFailure: <E, A>(v: Validation<E, A>) => v is {
-        _tag: "Failure";
-        errors: E[];
-    };
-    isSuccess: <E, A>(v: Validation<E, A>) => v is {
-        _tag: "Success";
-        value: A;
-    };
+    isFailure: <E, A>(v: Validation<E, A>) => v is Validation<E, never>;
+    isSuccess: <E, A>(v: Validation<E, A>) => v is Validation<never, A>;
     fail: <E>(error: E) => Validation<E, never>;
     alt: <E, A>(v1: Validation<E, A>, v2: Validation<E, A>) => Validation<E, A>;
     combine: <E, A>(validations: Validation<E, A>[]) => Validation<E, A[]>;

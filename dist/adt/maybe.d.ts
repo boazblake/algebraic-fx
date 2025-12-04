@@ -1,3 +1,4 @@
+declare const MaybeBrand: unique symbol;
 export type Just<A> = {
     _tag: "Just";
     value: A;
@@ -5,7 +6,9 @@ export type Just<A> = {
 export type Nothing = {
     _tag: "Nothing";
 };
-export type Maybe<A> = Just<A> | Nothing;
+export type Maybe<A> = (Just<A> | Nothing) & {
+    readonly [MaybeBrand]: true;
+};
 /** Constructors */
 export declare const Just: <A>(value: A) => Maybe<A>;
 export declare const Nothing: Maybe<never>;
@@ -32,9 +35,8 @@ export declare const toNullable: <A>(ma: Maybe<A>) => A | null;
 /** Convert Maybe to undefined */
 export declare const toUndefined: <A>(ma: Maybe<A>) => A | undefined;
 /** Check if Maybe is Just */
-export declare const isJust: <A>(ma: Maybe<A>) => ma is Just<A>;
-/** Check if Maybe is Nothing */
-export declare const isNothing: <A>(ma: Maybe<A>) => ma is Nothing;
+export declare const isJust: <A>(ma: Maybe<A>) => ma is Maybe<A>;
+export declare const isNothing: <A>(ma: Maybe<A>) => ma is Maybe<never>;
 /** Filter - keep Just only if predicate passes */
 export declare const filter: <A>(predicate: (a: A) => boolean, ma: Maybe<A>) => Maybe<A>;
 /** Traverse an array */
@@ -44,7 +46,9 @@ export declare const sequence: <A>(arr: Maybe<A>[]) => Maybe<A[]>;
 /** Unified static interface */
 export declare const Maybe: {
     Just: <A>(value: A) => Maybe<A>;
-    Nothing: Nothing;
+    Nothing: Nothing & {
+        readonly [MaybeBrand]: true;
+    };
     map: <A, B>(f: (a: A) => B, ma: Maybe<A>) => Maybe<B>;
     ap: <A, B>(mf: Maybe<(a: A) => B>, ma: Maybe<A>) => Maybe<B>;
     chain: <A, B>(f: (a: A) => Maybe<B>, ma: Maybe<A>) => Maybe<B>;
@@ -56,8 +60,8 @@ export declare const Maybe: {
     fromNullable: <A>(a: A | null | undefined) => Maybe<NonNullable<A>>;
     toNullable: <A>(ma: Maybe<A>) => A | null;
     toUndefined: <A>(ma: Maybe<A>) => A | undefined;
-    isJust: <A>(ma: Maybe<A>) => ma is Just<A>;
-    isNothing: <A>(ma: Maybe<A>) => ma is Nothing;
+    isJust: <A>(ma: Maybe<A>) => ma is Maybe<A>;
+    isNothing: <A>(ma: Maybe<A>) => ma is Maybe<never>;
     filter: <A>(predicate: (a: A) => boolean, ma: Maybe<A>) => Maybe<A>;
     traverse: <A, B>(f: (a: A) => Maybe<B>, arr: A[]) => Maybe<B[]>;
     sequence: <A>(arr: Maybe<A>[]) => Maybe<A[]>;

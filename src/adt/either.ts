@@ -1,12 +1,21 @@
+declare const EitherBrand: unique symbol;
 export type Left<L> = { _tag: "Left"; left: L };
 export type Right<R> = { _tag: "Right"; right: R };
-export type Either<L, R> = Left<L> | Right<R>;
+export type Either<L, R> = (Left<L> | Right<R>) & {
+  readonly [EitherBrand]: true;
+};
 
 /** Constructors */
-export const Left = <L>(l: L): Either<L, never> => ({ _tag: "Left", left: l });
+export const Left = <L>(l: L): Either<L, never> => ({
+  _tag: "Left",
+  left: l,
+  [EitherBrand]: true,
+});
+
 export const Right = <R>(r: R): Either<never, R> => ({
   _tag: "Right",
   right: r,
+  [EitherBrand]: true,
 });
 
 /** Functor map */
@@ -68,18 +77,17 @@ export const alt = <L, A>(e1: Either<L, A>, e2: Either<L, A>): Either<L, A> =>
   e1._tag === "Right" ? e1 : e2;
 
 /** Check if Either is Left */
-export const isLeft = <L, A>(e: Either<L, A>): e is Left<L> =>
+export const isLeft = <L, A>(e: Either<L, A>): e is Either<L, never> =>
   e._tag === "Left";
 
-/** Check if Either is Right */
-export const isRight = <L, A>(e: Either<L, A>): e is Right<A> =>
+export const isRight = <L, A>(e: Either<L, A>): e is Either<never, A> =>
   e._tag === "Right";
 
 /** Convert nullable to Either */
 export const fromNullable =
   <L>(onNull: L) =>
   <A>(a: A | null | undefined): Either<L, NonNullable<A>> =>
-    a === null ? Left(onNull) : Right(a as NonNullable<A>);
+    a == null ? Left(onNull) : Right(a as NonNullable<A>);
 
 /** Try-catch wrapper */
 export const tryCatch = <A>(f: () => A): Either<unknown, A> => {
