@@ -41,7 +41,7 @@
     },
     "./core/*": "./dist/core/*.js",
     "./adt/*": "./dist/adt/*.js",
-    "./nativescript/*": "./dist/nativescript/*.js"
+    "./helpers/*": "./dist/helpers/*.js"
   },
   "scripts": {
     "build": "tsc -p .",

@@ -1,7 +1,5 @@
 {
-  "extends": [
-    "recommended"
-  ],
+  "extends": ["recommended"],
   "env": {
     "browser": true,
     "node": true,
@@ -15,18 +13,9 @@
         "argsIgnorePattern": "^_"
       }
     ],
-    "eqeqeq": [
-      "error",
-      "always"
-    ],
-    "semi": [
-      "error",
-      "always"
-    ],
-    "quotes": [
-      "error",
-      "double"
-    ],
+    "eqeqeq": ["error", "always"],
+    "semi": ["error", "always"],
+    "quotes": ["error", "double"],
     "prefer-const": "error",
     "no-var": "error"
   },
