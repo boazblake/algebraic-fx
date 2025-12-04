@@ -1,5 +1,6 @@
 /** Reader constructor */
 export const Reader = (run) => ({
+    [ReaderBrand]: true,
     run,
     map: (f) => Reader((env) => f(run(env))),
     chain: (f) => Reader((env) => f(run(env)).run(env)),

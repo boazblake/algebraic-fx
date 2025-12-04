@@ -1,6 +1,7 @@
 import { Either } from "./either.js";
 export type Task<E, A> = {
     run: () => Promise<Either<E, A>>;
+    runWith: (signal: AbortSignal) => Promise<Either<E, A>>;
     map: <B>(f: (a: A) => B) => Task<E, B>;
     chain: <B>(f: (a: A) => Task<E, B>) => Task<E, B>;
     ap: <B>(fb: Task<E, (a: A) => B>) => Task<E, B>;
@@ -9,7 +10,7 @@ export type Task<E, A> = {
 };
 /** Main constructor */
 export declare const Task: {
-    <E, A>(run: () => Promise<Either<E, A>>): Task<E, A>;
+    <E, A>(run0: (signal?: AbortSignal) => Promise<Either<E, A>>): Task<E, A>;
     of<A>(a: A): Task<never, A>;
     reject<E>(e: E): Task<E, never>;
     tryCatch<A>(f: () => Promise<A>): Task<unknown, A>;
@@ -30,5 +31,7 @@ export declare const Task: {
     fromEither<E, A>(e: Either<E, A>): Task<E, A>;
     toPromise<E, A>(t: Task<E, A>): Promise<A>;
 };
+/** Abort-aware helper (NOT attached as static to Task to avoid type noise) */
+export declare const taskFromAbortable: <E, A>(register: (signal: AbortSignal) => Promise<A>, onError: (e: unknown) => E) => Task<E, A>;
 export default Task;
 //# sourceMappingURL=task.d.ts.map

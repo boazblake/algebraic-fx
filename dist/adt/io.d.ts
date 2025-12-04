@@ -1,4 +1,6 @@
+declare const IOBrand: unique symbol;
 export type IO<A> = {
+    readonly [IOBrand]: true;
     run: () => A;
     map: <B>(f: (a: A) => B) => IO<B>;
     chain: <B>(f: (a: A) => IO<B>) => IO<B>;
@@ -14,7 +16,6 @@ export declare const IO: {
     run<A>(io: IO<A>): A;
     sequence<A>(ios: IO<A>[]): IO<A[]>;
     traverse<A, B>(f: (a: A) => IO<B>): (arr: A[]) => IO<B[]>;
-    delay<A>(ms: number, io: IO<A>): IO<A>;
     tryCatch<A>(f: () => A, onError: (e: unknown) => A): IO<A>;
 };
 /** Aggregate under unified export object */

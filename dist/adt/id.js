@@ -1,5 +1,6 @@
 /** Identity constructor */
 export const Id = (a) => ({
+    [IdBrand]: true,
     run: () => a,
     map: (f) => Id(f(a)),
     chain: (f) => f(a),

@@ -1,6 +1,13 @@
 /** Constructors */
-export const Just = (value) => ({ _tag: "Just", value });
-export const Nothing = { _tag: "Nothing" };
+export const Just = (value) => ({
+    _tag: "Just",
+    value,
+    [MaybeBrand]: true,
+});
+export const Nothing = {
+    _tag: "Nothing",
+    [MaybeBrand]: true,
+};
 /** Functor map */
 export const map = (f, ma) => ma._tag === "Just" ? Just(f(ma.value)) : Nothing;
 /** Applicative apply */
@@ -18,14 +25,13 @@ export const getOrElseW = (onNothing, ma) => ma._tag === "Just" ? ma.value : onN
 /** Alternative - returns first Just */
 export const alt = (ma1, ma2) => ma1._tag === "Just" ? ma1 : ma2;
 /** Convert nullable to Maybe */
-export const fromNullable = (a) => (a === null ? Nothing : Just(a));
+export const fromNullable = (a) => (a == null ? Nothing : Just(a));
 /** Convert Maybe to nullable */
 export const toNullable = (ma) => ma._tag === "Just" ? ma.value : null;
 /** Convert Maybe to undefined */
 export const toUndefined = (ma) => ma._tag === "Just" ? ma.value : undefined;
 /** Check if Maybe is Just */
 export const isJust = (ma) => ma._tag === "Just";
-/** Check if Maybe is Nothing */
 export const isNothing = (ma) => ma._tag === "Nothing";
 /** Filter - keep Just only if predicate passes */
 export const filter = (predicate, ma) => (ma._tag === "Just" && predicate(ma.value) ? ma : Nothing);

@@ -1,26 +1,48 @@
-import { IO } from '../adt/io.js';
-import { browserEnv } from '../core/dom.js';
+import { IO } from "../adt/io.js";
+import { IOEffectTag, ReaderEffectTag } from "./types.js";
+import { browserEnv } from "./dom-env.js";
+/**
+ * Render app with a given renderer and DOM environment.
+ *
+ * Effects:
+ * - IO<void>:     effect.run()
+ * - EffectLike:   effect.run()
+ * - Reader<E,IO<void>>: effect.run(env).run()
+ */
 export const renderApp = (renderer, env = browserEnv()) => (rootIO, program) => rootIO
-    .map(root => {
-    let model;
+    .map((root) => {
+    let model = undefined;
     const queue = [];
     let queued = false;
-    // Executes both IO and Reader effects
+    let destroyed = false;
     const runEffects = (fx) => {
-        fx?.forEach(e => {
-            if (!e)
+        fx?.forEach((effect) => {
+            if (!effect)
                 return;
-            // plain IO
-            if (typeof e.run === 'function' && !('map' in e)) {
-                e.run();
+            // Tagged IOEffect
+            if (effect._tag === IOEffectTag) {
+                effect.io.run();
                 return;
             }
-            // Reader<DomEnv, IO>  (our Reader-based sendMsg)
-            if (typeof e.run === 'function' && 'map' in e) {
-                const io = e.run(env); // supply the environment
-                if (io && typeof io.run === 'function')
-                    io.run();
+            // Tagged ReaderEffect
+            if (effect._tag === ReaderEffectTag) {
+                const r = effect.reader;
+                const io = r.run(env);
+                io.run();
                 return;
+            }
+            // Backward compat: EffectLike (IO-like) with no env
+            if (typeof effect.run === "function") {
+                const candidate = effect;
+                // If run(env) returns an IO, treat it as Reader<E, IO<void>>
+                if (candidate.run.length >= 1) {
+                    const io = candidate.run(env);
+                    if (io && typeof io.run === "function")
+                        io.run();
+                    return;
+                }
+                // Otherwise treat as IO<void>/EffectLike: run()
+                candidate.run();
             }
         });
     };
@@ -28,18 +50,24 @@ export const renderApp = (renderer, env = browserEnv()) => (rootIO, program) => 
         renderer(root, program.view(m, dispatch));
         runEffects(effects);
     };
-    const step = (msg) => {
-        const { model: next, effects } = program.update(msg, model, dispatch);
+    const step = (payload) => {
+        if (model === undefined || destroyed)
+            return;
+        const { model: next, effects } = program.update(payload, model, dispatch);
         model = next;
-        renderAndRunEffects(model, effects || []);
+        renderAndRunEffects(model, effects);
     };
-    const dispatch = (msg) => {
-        queue.push(msg);
+    const dispatch = (payload) => {
+        if (destroyed)
+            return;
+        queue.push(payload);
         if (!queued) {
             queued = true;
             requestAnimationFrame(() => {
-                queued = false;
+                if (destroyed)
+                    return;
                 const msgs = queue.splice(0, queue.length);
+                queued = false; // reset AFTER draining
                 for (const msg of msgs)
                     step(msg);
             });
@@ -48,12 +76,20 @@ export const renderApp = (renderer, env = browserEnv()) => (rootIO, program) => 
     const start = () => {
         const { model: m0, effects } = program.init.run();
         model = m0;
-        renderAndRunEffects(model, effects || []);
+        renderAndRunEffects(model, effects);
     };
     return IO(() => {
         start();
-        return { dispatch, getModel: () => model };
+        return {
+            dispatch,
+            getModel: () => model,
+            destroy: () => {
+                destroyed = true;
+                queue.length = 0;
+                queued = true;
+            },
+        };
     });
 })
-    .chain(io => io);
+    .chain((io) => io);
 //# sourceMappingURL=render.js.map

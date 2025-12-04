@@ -1,4 +1,6 @@
+declare const ReaderBrand: unique symbol;
 export type Reader<E, A> = {
+    readonly [ReaderBrand]: true;
     run: (env: E) => A;
     map: <B>(f: (a: A) => B) => Reader<E, B>;
     chain: <B>(f: (a: A) => Reader<E, B>) => Reader<E, B>;

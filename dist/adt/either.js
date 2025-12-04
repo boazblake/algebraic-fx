@@ -1,8 +1,13 @@
 /** Constructors */
-export const Left = (l) => ({ _tag: "Left", left: l });
+export const Left = (l) => ({
+    _tag: "Left",
+    left: l,
+    [EitherBrand]: true,
+});
 export const Right = (r) => ({
     _tag: "Right",
     right: r,
+    [EitherBrand]: true,
 });
 /** Functor map */
 export const map = (f, e) => e._tag === "Right" ? Right(f(e.right)) : e;
@@ -32,10 +37,9 @@ export const getOrElseW = (onLeft, e) => (e._tag === "Right" ? e.right : onLeft(
 export const alt = (e1, e2) => e1._tag === "Right" ? e1 : e2;
 /** Check if Either is Left */
 export const isLeft = (e) => e._tag === "Left";
-/** Check if Either is Right */
 export const isRight = (e) => e._tag === "Right";
 /** Convert nullable to Either */
-export const fromNullable = (onNull) => (a) => a === null ? Left(onNull) : Right(a);
+export const fromNullable = (onNull) => (a) => a == null ? Left(onNull) : Right(a);
 /** Try-catch wrapper */
 export const tryCatch = (f) => {
     try {
