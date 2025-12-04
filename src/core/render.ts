@@ -1,77 +1,26 @@
-import type { Program, Dispatch, VChild, EffectLike } from "./types.js";
 import { IO } from "../adt/io.js";
-import { browserEnv, type DomEnv } from "./dom-env.js";
-import { IOEffectTag, EnvEffectTag } from "./types.js";
-import type { IO as IOType } from "../adt/io.js";
-import type { Reader } from "../adt/reader.js";
+import type { Program, RawEffect, IOEffect, ReaderEffect } from "./types.js";
+import { IOEffectTag, ReaderEffectTag } from "./types.js";
+import { browserEnv } from "./dom-env.js";
+import type { DomEnv } from "./dom-env.js";
+
+export type Renderer = (root: Element, vnode: any) => void;
 
 /**
- * Renderer: takes a root element and a vnode (or vnode array) and applies it.
- */
-export type Renderer = (root: Element, vnode: VChild | VChild[]) => void;
-
-/**
- * Values that userland can legitimately put into effects arrays.
- * We keep this union internal to render.ts; Program remains `any[]` for effects.
- */
-type EffectCandidate =
-  | EffectLike
-  | IOType<void>
-  | Reader<unknown, IOType<void>>
-  | null
-  | undefined;
-
-/**
- * Normalize a raw effect candidate into an EffectLike.
+ * Render app with a given renderer and DOM environment.
  *
- * Rules (no ADT changes assumed):
- * - If it has _effect tag → EffectLike as-is.
- * - If it has .run and run.length === 0 → treat as IO<void>.
- * - If it has .run and run.length === 1 → treat as Reader<Env, IO<void>>.
+ * Effects:
+ * - IO<void>:     effect.run()
+ * - EffectLike:   effect.run()
+ * - Reader<E,IO<void>>: effect.run(env).run()
  */
-const normalizeEffect = (e: EffectCandidate): EffectLike | null => {
-  if (!e) return null;
-
-  const anyE = e as any;
-
-  // Already an EffectLike
-  if (anyE._effect === IOEffectTag || anyE._effect === EnvEffectTag) {
-    return anyE as EffectLike;
-  }
-
-  // Something with run(): IO or Reader
-  if (typeof anyE.run === "function") {
-    const arity = anyE.run.length;
-
-    // IO<void> → IOEffect
-    if (arity === 0) {
-      return {
-        _effect: IOEffectTag,
-        io: anyE as IOType<void>,
-      };
-    }
-
-    // Reader<Env, IO<void>> → EnvEffect
-    if (arity === 1) {
-      const reader = anyE as Reader<unknown, IOType<void>>;
-      return {
-        _effect: EnvEffectTag,
-        runWithEnv: (env: unknown) => reader.run(env),
-      };
-    }
-  }
-
-  // Unknown or unsupported effect shape
-  return null;
-};
-
 export const renderApp =
   (renderer: Renderer, env: DomEnv = browserEnv()) =>
   <M, P>(
     rootIO: IO<Element>,
-    program: Program<M, P>
+    program: Program<M, P, DomEnv>
   ): IO<{
-    dispatch: Dispatch<P>;
+    dispatch: (payload: P) => void;
     getModel: () => M | undefined;
     destroy: () => void;
   }> =>
@@ -82,51 +31,66 @@ export const renderApp =
         let queued = false;
         let destroyed = false;
 
-        const runEffects = (fx?: EffectCandidate[]) => {
-          if (!fx || destroyed) return;
+        const runEffects = (fx?: RawEffect<DomEnv>[]) => {
+          fx?.forEach((effect) => {
+            if (!effect) return;
 
-          for (const raw of fx) {
-            const eff = normalizeEffect(raw);
-            if (!eff) continue;
-
-            if (eff._effect === IOEffectTag) {
-              eff.io.run();
-              continue;
+            // Tagged IOEffect
+            if ((effect as IOEffect)._tag === IOEffectTag) {
+              (effect as IOEffect).io.run();
+              return;
             }
 
-            if (eff._effect === EnvEffectTag) {
-              const io = eff.runWithEnv(env);
-              io?.run();
+            // Tagged ReaderEffect
+            if ((effect as ReaderEffect<DomEnv>)._tag === ReaderEffectTag) {
+              const r = (effect as ReaderEffect<DomEnv>).reader;
+              const io = r.run(env);
+              io.run();
+              return;
             }
-          }
+
+            // Backward compat: EffectLike (IO-like) with no env
+            if (typeof (effect as any).run === "function") {
+              const candidate = effect as any;
+
+              // If run(env) returns an IO, treat it as Reader<E, IO<void>>
+              if (candidate.run.length >= 1) {
+                const io = candidate.run(env);
+                if (io && typeof io.run === "function") io.run();
+                return;
+              }
+
+              // Otherwise treat as IO<void>/EffectLike: run()
+              candidate.run();
+            }
+          });
         };
 
-        const renderAndRunEffects = (m: M, effects: EffectCandidate[]) => {
-          if (destroyed) return;
+        const renderAndRunEffects = (m: M, effects: RawEffect<DomEnv>[]) => {
           renderer(root, program.view(m, dispatch));
           runEffects(effects);
         };
 
         const step = (payload: P) => {
-          if (destroyed || model === undefined) return;
+          if (model === undefined || destroyed) return;
           const { model: next, effects } = program.update(
             payload,
             model,
             dispatch
           );
           model = next;
-          renderAndRunEffects(model, (effects as EffectCandidate[]) || []);
+          renderAndRunEffects(model, effects);
         };
 
-        const dispatch: Dispatch<P> = (payload) => {
+        const dispatch = (payload: P) => {
           if (destroyed) return;
           queue.push(payload);
           if (!queued) {
             queued = true;
             requestAnimationFrame(() => {
               if (destroyed) return;
-              queued = false;
               const msgs = queue.splice(0, queue.length);
+              queued = false; // reset AFTER draining
               for (const msg of msgs) step(msg);
             });
           }
@@ -135,7 +99,7 @@ export const renderApp =
         const start = () => {
           const { model: m0, effects } = program.init.run();
           model = m0;
-          renderAndRunEffects(model, (effects as EffectCandidate[]) || []);
+          renderAndRunEffects(model, effects);
         };
 
         return IO(() => {
@@ -145,8 +109,8 @@ export const renderApp =
             getModel: () => model,
             destroy: () => {
               destroyed = true;
-              queued = false;
-              queue.splice(0, queue.length);
+              queue.length = 0;
+              queued = true;
             },
           };
         });

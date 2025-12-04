@@ -1,8 +1,15 @@
 import type { IO } from "../adt/io.js";
-
-/** Virtual DOM */
+import type { Reader } from "../adt/reader.js";
+import type { DomEnv } from "./dom-env.js";
 
 export type VChild = VNode | string | number | boolean | null | undefined;
+
+export type Msg = Record<string, string>;
+
+export type Payload<T extends string = string, M extends Msg = Msg> = {
+  type: T;
+  msg: M;
+};
 
 export type Props = Record<string, any> & {
   oncreate?: (el: Element) => void;
@@ -17,58 +24,50 @@ export type VNode = {
   key?: string | number;
 };
 
-/** Messages */
-
-export type Payload<T extends string = string, M = unknown> = {
-  type: T;
-  msg?: M;
-};
-
 export type Dispatch<P> = (payload: P) => void;
 
-/** Effects
- *
- * We normalize raw values (IO<void>, Reader<Env, IO<void>>) into these at runtime.
- * Userland can still return IO/Reader; EffectLike is the internal representation.
- */
+export interface EffectLike {
+  run: () => void;
+}
 
-export const IOEffectTag = Symbol("algebraic-fx/IOEffect");
-export const EnvEffectTag = Symbol("algebraic-fx/EnvEffect");
+export const IOEffectTag = Symbol("IOEffect");
+export const ReaderEffectTag = Symbol("ReaderEffect");
 
 export type IOEffect = {
-  _effect: typeof IOEffectTag;
+  _tag: typeof IOEffectTag;
   io: IO<void>;
 };
 
-export type EnvEffect = {
-  _effect: typeof EnvEffectTag;
-  runWithEnv: (env: unknown) => IO<void>;
+export type ReaderEffect<E> = {
+  _tag: typeof ReaderEffectTag;
+  reader: Reader<E, IO<void>>;
 };
 
-export type EffectLike = IOEffect | EnvEffect;
-
-export const effectFromIO = (io: IO<void>): IOEffect => ({
-  _effect: IOEffectTag,
+export const ioEffect = (io: IO<void>): IOEffect => ({
+  _tag: IOEffectTag,
   io,
 });
 
-export const effectFromEnv = (f: (env: unknown) => IO<void>): EnvEffect => ({
-  _effect: EnvEffectTag,
-  runWithEnv: f,
+export const readerEffect = <E>(
+  reader: Reader<E, IO<void>>
+): ReaderEffect<E> => ({
+  _tag: ReaderEffectTag,
+  reader,
 });
 
-/** Program
- *
- * We keep effects as `any[]` at the Program boundary for backward compatibility.
- * Core normalizes them to EffectLike before execution.
- */
+export type RawEffect<E> =
+  | IO<void> // backward compat
+  | Reader<E, IO<void>> // backward compat
+  | EffectLike
+  | IOEffect
+  | ReaderEffect<E>;
 
-export type Program<M, P> = {
-  init: IO<{ model: M; effects: any[] }>;
+export type Program<M, P, E = DomEnv> = {
+  init: IO<{ model: M; effects: RawEffect<E>[] }>;
   update: (
     payload: P,
     model: M,
     dispatch: Dispatch<P>
-  ) => { model: M; effects: any[] };
+  ) => { model: M; effects: RawEffect<E>[] };
   view: (model: M, dispatch: Dispatch<P>) => VChild | VChild[];
 };

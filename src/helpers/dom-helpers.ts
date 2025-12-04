@@ -50,13 +50,14 @@ export const scrollToIO = (x: number, y: number) =>
   askWindow.map((win) => IO(() => win.scrollTo(x, y)));
 
 /* STORAGE HELPERS */
-
 export const localSet = (key: string, val: string) =>
   askLocal.map((storage) =>
     IO(() => {
       try {
         storage.setItem(key, val);
-      } catch (_) {}
+      } catch (e) {
+        console.error("[localSet] storage error:", e);
+      }
     })
   );
 
@@ -65,7 +66,8 @@ export const localGet = (key: string) =>
     IO(() => {
       try {
         return storage.getItem(key);
-      } catch (_) {
+      } catch (e) {
+        console.error("[localGet] storage error:", e);
         return null;
       }
     })
@@ -76,7 +78,9 @@ export const sessionSet = (key: string, val: string) =>
     IO(() => {
       try {
         storage.setItem(key, val);
-      } catch (_) {}
+      } catch (e) {
+        console.error("[sessionSet] storage error:", e);
+      }
     })
   );
 
@@ -85,7 +89,8 @@ export const sessionGet = (key: string) =>
     IO(() => {
       try {
         return storage.getItem(key);
-      } catch (_) {
+      } catch (e) {
+        console.error("[sessionGet] storage error:", e);
         return null;
       }
     })

@@ -44,14 +44,6 @@ IO.traverse =
   (arr: A[]): IO<B[]> =>
     IO(() => arr.map((a) => f(a).run()));
 
-/** Delay execution */
-IO.delay = <A>(ms: number, io: IO<A>): IO<A> =>
-  IO(() => {
-    const start = Date.now();
-    while (Date.now() - start < ms);
-    return io.run();
-  });
-
 /** Try-catch wrapper */
 IO.tryCatch = <A>(f: () => A, onError: (e: unknown) => A): IO<A> =>
   IO(() => {

@@ -54,7 +54,7 @@ export const alt = <A>(ma1: Maybe<A>, ma2: Maybe<A>): Maybe<A> =>
 /** Convert nullable to Maybe */
 export const fromNullable = <A>(
   a: A | null | undefined
-): Maybe<NonNullable<A>> => (a === null ? Nothing : Just(a as NonNullable<A>));
+): Maybe<NonNullable<A>> => (a == null ? Nothing : Just(a as NonNullable<A>));
 
 /** Convert Maybe to nullable */
 export const toNullable = <A>(ma: Maybe<A>): A | null =>

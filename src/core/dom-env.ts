@@ -30,10 +30,19 @@ export const askFetch = askEnv.map((env) => env.fetch);
 /**
  * Default browser environment constructor.
  */
-export const browserEnv = (): DomEnv => ({
-  document: window.document,
-  window,
-  localStorage: window.localStorage,
-  sessionStorage: window.sessionStorage,
-  fetch: window.fetch.bind(window),
-});
+export const browserEnv = (): DomEnv => {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    throw new Error(
+      "browserEnv() called in a non-browser environment. " +
+        "Use a custom DomEnv implementation when running SSR or tests."
+    );
+  }
+
+  return {
+    document: window.document,
+    window,
+    localStorage: window.localStorage,
+    sessionStorage: window.sessionStorage,
+    fetch: window.fetch.bind(window),
+  };
+};
