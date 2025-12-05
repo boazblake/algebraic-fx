@@ -100,7 +100,7 @@ export type RawEffect<E> = IO<void> | Reader<E, IO<void>> | EffectLike | IOEffec
  * renderApp wires the Program to a renderer and executes the effects.
  *
  * @template M Model type
- * @template P Message payload type
+ * @template P Payload type
  * @template E Environment used for Reader<E,IO<void>>
  */
 export type Program<M, P, E = DomEnv> = {

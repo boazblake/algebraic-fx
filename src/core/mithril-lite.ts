@@ -481,6 +481,17 @@ function updateNode(
 ) {
   if (old === vnode) return;
 
+  if (old.tag === "#" && vnode.tag === "#") {
+    vnode.dom = old.dom;
+    const dom = old.dom as Text | null;
+
+    if (dom && old.text !== vnode.text) {
+      dom.nodeValue = vnode.text ?? "";
+    }
+
+    return;
+  }
+
   if (old.tag === vnode.tag) {
     const oldNs = ns;
     const nextNs = vnode.tag === "svg" ? "http://www.w3.org/2000/svg" : ns;
