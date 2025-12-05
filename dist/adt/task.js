@@ -1,3 +1,8 @@
+/**
+ * Unique brand for nominal typing of Task values.
+ * Prevents structural type collisions with plain objects.
+ */
+const TaskBrand = Symbol("TaskBrand");
 import { Left, Right } from "./either.js";
 /**
  * Construct a Task given a function that accepts an optional AbortSignal.

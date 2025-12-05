@@ -1,4 +1,9 @@
 /**
+ * Unique brand ensuring Validation values are nominally typed.
+ * Prevents accidental mixing with plain objects of identical shape.
+ */
+const ValidationBrand = Symbol("ValidationBrand");
+/**
  * Construct a failing Validation from an array of errors.
  *
  * @example

@@ -1,4 +1,9 @@
 /**
+ * Unique brand for nominal typing of State values.
+ * Prevents accidental structural equivalence.
+ */
+const StateBrand = Symbol("StateBrand");
+/**
  * Construct a new State computation.
  *
  * @param run A pure function `(state: S) => [result, newState]`

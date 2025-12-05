@@ -1,4 +1,9 @@
 /**
+ * Unique brand for nominally typing Stream values.
+ * Prevents structural type collisions with plain objects.
+ */
+const StreamBrand = Symbol("StreamBrand");
+/**
  * Stream constructor.
  *
  * All stream combinators ultimately call this function to build new streams.

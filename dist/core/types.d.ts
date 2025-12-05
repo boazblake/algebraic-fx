@@ -43,7 +43,7 @@ export type Props = Record<string, any> & {
 export type VNode = {
     tag: string;
     props?: Props | null;
-    children: VChild[];
+    children: VChild[] | null;
     key?: string | number;
 };
 /**

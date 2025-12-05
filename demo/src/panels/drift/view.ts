@@ -12,7 +12,7 @@ const driftClass = (d: number): string => {
 
 export const view = (model: Model, _dispatch: Dispatch<Msg>) => {
   const report = model.report;
-
+console.log('drift',model)
   if (!report) {
     return m(
       "p",

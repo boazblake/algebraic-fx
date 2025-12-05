@@ -1,4 +1,9 @@
 /**
+ * Unique nominal brand for Reader. Ensures Readers cannot be confused with plain
+ * objects of the same structural shape.
+ */
+const ReaderBrand = Symbol("ReaderBrand");
+/**
  * Construct a Reader from a function `(env: E) => A`.
  *
  * @param run Environment-dependent computation

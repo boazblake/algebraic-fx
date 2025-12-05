@@ -1,6 +1,7 @@
-import type { Model, Msg } from "./types";
-import type { Dispatch, RawEffect } from "algebraic-fx";
 import { Validation } from "algebraic-fx";
+import type { Dispatch, RawEffect } from "algebraic-fx";
+import type { Model, Msg } from "./types";
+import type { ValidationError, TargetAllocation } from "../../shared/types";
 import { validateAllocation } from "../../shared/validation";
 import { saveTarget } from "../../effects/storage";
 
@@ -40,21 +41,22 @@ export const update = (
         effects: [],
       };
 
-    case "APPLY_TARGET": {
+    case "APPLY": {
       const v = validateAllocation(
         m.target.stocks,
         m.target.bonds,
         m.target.cash
       );
 
-      if (Validation.isFailure(v)) {
+      if (v._tag === "Failure") {
+        const errors: ValidationError[] = v.errors;
         return {
-          model: { ...m, validationErrors: v.errors },
+          model: { ...m, validationErrors: errors },
           effects: [],
         };
       }
 
-      const target = v.value;
+      const target: TargetAllocation = v.value;
       const saveEffect = saveTarget(target);
 
       return {
@@ -63,14 +65,25 @@ export const update = (
       };
     }
 
-    case "RESTORE_TARGET":
-      return {
-        model: { ...m, target: msg.target, validationErrors: [] },
-        effects: [],
+    case "RESET_DEFAULT": {
+      const target: TargetAllocation = {
+        stocks: 60,
+        bonds: 30,
+        cash: 10,
       };
+      const saveEffect = saveTarget(target);
+
+      return {
+        model: { ...m, target, validationErrors: [] },
+        effects: [saveEffect],
+      };
+    }
 
     case "CLEAR_VALIDATION_ERRORS":
-      return { model: { ...m, validationErrors: [] }, effects: [] };
+      return {
+        model: { ...m, validationErrors: [] },
+        effects: [],
+      };
 
     default:
       return { model: m, effects: [] };

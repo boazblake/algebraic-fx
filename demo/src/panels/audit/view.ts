@@ -3,6 +3,7 @@ import type { Model, Msg } from "./types";
 import type { Dispatch } from "algebraic-fx";
 
 export const view = (model: Model, dispatch: Dispatch<Msg>) => {
+console.log('audit',model)
   return m("div", [
     m("div", { style: "display:flex; gap:0.5rem; margin-bottom:0.5rem;" }, [
       m(
@@ -14,7 +15,7 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) => {
         },
         "Export JSON"
       ),
-      model.entries.length > 0 &&
+      model.entries.length > 0 ?
         m(
           "button",
           {
@@ -23,7 +24,7 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) => {
             onclick: () => dispatch({ type: "CLEAR" }),
           },
           "Clear"
-        ),
+        ):null,
     ]),
     model.entries.length === 0
       ? m(

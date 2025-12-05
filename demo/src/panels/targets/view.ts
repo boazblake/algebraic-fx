@@ -1,17 +1,32 @@
+import type { Dispatch } from "algebraic-fx";
 import { m } from "../../utils/renderer";
 import type { Model, Msg } from "./types";
-import type { Dispatch } from "algebraic-fx";
+import { formatPercent } from "../../shared/calculations";
 
 export const view = (model: Model, dispatch: Dispatch<Msg>) => {
+console.log('taregts',model)
   const { stocks, bonds, cash } = model.target;
-  const sum = stocks + bonds + cash;
+  const total = stocks + bonds + cash;
 
-  return m("div", [
-    // Sliders
-    m("div", { class: "grid", style: "gap: 0.5rem;" }, [
-      m("label", [
-        `Stocks ${stocks}%`,
+  const errors =
+    model.validationErrors.length > 0
+      ? [
+          m(
+            "ul",
+            { style: "color: var(--pico-del-color); margin-top: 0.5rem;" },
+            model.validationErrors.map((err) =>
+              m("li", `${err.field}: ${err.message}`)
+            )
+          ),
+        ]
+      : [];
+
+  return  m("div", [
+      // sliders
+      m("div", { class: "grid", style: "grid-template-columns: 1fr 3fr;" }, [
+        m("label", { for: "stocks-slider" }, "Stocks"),
         m("input", {
+          id: "stocks-slider",
           type: "range",
           min: 0,
           max: 100,
@@ -20,9 +35,12 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) => {
             dispatch({ type: "SET_STOCKS", value: Number(e.target.value) }),
         }),
       ]),
-      m("label", [
-        `Bonds ${bonds}%`,
+      m("small", `Stocks: ${formatPercent(stocks)}`),
+
+      m("div", { class: "grid", style: "grid-template-columns: 1fr 3fr;" }, [
+        m("label", { for: "bonds-slider" }, "Bonds"),
         m("input", {
+          id: "bonds-slider",
           type: "range",
           min: 0,
           max: 100,
@@ -31,9 +49,12 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) => {
             dispatch({ type: "SET_BONDS", value: Number(e.target.value) }),
         }),
       ]),
-      m("label", [
-        `Cash ${cash}%`,
+      m("small", `Bonds: ${formatPercent(bonds)}`),
+
+      m("div", { class: "grid", style: "grid-template-columns: 1fr 3fr;" }, [
+        m("label", { for: "cash-slider" }, "Cash"),
         m("input", {
+          id: "cash-slider",
           type: "range",
           min: 0,
           max: 100,
@@ -42,37 +63,31 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) => {
             dispatch({ type: "SET_CASH", value: Number(e.target.value) }),
         }),
       ]),
-    ]),
+      m("small", `Cash: ${formatPercent(cash)}`),
 
-    // Sum hint
-    m(
-      "p",
-      {
-        style:
-          "margin-top: 0.5rem; font-size: 0.9rem; color: var(--pico-muted-color);",
-      },
-      `Total: ${sum}%`
-    ),
+      m("p", { style: "margin-top: 0.5rem;" }, [
+        m("strong", "Total: "),
+        `${total}%`,
+      ]),
 
-    // Validation errors
-    model.validationErrors.length > 0 &&
-      m(
-        "ul",
-        { style: "color: var(--pico-del-color); margin-top: 0.5rem;" },
-        model.validationErrors.map((err) =>
-          m("li", `${err.field}: ${err.message}`)
-        )
-      ),
+      m("div", { class: "grid", style: "margin-top: 0.75rem;" }, [
+        m(
+          "button",
+          {
+            onclick: () => dispatch({ type: "APPLY" }),
+          },
+          "Apply target"
+        ),
+        m(
+          "button",
+          {
+            class: "secondary outline",
+            onclick: () => dispatch({ type: "RESET_DEFAULT" }),
+          },
+          "Reset to 60/30/10"
+        ),
+      ]),
 
-    // Apply button
-    m(
-      "button",
-      {
-        type: "button",
-        style: "margin-top: 0.5rem;",
-        onclick: () => dispatch({ type: "APPLY_TARGET" }),
-      },
-      "Save target allocation"
-    ),
-  ]);
+      ...errors,
+    ])
 };

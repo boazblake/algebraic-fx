@@ -1,4 +1,8 @@
 /**
+ * Unique brand to nominally type Either values, preventing structural collisions.
+ */
+const EitherBrand = Symbol("EitherBrand");
+/**
  * Construct a Left value (failure).
  */
 export const Left = (l) => ({

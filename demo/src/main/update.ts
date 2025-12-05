@@ -1,82 +1,43 @@
 import { IO } from "algebraic-fx";
 import type { Dispatch, RawEffect } from "algebraic-fx";
 import type { Model, Msg } from "./types";
-import { program as HoldingsPanel } from "../panels/holdings/program";
-import { program as TargetPanel } from "../panels/target/program";
-import { program as DriftPanel } from "../panels/drift/program";
-import { program as TradesPanel } from "../panels/trades/program";
-import { program as AuditPanel } from "../panels/audit/program";
-import { calculateDrift, generateTrades } from "../shared/calculations";
-import type { Holding, TargetAllocation, AuditEntry } from "../shared/types";
+import { program as HoldingsPanel } from "../panels/holdings";
+import { program as TargetsPanel } from "../panels/targets";
+import { program as DriftPanel } from "../panels/drift";
+import { program as TradesPanel } from "../panels/trades";
+import { program as AuditPanel } from "../panels/audit";
+import { calculateDrift } from "../shared/calculations";
+import type { Holding } from "../shared/types";
 
-type PanelUpdate<M, Msg> = (
-  msg: Msg,
-  model: M,
-  dispatch: Dispatch<Msg>
-) => { model: M; effects: RawEffect<any>[] };
+// Generic liftUpdate
+const liftUpdate =
+  <K extends keyof Model, SubModel, SubMsg>(
+    childUpdate: (
+      msg: SubMsg,
+      model: SubModel,
+      dispatch: Dispatch<SubMsg>
+    ) => { model: SubModel; effects: RawEffect<any>[] },
+    key: K,
+    wrap: (sub: SubMsg) => Msg
+  ) =>
+  (
+    msg: { type: string; msg: SubMsg },
+    m: Model,
+    dispatch: Dispatch<Msg>
+  ): { model: Model; effects: RawEffect<any>[] } => {
+    const { model: childModel, effects } = childUpdate(
+      msg.msg,
+      m[key] as unknown as SubModel,
+      (sub: SubMsg) => dispatch(wrap(sub))
+    );
 
-const liftUpdate = <SubModel, SubMsg>(
-  childUpdate: PanelUpdate<SubModel, SubMsg>,
-  key: keyof Model,
-  wrap: (sub: SubMsg) => Msg
-) =>
-(msg: { msg: SubMsg }, m: Model, dispatch: Dispatch<Msg>) => {
-  const current = m[key] as SubModel;
-  const { model, effects } = childUpdate(
-    msg.msg,
-    current,
-    (sub: SubMsg) => dispatch(wrap(sub))
-  );
-  return {
-    model: { ...m, [key]: model },
-    effects,
+    const nextModel: Model = {
+      ...m,
+      [key]: childModel,
+    } as Model;
+
+    return { model: nextModel, effects };
   };
-};
-
-const recalcAllEffects = (m: Model, dispatch: Dispatch<Msg>): RawEffect<any>[] => {
-  const holdings: Holding[] = m.holdings.holdings;
-  const target: TargetAllocation = m.target.target;
-
-  // Drift using State monad
-  const [driftReport] = calculateDrift(target).run(holdings);
-
-  const tradePlan = generateTrades(driftReport, holdings);
-
-  const driftEffect = IO(() =>
-    dispatch({
-      type: "Drift",
-      msg: { type: "SET_REPORT", report: driftReport },
-    })
-  );
-
-  const tradesEffect = IO(() =>
-    dispatch({
-      type: "Trades",
-      msg: { type: "SET_PLAN", plan: tradePlan },
-    })
-  );
-
-  const auditEntry: AuditEntry = {
-    timestamp: new Date().toISOString(),
-    operation: "RECALCULATE_ALL",
-    details: {
-      holdingsCount: holdings.length,
-      target,
-      drift: driftReport,
-      tradePlan,
-    },
-    success: true,
-  };
-
-  const auditEffect = IO(() =>
-    dispatch({
-      type: "Audit",
-      msg: { type: "ADD_ENTRY", entry: auditEntry },
-    })
-  );
-
-  return [driftEffect, tradesEffect, auditEffect];
-};
 
 export const update = (
   msg: Msg,
@@ -85,80 +46,108 @@ export const update = (
 ): { model: Model; effects: RawEffect<any>[] } => {
   switch (msg.type) {
     case "Holdings": {
-      const lifted = liftUpdate(
+      const result = liftUpdate(
         HoldingsPanel.update,
         "holdings",
         (sub) => ({ type: "Holdings", msg: sub })
-      );
-      const result = lifted(msg, m, dispatch);
+      )(msg as any, m, dispatch);
 
-      const shouldRecalc =
-        msg.msg.type === "ADD_HOLDING" ||
-        msg.msg.type === "REMOVE_HOLDING" ||
-        msg.msg.type === "PRICE_FETCHED";
+      const subMsg = msg.msg;
+      const needsRecalc =
+        subMsg.type === "PRICE_FETCHED" ||
+        subMsg.type === "ADD_HOLDING" ||
+        subMsg.type === "REMOVE_HOLDING";
 
-      const coordEffects = shouldRecalc
-        ? recalcAllEffects(result.model, dispatch)
-        : [];
+      if (needsRecalc) {
+        const coord = IO(() => {
+          const holdings: Holding[] =
+            result.model.holdings.holdings;
+          const target = result.model.targets.target;
+          const [report] = calculateDrift(target).run(holdings);
 
-      return {
-        model: result.model,
-        effects: [...result.effects, ...coordEffects],
-      };
+          dispatch({
+            type: "Drift",
+            msg: { type: "SET_REPORT", report },
+          });
+        });
+
+        return {
+          model: result.model,
+          effects: [...result.effects, coord],
+        };
+      }
+
+      return result;
     }
 
-    case "Target": {
-      const lifted = liftUpdate(
-        TargetPanel.update,
-        "target",
-        (sub) => ({ type: "Target", msg: sub })
-      );
-      const result = lifted(msg, m, dispatch);
+    case "Targets": {
+      const result = liftUpdate(
+        TargetsPanel.update,
+        "targets",
+        (sub) => ({ type: "Targets", msg: sub })
+      )(msg as any, m, dispatch);
 
-      const shouldRecalc = msg.msg.type === "APPLY_TARGET";
+      const subMsg = msg.msg;
+      const needsRecalc =
+        subMsg.type === "APPLY" || subMsg.type === "RESET_DEFAULT";
 
-      const coordEffects = shouldRecalc
-        ? recalcAllEffects(result.model, dispatch)
-        : [];
+      if (needsRecalc) {
+        const coord = IO(() => {
+          const holdings: Holding[] =
+            result.model.holdings.holdings;
+          const target = result.model.targets.target;
+          const [report] = calculateDrift(target).run(holdings);
 
-      return {
-        model: result.model,
-        effects: [...result.effects, ...coordEffects],
-      };
+          dispatch({
+            type: "Drift",
+            msg: { type: "SET_REPORT", report },
+          });
+        });
+
+        return {
+          model: result.model,
+          effects: [...result.effects, coord],
+        };
+      }
+
+      return result;
     }
 
-    case "Drift": {
-      const lifted = liftUpdate(
+    case "Drift":
+      return liftUpdate(
         DriftPanel.update,
         "drift",
         (sub) => ({ type: "Drift", msg: sub })
-      );
-      return lifted(msg, m, dispatch);
-    }
+      )(msg as any, m, dispatch);
 
-    case "Trades": {
-      const lifted = liftUpdate(
+    case "Trades":
+      return liftUpdate(
         TradesPanel.update,
         "trades",
         (sub) => ({ type: "Trades", msg: sub })
-      );
-      return lifted(msg, m, dispatch);
-    }
+      )(msg as any, m, dispatch);
 
-    case "Audit": {
-      const lifted = liftUpdate(
+    case "Audit":
+      return liftUpdate(
         AuditPanel.update,
         "audit",
         (sub) => ({ type: "Audit", msg: sub })
-      );
-      return lifted(msg, m, dispatch);
-    }
+      )(msg as any, m, dispatch);
 
-    case "RECALCULATE_ALL":
-      return {
-        model: m,
-        effects: recalcAllEffects(m, dispatch),
-      };
+    case "RECALCULATE_ALL": {
+      const coord = IO(() => {
+        const holdings: Holding[] = m.holdings.holdings;
+        const target = m.targets.target;
+        const [report] = calculateDrift(target).run(holdings);
+
+        dispatch({
+          type: "Drift",
+          msg: { type: "SET_REPORT", report },
+        });
+      });
+
+      return { model: m, effects: [coord] };
+    }
 
     default:
       return { model: m, effects: [] };

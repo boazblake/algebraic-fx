@@ -9,6 +9,6 @@ export type Msg =
   | { type: "SET_STOCKS"; value: number }
   | { type: "SET_BONDS"; value: number }
   | { type: "SET_CASH"; value: number }
-  | { type: "APPLY_TARGET" }
-  | { type: "RESTORE_TARGET"; target: TargetAllocation }
+  | { type: "APPLY" }
+  | { type: "RESET_DEFAULT" }
   | { type: "CLEAR_VALIDATION_ERRORS" };

@@ -1,23 +1,11 @@
-// ============================================================================
-// API EFFECTS - Alpha Vantage Integration with Reader + Task + Either
-// ============================================================================
+import { Reader, Task, Either } from "algebraic-fx";
 
-import { Reader, Task, Either, IO } from "algebraic-fx";
-import type { Dispatch } from "algebraic-fx";
-
-/**
- * HTTP Environment for Reader pattern
- * Allows dependency injection of API config
- */
 export type HttpEnv = {
   apiKey: string;
   baseUrl: string;
   fetch: typeof fetch;
 };
 
-/**
- * Typed API errors (discriminated union)
- */
 export type ApiError =
   | { type: "network"; message: string }
   | { type: "rateLimit"; retryAfter: number }
@@ -25,60 +13,48 @@ export type ApiError =
   | { type: "parseError"; raw: string }
   | { type: "unknown"; error: unknown };
 
-/**
- * Stock quote response from Alpha Vantage
- */
 export type StockQuote = {
   symbol: string;
   price: number;
   timestamp: string;
 };
 
-/**
- * Rate limit tracking (in-memory for MVP)
- */
+// --------------------- rate limit ---------------------
+
 let apiCallCount = 0;
 let lastResetTime = Date.now();
 
-const checkRateLimit = (): Either.Either<ApiError, void> => {
+const checkRateLimit = (): Either<ApiError, void> => {
   const now = Date.now();
   const oneMinute = 60 * 1000;
 
-  // Reset counter every minute
   if (now - lastResetTime > oneMinute) {
     apiCallCount = 0;
     lastResetTime = now;
   }
 
-  // Alpha Vantage free tier: 5 calls per minute
   if (apiCallCount >= 5) {
+    const retryAfter = 60 - Math.floor((now - lastResetTime) / 1000);
     return Either.Left({
       type: "rateLimit",
-      retryAfter: 60 - Math.floor((now - lastResetTime) / 1000),
+      retryAfter: retryAfter > 0 ? retryAfter : 1,
     });
   }
 
-  apiCallCount++;
+  apiCallCount += 1;
   return Either.Right(undefined);
 };
 
-/**
- * Fetch stock price from Alpha Vantage
- * Returns Reader<HttpEnv, Task<ApiError, StockQuote>>
- *
- * Usage:
- *   const task = fetchStockPrice("AAPL").run(httpEnv);
- *   task.run().then(either => ...)
- */
+// --------------------- main API ---------------------
+
 export const fetchStockPrice = (
   ticker: string
-): Reader.Reader<HttpEnv, Task.Task<ApiError, StockQuote>> =>
-  Reader.Reader((env: HttpEnv) =>
-    Task.Task<ApiError, StockQuote>(async (signal?: AbortSignal) => {
-      // Check rate limit before making request
-      const rateLimitCheck = checkRateLimit();
-      if (Either.isLeft(rateLimitCheck)) {
-        return rateLimitCheck as Either.Either<ApiError, StockQuote>;
+): Reader<HttpEnv, Task<ApiError, StockQuote>> =>
+  Reader((env: HttpEnv) =>
+    Task<ApiError, StockQuote>(async (signal?: AbortSignal) => {
+      const rl = checkRateLimit();
+      if (rl._tag === "Left") {
+        return rl as Either<ApiError, StockQuote>;
       }
 
       try {
@@ -102,7 +78,6 @@ export const fetchStockPrice = (
 
         const data = await response.json();
 
-        // Check for API error messages
         if (data["Error Message"]) {
           return Either.Left<ApiError>({
             type: "invalidTicker",
@@ -111,7 +86,6 @@ export const fetchStockPrice = (
         }
 
         if (data["Note"]) {
-          // Rate limit message from API
           return Either.Left<ApiError>({
             type: "rateLimit",
             retryAfter: 60,
@@ -120,7 +94,7 @@ export const fetchStockPrice = (
 
         const quote = data["Global Quote"];
 
-        if (!quote || !quote["01. symbol"]) {
+        if (!quote || !quote["01. symbol"] || !quote["05. price"]) {
           return Either.Left<ApiError>({
             type: "parseError",
             raw: JSON.stringify(data),
@@ -150,35 +124,6 @@ export const fetchStockPrice = (
     })
   );
 
-/**
- * Create an IO effect that fetches a price and dispatches the result
- * This bridges Task (async) with the Program's dispatch system
- */
-export const fetchPriceEffect = <Msg>(
-  ticker: string,
-  env: HttpEnv,
-  onSuccess: (ticker: string, price: number) => Msg,
-  onError: (ticker: string, error: string) => Msg
-): IO.IO<void> =>
-  IO.IO(() => {
-    const task = fetchStockPrice(ticker).run(env);
-
-    task.run().then((either) => {
-      if (Either.isRight(either)) {
-        const quote = either.right;
-        // Note: In real app, dispatch would be passed in
-        console.log("Price fetched:", quote);
-      } else {
-        const error = either.left;
-        const errorMessage = formatApiError(error);
-        console.error("Price fetch failed:", errorMessage);
-      }
-    });
-  });
-
-/**
- * Format API error for display
- */
 export const formatApiError = (error: ApiError): string => {
   switch (error.type) {
     case "network":
@@ -194,23 +139,19 @@ export const formatApiError = (error: ApiError): string => {
   }
 };
 
-/**
- * Create HTTP environment for production
- */
 export const createHttpEnv = (apiKey: string): HttpEnv => ({
   apiKey,
   baseUrl: "https://www.alphavantage.co",
   fetch: window.fetch.bind(window),
 });
 
-/**
- * Create mock HTTP environment for testing
- */
 export const createMockHttpEnv = (): HttpEnv => ({
   apiKey: "demo",
   baseUrl: "https://www.alphavantage.co",
-  fetch: async (url: string) => {
-    // Mock response for testing
+  fetch: async (
+    _input: RequestInfo | URL,
+    _init?: RequestInit
+  ): Promise<Response> => {
     const mockData = {
       "Global Quote": {
         "01. symbol": "AAPL",

@@ -1,4 +1,10 @@
 /**
+ * Unique nominal brand for Maybe. Prevents structural collisions with plain
+ * objects that accidentally look like Just or Nothing.
+ */
+// declare const MaybeBrand: unique symbol;
+const MaybeBrand = Symbol("MaybeBrand");
+/**
  * Construct a `Just` value.
  */
 export const Just = (value) => ({

@@ -2,15 +2,18 @@
   "name": "fp-rebalance",
   "version": "1.0.0",
   "type": "module",
+  "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build"
+    "dev": "vite --config vite.config.ts",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "algebraic-fx": "latest"
+    "algebraic-fx": "../"
   },
   "devDependencies": {
-    "typescript": "^5.3.0",
-    "vite": "^5.0.0"
+    "typescript": "^5.6.3",
+    "vite": "^5.2.0",
+    "@types/node": "^20.12.7"
   }
 }

@@ -1,4 +1,9 @@
 /**
+ * Unique nominal brand for IO values.
+ * Ensures IO cannot be confused with plain objects.
+ */
+const IOBrand = Symbol("IOBrand");
+/**
  * Construct a new lazy IO effect.
  *
  * @param run A function describing the effect

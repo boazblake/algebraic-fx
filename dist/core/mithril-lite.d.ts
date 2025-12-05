@@ -1,6 +1,6 @@
 export type VnodeAttrs = Record<string, any> | null;
 export type VnodeChild = Vnode<any> | null;
-export type VnodeChildren = VnodeChild[] | null;
+export type VnodeChildren = VnodeChild[];
 export type Vnode<T = any> = {
     tag: string;
     key: any;

@@ -1,4 +1,8 @@
 /**
+ * Unique brand for nominal typing of Writer.
+ */
+const WriterBrand = Symbol("WriterBrand");
+/**
  * Default monoid combine strategy when no custom combiner is supplied.
  * - Arrays: concat
  * - Strings: concat

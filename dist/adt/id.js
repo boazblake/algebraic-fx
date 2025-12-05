@@ -1,4 +1,8 @@
 /**
+ * Nominal brand for Identity values, preventing structural collisions.
+ */
+const IdBrand = Symbol("IdBrand");
+/**
  * Identity constructor.
  *
  * @param a Wrapped value

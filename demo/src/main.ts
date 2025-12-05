@@ -1,10 +1,11 @@
-import { IO } from "algebraic-fx";
-import { renderApp, browserEnv } from "algebraic-fx";
-import { render } from "../utils/renderer";
-import { program } from "./main/";
+import { IO, renderApp, browserEnv } from "algebraic-fx";
+import { render } from "./utils/renderer";
+import { program } from "./main/index";
 
-const root = IO(() => document.getElementById("app")!);
+const root = IO(() => {
+  const el = document.getElementById("app");
+  if (!el) throw new Error("#app not found");
+  return el as HTMLElement;
+});
 
-const app = renderApp(render, browserEnv())(root, program);
-
-app.run();
+renderApp(render, browserEnv())(root, program).run();

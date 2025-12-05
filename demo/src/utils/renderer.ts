@@ -1,7 +1,8 @@
-import {
-  m as mithrilM,
-  render as mithrilRender,
-} from "algebraic-fx/mithril-lite";
+import { m, render as fxRender } from "algebraic-fx";
+import type { Renderer } from "algebraic-fx";
 
-export const m = mithrilM;
-export const render = mithrilRender;
+export { m };
+
+export const render: Renderer = (root, vnode) => {
+  fxRender(root as HTMLElement, vnode);
+};

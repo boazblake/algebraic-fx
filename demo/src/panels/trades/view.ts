@@ -4,6 +4,7 @@ import type { Dispatch } from "algebraic-fx";
 import { formatCurrency, formatPercent } from "../../shared/calculations";
 
 export const view = (model: Model, _dispatch: Dispatch<Msg>) => {
+  console.log('trades',model)
   const plan = model.plan;
 
   if (!plan) {

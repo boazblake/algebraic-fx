@@ -1,14 +1,24 @@
-import { IO, Maybe } from "algebraic-fx";
-import type { Model, Msg } from "./types";
+import { IO, Maybe, Validation, Either } from "algebraic-fx";
 import type { Dispatch, RawEffect } from "algebraic-fx";
+import type { Model, Msg } from "./types";
+import type { Holding, ValidationError } from "../../shared/types";
 import {
   validateHoldingInput,
   validateNoDuplicate,
 } from "../../shared/validation";
-import { Validation } from "algebraic-fx";
-import { saveHoldings, cachePrice, getCachedPrice } from "../../effects/storage";
-import { fetchStockPrice, createHttpEnv, formatApiError } from "../../effects/api";
-import type { Holding } from "../../shared/types";
+import {
+  saveHoldings,
+  cachePrice,
+  getCachedPrice,
+} from "../../effects/storage";
+import {
+  createHttpEnv,
+  fetchStockPrice,
+  formatApiError,
+  type HttpEnv,
+  type ApiError,
+  type StockQuote,
+} from "../../effects/api";
 
 export const update = (
   msg: Msg,
@@ -16,7 +26,7 @@ export const update = (
   dispatch: Dispatch<Msg>
 ): { model: Model; effects: RawEffect<any>[] } => {
   switch (msg.type) {
-    case "SET_TICKER": {
+    case "SET_TICKER":
       return {
         model: {
           ...m,
@@ -25,9 +35,8 @@ export const update = (
         },
         effects: [],
       };
-    }
 
-    case "SET_SHARES": {
+    case "SET_SHARES":
       return {
         model: {
           ...m,
@@ -36,59 +45,51 @@ export const update = (
         },
         effects: [],
       };
-    }
 
     case "ADD_HOLDING": {
-      // Validate input using Validation monad
-      const inputValidation = validateHoldingInput(
+      const vInput = validateHoldingInput(
         m.input.ticker,
         m.input.shares
       );
 
-      if (Validation.isFailure(inputValidation)) {
+      if (vInput._tag === "Failure") {
+        const errors: ValidationError[] = vInput.errors;
         return {
-          model: { ...m, validationErrors: inputValidation.errors },
+          model: { ...m, validationErrors: errors },
           effects: [],
         };
       }
 
-      const { ticker, shares } = inputValidation.value;
+      const { ticker, shares } = vInput.value;
 
-      // Check for duplicates
-      const dupValidation = validateNoDuplicate(ticker, m.holdings);
-
-      if (Validation.isFailure(dupValidation)) {
+      const vDup = validateNoDuplicate(ticker, m.holdings);
+      if (vDup._tag === "Failure") {
+        const errors: ValidationError[] = vDup.errors;
         return {
-          model: { ...m, validationErrors: dupValidation.errors },
+          model: { ...m, validationErrors: errors },
           effects: [],
         };
       }
 
-      // Check cache first
-      const cachedPriceIO = getCachedPrice(ticker);
-      const cachedPrice = cachedPriceIO.run();
+      const cachedPrice = getCachedPrice(ticker).run();
+      const priceValue = Maybe.getOrElse(0, cachedPrice);
 
       const newHolding: Holding = {
         ticker,
         shares,
         currentPrice: cachedPrice,
-        value: Maybe.isJust(cachedPrice) ? shares * cachedPrice.value : 0,
+        value: priceValue > 0 ? shares * priceValue : 0,
       };
 
       const newHoldings = [...m.holdings, newHolding];
-
-      // Create effects
       const saveEffect = saveHoldings(newHoldings);
 
-      // Fetch price if not in cache
-      const fetchEffect =
-        Maybe.isNothing(cachedPrice)
-          ? createFetchPriceEffect(ticker, dispatch)
-          : null;
+      const effects: RawEffect<any>[] = [saveEffect];
 
-      const effects = [saveEffect, fetchEffect].filter(
-        (e) => e !== null
-      ) as RawEffect<any>[];
+      if (Maybe.isNothing(cachedPrice)) {
+        const env = createHttpEnv("YOUR_API_KEY_HERE");
+        effects.push(createFetchPriceEffect(ticker, env, dispatch));
+      }
 
       return {
         model: {
@@ -96,7 +97,7 @@ export const update = (
           holdings: newHoldings,
           input: { ticker: "", shares: "" },
           validationErrors: [],
-          fetchingPrices: fetchEffect
+          fetchingPrices: Maybe.isNothing(cachedPrice)
             ? new Set([...m.fetchingPrices, ticker])
             : m.fetchingPrices,
         },
@@ -105,9 +106,10 @@ export const update = (
     }
 
     case "REMOVE_HOLDING": {
-      const newHoldings = m.holdings.filter((h) => h.ticker !== msg.ticker);
+      const newHoldings = m.holdings.filter(
+        (h) => h.ticker !== msg.ticker
+      );
       const saveEffect = saveHoldings(newHoldings);
-
       return {
         model: { ...m, holdings: newHoldings },
         effects: [saveEffect],
@@ -115,7 +117,12 @@ export const update = (
     }
 
     case "FETCH_PRICE": {
-      const fetchEffect = createFetchPriceEffect(msg.ticker, dispatch);
+      const env = createHttpEnv("YOUR_API_KEY_HERE");
+      const fetchEffect = createFetchPriceEffect(
+        msg.ticker,
+        env,
+        dispatch
+      );
 
       return {
         model: {
@@ -174,8 +181,9 @@ export const update = (
     }
 
     case "REFRESH_ALL_PRICES": {
-      const effects = m.holdings.map((h) =>
-        createFetchPriceEffect(h.ticker, dispatch)
+      const env = createHttpEnv("YOUR_API_KEY_HERE");
+      const effects: RawEffect<any>[] = m.holdings.map((h) =>
+        createFetchPriceEffect(h.ticker, env, dispatch)
       );
 
       return {
@@ -188,42 +196,41 @@ export const update = (
       };
     }
 
-    case "CLEAR_VALIDATION_ERRORS": {
+    case "CLEAR_VALIDATION_ERRORS":
       return {
         model: { ...m, validationErrors: [] },
         effects: [],
       };
-    }
 
     default:
       return { model: m, effects: [] };
   }
 };
 
-// Helper: Create fetch price effect
+
 const createFetchPriceEffect = (
   ticker: string,
+  env: HttpEnv,
   dispatch: Dispatch<Msg>
-): IO<void> => {
-  const env = createHttpEnv("YOUR_API_KEY_HERE"); // TODO: Get from config
-
-  return IO(() => {
+): IO<void> =>
+  IO(() => {
     const task = fetchStockPrice(ticker).run(env);
-
-    task.run().then((either) => {
+    task.run().then((either: Either<ApiError, StockQuote>) => {
       if (either._tag === "Right") {
+        const quote = either.right;
         dispatch({
           type: "PRICE_FETCHED",
           ticker,
-          price: either.right.price,
+          price: quote.price,
         });
       } else {
+        const e = either.left;
         dispatch({
           type: "PRICE_ERROR",
           ticker,
-          error: formatApiError(either.left),
+          error: formatApiError(e),
         });
       }
     });
+
   });
-};
