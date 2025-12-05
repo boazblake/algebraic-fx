@@ -584,6 +584,23 @@ function setAttr(
     return;
   }
 
+  // form control properties
+  if (key === "value") {
+    // keep property in sync so sliders/text inputs move when the model changes
+    if (dom.value !== value) dom.value = value;
+    return;
+  }
+
+  if (key === "checked") {
+    if (dom.checked !== !!value) dom.checked = !!value;
+    return;
+  }
+
+  if (key === "selected") {
+    if (dom.selected !== !!value) dom.selected = !!value;
+    return;
+  }
+
   if (key === "style") {
     updateStyle(dom, old, value);
     return;
