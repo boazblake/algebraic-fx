@@ -1,7 +1,7 @@
 /**
  * Unique brand to nominally type Either values, preventing structural collisions.
  */
-declare const EitherBrand: unique symbol;
+const EitherBrand = Symbol("EitherBrand");
 
 /**
  * Left value of Either.

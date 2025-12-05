@@ -1,8 +1,7 @@
 /**
  * Unique brand for nominal typing of Writer.
  */
-declare const WriterBrand: unique symbol;
-
+const WriterBrand = Symbol("WriterBrand");
 /**
  * Writer<W, A> accumulates a monoidal log W alongside a computed value A.
  *

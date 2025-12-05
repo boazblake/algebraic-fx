@@ -1,7 +1,7 @@
 /**
  * Nominal brand for Identity values, preventing structural collisions.
  */
-declare const IdBrand: unique symbol;
+const IdBrand = Symbol("IdBrand");
 
 /**
  * Identity monad.

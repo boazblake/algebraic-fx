@@ -45,7 +45,7 @@ function lis(arr: number[]): number[] {
 
 export type VnodeAttrs = Record<string, any> | null;
 export type VnodeChild = Vnode<any> | null;
-export type VnodeChildren = VnodeChild[] | null;
+export type VnodeChildren = VnodeChild[];
 
 export type Vnode<T = any> = {
   tag: string;
@@ -64,7 +64,7 @@ export function Vnode(
   text: string | null,
   dom: any | null
 ): Vnode {
-  return { tag, key, attrs, children, text, dom };
+  return { tag, key, attrs, children: children || [], text, dom };
 }
 
 // Normalize a single node into a vnode or null
@@ -76,7 +76,7 @@ Vnode.normalize = function (node: any): VnodeChild {
   }
   if (node == null || typeof node === "boolean") return null;
   if (typeof node === "object") return node as Vnode;
-  return Vnode("#", null, null, null, String(node), null);
+  return Vnode("#", null, null, [], String(node), null);
 };
 
 // Normalize children: returns a dense array, no nulls
@@ -86,9 +86,29 @@ Vnode.normalizeChildren = function (input: any[]): Vnode[] {
   let elems = 0;
 
   for (let i = 0; i < input.length; i++) {
-    const child = Vnode.normalize(input[i]);
+    const raw = input[i];
+
+    // Handle nested arrays by flattening them
+    if (Array.isArray(raw)) {
+      const nested = Vnode.normalizeChildren(raw);
+      for (let j = 0; j < nested.length; j++) {
+        const child = nested[j];
+        out.push(child);
+        if (child.tag !== "#") {
+          elems++;
+          if (child.key != null) keyed++;
+        }
+      }
+      continue;
+    }
+
+    const child = Vnode.normalize(raw);
+
+    // Skip nulls
     if (child == null) continue;
+
     out.push(child);
+
     if (child.tag !== "#") {
       elems++;
       if (child.key != null) keyed++;
@@ -205,13 +225,26 @@ export function m(selector: string, ...rest: any[]): Vnode {
   let attrs: any = null;
   let i = 0;
 
-  if (
-    rest.length &&
-    (rest[0] == null ||
-      (typeof rest[0] === "object" && !Array.isArray(rest[0])))
-  ) {
-    attrs = rest[0];
-    i = 1;
+  function isVnode(x: any): x is Vnode {
+    return (
+      x != null &&
+      typeof x === "object" &&
+      typeof x.tag === "string" &&
+      "children" in x &&
+      "attrs" in x
+    );
+  }
+  if (rest.length) {
+    const first = rest[0];
+
+    // Only treat as attrs if it's a plain object (NOT a vnode, NOT an array)
+    if (
+      first == null ||
+      (typeof first === "object" && !Array.isArray(first) && !isVnode(first))
+    ) {
+      attrs = first;
+      i = 1;
+    }
   }
 
   const children = Vnode.normalizeChildren(rest.slice(i));
@@ -372,6 +405,9 @@ function updateNodes(
     if (o != null && o.key != null) oldIndexByKey.set(o.key, i);
   }
 
+  // Track which old indices have been consumed (instead of nullifying array)
+  const consumedOldIndices = new Set<number>();
+
   // newIndexToOldIndex[i] = old index for vnodes[i], else -1
   const newIndexToOldIndex = new Array<number>(newLen);
   for (let i = 0; i < newLen; i++) newIndexToOldIndex[i] = -1;
@@ -387,7 +423,7 @@ function updateNodes(
 
     if (oldIndex >= 0) {
       const oldV = old[oldIndex];
-      old[oldIndex] = null as any; // mark as consumed
+      consumedOldIndices.add(oldIndex); // ✅ mark as consumed using Set
 
       if (oldV !== v) {
         const next = null;
@@ -398,8 +434,10 @@ function updateNodes(
 
   // 2. Remove leftover old nodes (not matched to new list)
   for (let i = 0; i < oldLen; i++) {
-    const o = old[i];
-    if (o != null) removeNode(parent, o);
+    if (!consumedOldIndices.has(i)) {
+      // ✅ check Set instead of null check
+      removeNode(parent, old[i]);
+    }
   }
 
   // 3. Compute LIS over the positions that mapped to old nodes

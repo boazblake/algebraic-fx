@@ -2,7 +2,7 @@
  * Unique brand for nominal typing of State values.
  * Prevents accidental structural equivalence.
  */
-declare const StateBrand: unique symbol;
+const StateBrand = Symbol("StateBrand");
 
 /**
  * The State monad represents a pure state transition:

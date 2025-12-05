@@ -2,7 +2,7 @@
  * Unique nominal brand for Reader. Ensures Readers cannot be confused with plain
  * objects of the same structural shape.
  */
-declare const ReaderBrand: unique symbol;
+const ReaderBrand = Symbol("ReaderBrand");
 
 /**
  * The Reader monad (also known as the environment monad).

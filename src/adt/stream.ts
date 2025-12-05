@@ -2,8 +2,7 @@
  * Unique brand for nominally typing Stream values.
  * Prevents structural type collisions with plain objects.
  */
-declare const StreamBrand: unique symbol;
-
+const StreamBrand = Symbol("StreamBrand");
 /**
  * Observer interface used by Streams to emit values, errors, and completion.
  *

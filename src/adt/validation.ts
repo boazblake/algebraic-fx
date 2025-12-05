@@ -2,7 +2,7 @@
  * Unique brand ensuring Validation values are nominally typed.
  * Prevents accidental mixing with plain objects of identical shape.
  */
-declare const ValidationBrand: unique symbol;
+const ValidationBrand = Symbol("ValidationBrand");
 
 /**
  * Validation<E, A> represents a computation that may succeed (`Success<A>`)

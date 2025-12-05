@@ -2,7 +2,9 @@
  * Unique nominal brand for Maybe. Prevents structural collisions with plain
  * objects that accidentally look like Just or Nothing.
  */
-declare const MaybeBrand: unique symbol;
+// declare const MaybeBrand: unique symbol;
+
+const MaybeBrand = Symbol("MaybeBrand");
 
 /**
  * A Maybe represents an optional value: either `Just<A>` or `Nothing`.

@@ -2,7 +2,7 @@
  * Unique nominal brand for IO values.
  * Ensures IO cannot be confused with plain objects.
  */
-declare const IOBrand: unique symbol;
+const IOBrand = Symbol("IOBrand");
 
 /**
  * IO<A> represents a *lazy*, *purely described* effect that produces a value of type A.

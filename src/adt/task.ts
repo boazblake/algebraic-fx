@@ -2,7 +2,7 @@
  * Unique brand for nominal typing of Task values.
  * Prevents structural type collisions with plain objects.
  */
-declare const TaskBrand: unique symbol;
+const TaskBrand = Symbol("TaskBrand");
 
 import { Either, Left, Right } from "./either.js";
 
