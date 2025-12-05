@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../README.md)
+[**algebraic-fx v0.0.1**](../../README.md)
 
 ***
 
@@ -8,4 +8,4 @@
 
 > **VnodeChildren** = [`VnodeChild`](VnodeChild.md)[] \| `null`
 
-Defined in: [src/core/mithril-lite.ts:48](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/core/mithril-lite.ts#L48)
+Defined in: [src/core/mithril-lite.ts:48](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/mithril-lite.ts#L48)

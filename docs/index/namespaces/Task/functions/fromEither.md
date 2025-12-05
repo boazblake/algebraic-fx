@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../../../README.md)
+[**algebraic-fx v0.0.1**](../../../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **fromEither**\<`E`, `A`\>(`e`): [`Task`](../../../type-aliases/Task.md)\<`E`, `A`\>
 
-Defined in: [src/adt/task.ts:330](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/task.ts#L330)
+Defined in: [src/adt/task.ts:330](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/task.ts#L330)
 
 Lift an Either into a Task.
 

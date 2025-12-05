@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../README.md)
+[**algebraic-fx v0.0.1**](../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **State**: \{\<`S`, `A`\>(`run`): [`State`](../type-aliases/State.md)\<`S`, `A`\>; `ap`: (`fa`) => [`State`](../type-aliases/State.md)\<`S`, `B`\>; `chain`: (`st`) => [`State`](../type-aliases/State.md)\<`S`, `B`\>; `evalState`: (`st`) => `A`; `execState`: (`st`) => `S`; `get`: [`State`](../type-aliases/State.md)\<`S`, `S`\>; `gets`: [`State`](../type-aliases/State.md)\<`S`, `A`\>; `map`: (`st`) => [`State`](../type-aliases/State.md)\<`S`, `B`\>; `modify`: [`State`](../type-aliases/State.md)\<`S`, `void`\>; `of`: [`State`](../type-aliases/State.md)\<`S`, `A`\>; `put`: [`State`](../type-aliases/State.md)\<`S`, `void`\>; `run`: (`st`) => \[`A`, `S`\]; `sequence`: [`State`](../type-aliases/State.md)\<`S`, `A`[]\>; `traverse`: (`arr`) => [`State`](../type-aliases/State.md)\<`S`, `B`[]\>; \}
 
-Defined in: [src/adt/state.ts:25](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/state.ts#L25)
+Defined in: [src/adt/state.ts:25](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/state.ts#L25)
 
 Construct a new State computation.
 

@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../README.md)
+[**algebraic-fx v0.0.1**](../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **wsTask**\<`E`\>(`url`, `protocols?`, `onError?`): [`Task`](../type-aliases/Task.md)\<`E`, `WebSocket`\>
 
-Defined in: [src/helpers/ws-task.ts:36](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/helpers/ws-task.ts#L36)
+Defined in: [src/helpers/ws-task.ts:36](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/helpers/ws-task.ts#L36)
 
 Create a Task that opens a WebSocket connection.
 

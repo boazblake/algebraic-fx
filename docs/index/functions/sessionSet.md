@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../README.md)
+[**algebraic-fx v0.0.1**](../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **sessionSet**(`key`, `val`): [`Reader`](../type-aliases/Reader.md)\<[`DomEnv`](../type-aliases/DomEnv.md), [`IO`](../type-aliases/IO.md)\<`void`\>\>
 
-Defined in: [src/helpers/dom-helpers.ts:169](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/helpers/dom-helpers.ts#L169)
+Defined in: [src/helpers/dom-helpers.ts:169](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/helpers/dom-helpers.ts#L169)
 
 Write a value to `sessionStorage`.
 

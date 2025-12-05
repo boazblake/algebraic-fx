@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../README.md)
+[**algebraic-fx v0.0.1**](../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **Stream**\<`A`\> = `object`
 
-Defined in: [src/adt/stream.ts:42](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/stream.ts#L42)
+Defined in: [src/adt/stream.ts:42](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/stream.ts#L42)
 
 Push-based functional stream abstraction.
 
@@ -34,7 +34,7 @@ value type
 
 > `readonly` **\[StreamBrand\]**: `true`
 
-Defined in: [src/adt/stream.ts:43](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/stream.ts#L43)
+Defined in: [src/adt/stream.ts:43](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/stream.ts#L43)
 
 ***
 
@@ -42,7 +42,7 @@ Defined in: [src/adt/stream.ts:43](https://github.com/boazblake/algebraic-fx/blo
 
 > **chain**: \<`B`\>(`f`) => `Stream`\<`B`\>
 
-Defined in: [src/adt/stream.ts:61](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/stream.ts#L61)
+Defined in: [src/adt/stream.ts:61](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/stream.ts#L61)
 
 Monadic bind / switchMap:
 - Cancels previously active inner stream whenever a new value arrives
@@ -70,7 +70,7 @@ Monadic bind / switchMap:
 
 > **filter**: (`predicate`) => `Stream`\<`A`\>
 
-Defined in: [src/adt/stream.ts:64](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/stream.ts#L64)
+Defined in: [src/adt/stream.ts:64](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/stream.ts#L64)
 
 Filter emitted values by predicate.
 
@@ -90,7 +90,7 @@ Filter emitted values by predicate.
 
 > **map**: \<`B`\>(`f`) => `Stream`\<`B`\>
 
-Defined in: [src/adt/stream.ts:54](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/stream.ts#L54)
+Defined in: [src/adt/stream.ts:54](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/stream.ts#L54)
 
 Functor map: transform each emitted value.
 
@@ -116,7 +116,7 @@ Functor map: transform each emitted value.
 
 > **scan**: \<`B`\>(`f`, `initial`) => `Stream`\<`B`\>
 
-Defined in: [src/adt/stream.ts:72](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/stream.ts#L72)
+Defined in: [src/adt/stream.ts:72](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/stream.ts#L72)
 
 Accumulate values using a reducer.
 
@@ -150,7 +150,7 @@ Initial accumulator value
 
 > **skip**: (`n`) => `Stream`\<`A`\>
 
-Defined in: [src/adt/stream.ts:82](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/stream.ts#L82)
+Defined in: [src/adt/stream.ts:82](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/stream.ts#L82)
 
 Skip the first `n` values and emit the rest.
 
@@ -170,7 +170,7 @@ Skip the first `n` values and emit the rest.
 
 > **subscribe**: (`o`) => `Unsubscribe`
 
-Defined in: [src/adt/stream.ts:51](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/stream.ts#L51)
+Defined in: [src/adt/stream.ts:51](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/stream.ts#L51)
 
 Begin receiving values from the stream.
 
@@ -194,7 +194,7 @@ Unsubscribe function
 
 > **take**: (`n`) => `Stream`\<`A`\>
 
-Defined in: [src/adt/stream.ts:77](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/stream.ts#L77)
+Defined in: [src/adt/stream.ts:77](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/stream.ts#L77)
 
 Emit only the first `n` values, then complete.
 

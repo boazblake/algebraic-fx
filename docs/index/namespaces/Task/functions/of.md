@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../../../README.md)
+[**algebraic-fx v0.0.1**](../../../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **of**\<`A`\>(`a`): [`Task`](../../../type-aliases/Task.md)\<`never`, `A`\>
 
-Defined in: [src/adt/task.ts:126](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/task.ts#L126)
+Defined in: [src/adt/task.ts:126](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/task.ts#L126)
 
 Lift a value into a successful Task.
 

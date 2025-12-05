@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../README.md)
+[**algebraic-fx v0.0.1**](../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **Reader**: \{\<`E`, `A`\>(`run`): [`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>; `ap`: (`fa`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `B`\>; `ask`: [`Reader`](../type-aliases/Reader.md)\<`E`, `E`\>; `asks`: [`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>; `chain`: (`r`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `B`\>; `local`: (`r`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>; `map`: (`r`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `B`\>; `of`: [`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>; `run`: (`r`) => `A`; `sequence`: [`Reader`](../type-aliases/Reader.md)\<`E`, `A`[]\>; `traverse`: (`arr`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `B`[]\>; \}
 
-Defined in: [src/adt/reader.ts:24](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/reader.ts#L24)
+Defined in: [src/adt/reader.ts:24](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/reader.ts#L24)
 
 Construct a Reader from a function `(env: E) => A`.
 

@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../README.md)
+[**algebraic-fx v0.0.1**](../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **Task**\<`E`, `A`\> = `object`
 
-Defined in: [src/adt/task.ts:24](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/task.ts#L24)
+Defined in: [src/adt/task.ts:24](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/task.ts#L24)
 
 Lazy asynchronous computation that:
 
@@ -41,7 +41,7 @@ Result type
 
 > `readonly` **\[TaskBrand\]**: `true`
 
-Defined in: [src/adt/task.ts:25](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/task.ts#L25)
+Defined in: [src/adt/task.ts:25](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/task.ts#L25)
 
 ***
 
@@ -49,7 +49,7 @@ Defined in: [src/adt/task.ts:25](https://github.com/boazblake/algebraic-fx/blob/
 
 > **ap**: \<`B`\>(`fb`) => `Task`\<`E`, `B`\>
 
-Defined in: [src/adt/task.ts:43](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/task.ts#L43)
+Defined in: [src/adt/task.ts:43](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/task.ts#L43)
 
 Applicative apply.
 
@@ -75,7 +75,7 @@ Applicative apply.
 
 > **bimap**: \<`E2`, `B`\>(`onError`, `onSuccess`) => `Task`\<`E2`, `B`\>
 
-Defined in: [src/adt/task.ts:49](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/task.ts#L49)
+Defined in: [src/adt/task.ts:49](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/task.ts#L49)
 
 Map error OR value depending on outcome.
 
@@ -109,7 +109,7 @@ Map error OR value depending on outcome.
 
 > **chain**: \<`B`\>(`f`) => `Task`\<`E`, `B`\>
 
-Defined in: [src/adt/task.ts:40](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/task.ts#L40)
+Defined in: [src/adt/task.ts:40](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/task.ts#L40)
 
 Chain another Task-producing function.
 
@@ -135,7 +135,7 @@ Chain another Task-producing function.
 
 > **map**: \<`B`\>(`f`) => `Task`\<`E`, `B`\>
 
-Defined in: [src/adt/task.ts:37](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/task.ts#L37)
+Defined in: [src/adt/task.ts:37](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/task.ts#L37)
 
 Transform the result value on success.
 
@@ -161,7 +161,7 @@ Transform the result value on success.
 
 > **mapError**: \<`E2`\>(`f`) => `Task`\<`E2`, `A`\>
 
-Defined in: [src/adt/task.ts:46](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/task.ts#L46)
+Defined in: [src/adt/task.ts:46](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/task.ts#L46)
 
 Map the error side only.
 
@@ -187,7 +187,7 @@ Map the error side only.
 
 > **run**: () => `Promise`\<[`Either`](Either.md)\<`E`, `A`\>\>
 
-Defined in: [src/adt/task.ts:28](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/task.ts#L28)
+Defined in: [src/adt/task.ts:28](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/task.ts#L28)
 
 Start the async computation with no AbortSignal.
 
@@ -201,7 +201,7 @@ Start the async computation with no AbortSignal.
 
 > **runWith**: (`signal`) => `Promise`\<[`Either`](Either.md)\<`E`, `A`\>\>
 
-Defined in: [src/adt/task.ts:34](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/task.ts#L34)
+Defined in: [src/adt/task.ts:34](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/task.ts#L34)
 
 Start the async computation with cancellation support.
 Throws if no AbortSignal is provided.

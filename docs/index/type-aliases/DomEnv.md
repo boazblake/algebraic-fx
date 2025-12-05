@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../README.md)
+[**algebraic-fx v0.0.1**](../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **DomEnv** = `object`
 
-Defined in: [src/core/dom-env.ts:19](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/core/dom-env.ts#L19)
+Defined in: [src/core/dom-env.ts:19](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/dom-env.ts#L19)
 
 Environment contract for DOM-based applications.
 
@@ -20,7 +20,7 @@ All fields are provided by `browserEnv()`, which throws in SSR.
 
 > **document**: `Document`
 
-Defined in: [src/core/dom-env.ts:20](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/core/dom-env.ts#L20)
+Defined in: [src/core/dom-env.ts:20](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/dom-env.ts#L20)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [src/core/dom-env.ts:20](https://github.com/boazblake/algebraic-fx/b
 
 > **fetch**: *typeof* `fetch`
 
-Defined in: [src/core/dom-env.ts:24](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/core/dom-env.ts#L24)
+Defined in: [src/core/dom-env.ts:24](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/dom-env.ts#L24)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [src/core/dom-env.ts:24](https://github.com/boazblake/algebraic-fx/b
 
 > **localStorage**: `Storage`
 
-Defined in: [src/core/dom-env.ts:22](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/core/dom-env.ts#L22)
+Defined in: [src/core/dom-env.ts:22](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/dom-env.ts#L22)
 
 ***
 
@@ -44,7 +44,7 @@ Defined in: [src/core/dom-env.ts:22](https://github.com/boazblake/algebraic-fx/b
 
 > **sessionStorage**: `Storage`
 
-Defined in: [src/core/dom-env.ts:23](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/core/dom-env.ts#L23)
+Defined in: [src/core/dom-env.ts:23](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/dom-env.ts#L23)
 
 ***
 
@@ -52,4 +52,4 @@ Defined in: [src/core/dom-env.ts:23](https://github.com/boazblake/algebraic-fx/b
 
 > **window**: `Window`
 
-Defined in: [src/core/dom-env.ts:21](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/core/dom-env.ts#L21)
+Defined in: [src/core/dom-env.ts:21](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/dom-env.ts#L21)

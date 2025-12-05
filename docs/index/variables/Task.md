@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../README.md)
+[**algebraic-fx v0.0.1**](../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **Task**: \{\<`E`, `A`\>(`run0`): [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `all`: [`Task`](../type-aliases/Task.md)\<`E`, `A`[]\>; `ap`: (`fa`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`\>; `bimap`: (`t`) => [`Task`](../type-aliases/Task.md)\<`E2`, `B`\>; `chain`: (`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`\>; `delay`: \<`E`, `A`\>(`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `fold`: (`t`) => `Promise`\<`B`\>; `fromEither`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `getOrElse`: (`t`) => `Promise`\<`A`\>; `map`: (`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`\>; `mapError`: \<`A`\>(`t`) => [`Task`](../type-aliases/Task.md)\<`E2`, `A`\>; `of`: [`Task`](../type-aliases/Task.md)\<`never`, `A`\>; `race`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `reject`: [`Task`](../type-aliases/Task.md)\<`E`, `never`\>; `sequence`: [`Task`](../type-aliases/Task.md)\<`E`, `A`[]\>; `timeout`: \<`A`\>(`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `toPromise`: `Promise`\<`A`\>; `traverse`: (`arr`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`[]\>; `tryCatch`: [`Task`](../type-aliases/Task.md)\<`unknown`, `A`\>; `tryCatchK`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; \}
 
-Defined in: [src/adt/task.ts:24](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/task.ts#L24)
+Defined in: [src/adt/task.ts:24](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/task.ts#L24)
 
 Construct a Task given a function that accepts an optional AbortSignal.
 

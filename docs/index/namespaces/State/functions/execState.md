@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../../../README.md)
+[**algebraic-fx v0.0.1**](../../../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **execState**\<`S`, `A`\>(`s`): (`st`) => `S`
 
-Defined in: [src/adt/state.ts:139](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/state.ts#L139)
+Defined in: [src/adt/state.ts:139](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/state.ts#L139)
 
 Execute: run state and return only the final state.
 

@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../../../README.md)
+[**algebraic-fx v0.0.1**](../../../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **debounce**\<`A`\>(`ms`): (`s`) => [`Stream`](../../../type-aliases/Stream.md)\<`A`\>
 
-Defined in: [src/adt/stream.ts:417](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/adt/stream.ts#L417)
+Defined in: [src/adt/stream.ts:417](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/stream.ts#L417)
 
 Debounce a stream: wait `ms` milliseconds after each event before emitting.
 

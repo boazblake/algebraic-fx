@@ -1,6 +1,6 @@
 {
   "name": "algebraic-fx",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A tiny TEA-style runtime with explicit algebraic effects over a fast virtual DOM",
   "type": "module",
   "main": "./dist/index.js",

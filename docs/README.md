@@ -1,8 +1,8 @@
-**algebraic-fx v1.0.0**
+**algebraic-fx v0.0.1**
 
 ***
 
-# algebraic-fx v1.0.0
+# algebraic-fx v0.0.1
 
 ## Modules
 

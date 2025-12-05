@@ -1,4 +1,4 @@
-[**algebraic-fx v1.0.0**](../../README.md)
+[**algebraic-fx v0.0.1**](../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **DefaultHttpError** = `object`
 
-Defined in: [src/helpers/http-task.ts:29](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/helpers/http-task.ts#L29)
+Defined in: [src/helpers/http-task.ts:29](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/helpers/http-task.ts#L29)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [src/helpers/http-task.ts:29](https://github.com/boazblake/algebraic
 
 > **message**: `string`
 
-Defined in: [src/helpers/http-task.ts:31](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/helpers/http-task.ts#L31)
+Defined in: [src/helpers/http-task.ts:31](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/helpers/http-task.ts#L31)
 
 ***
 
@@ -24,4 +24,4 @@ Defined in: [src/helpers/http-task.ts:31](https://github.com/boazblake/algebraic
 
 > **status**: `number`
 
-Defined in: [src/helpers/http-task.ts:30](https://github.com/boazblake/algebraic-fx/blob/d7dd4888e8dadc816b4797bb9d287cc5e6126d05/src/helpers/http-task.ts#L30)
+Defined in: [src/helpers/http-task.ts:30](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/helpers/http-task.ts#L30)
