@@ -1,8 +1,9 @@
-import type { TargetAllocation, ValidationError } from "../../shared/types";
+import type { TargetAllocation, ValidationError } from "@shared/types";
 
 export type Model = {
   target: TargetAllocation;
   validationErrors: ValidationError[];
+  isLoaded: boolean;
 };
 
 export type Msg =
@@ -11,4 +12,4 @@ export type Msg =
   | { type: "SET_CASH"; value: number }
   | { type: "APPLY" }
   | { type: "RESET_DEFAULT" }
-  | { type: "CLEAR_VALIDATION_ERRORS" };
+  | { type: "LOADED_TARGET"; target: TargetAllocation };

@@ -1,22 +1,24 @@
-import { Validation } from "algebraic-fx";
+// src/panels/targets/update.ts
 import type { Dispatch, RawEffect } from "algebraic-fx";
+import type { AppEnv } from "@core/env";
+
 import type { Model, Msg } from "./types";
-import type { ValidationError, TargetAllocation } from "../../shared/types";
-import { validateAllocation } from "../../shared/validation";
-import { saveTarget } from "../../effects/storage";
+import { validateTarget } from "./domain";
+import { loadTargetEffect } from "./effects"; // <-- fix here
+import type { ValidationError } from "@shared/types";
+import { Validation } from "algebraic-fx";
 
 export const update = (
   msg: Msg,
   m: Model,
-  _dispatch: Dispatch<Msg>
-): { model: Model; effects: RawEffect<any>[] } => {
+  dispatch: Dispatch<Msg>
+): { model: Model; effects: RawEffect<AppEnv>[] } => {
   switch (msg.type) {
     case "SET_STOCKS":
       return {
         model: {
           ...m,
           target: { ...m.target, stocks: msg.value },
-          validationErrors: [],
         },
         effects: [],
       };
@@ -26,7 +28,6 @@ export const update = (
         model: {
           ...m,
           target: { ...m.target, bonds: msg.value },
-          validationErrors: [],
         },
         effects: [],
       };
@@ -36,52 +37,35 @@ export const update = (
         model: {
           ...m,
           target: { ...m.target, cash: msg.value },
-          validationErrors: [],
         },
         effects: [],
       };
 
     case "APPLY": {
-      const v = validateAllocation(
-        m.target.stocks,
-        m.target.bonds,
-        m.target.cash
-      );
+      const v = validateTarget(m.target);
 
       if (v._tag === "Failure") {
-        const errors: ValidationError[] = v.errors;
+        const errors = (v as any).errors as ValidationError[];
         return {
           model: { ...m, validationErrors: errors },
           effects: [],
         };
       }
 
-      const target: TargetAllocation = v.value;
-      const saveEffect = saveTarget(target);
-
-      return {
-        model: { ...m, target, validationErrors: [] },
-        effects: [saveEffect],
-      };
-    }
-
-    case "RESET_DEFAULT": {
-      const target: TargetAllocation = {
-        stocks: 60,
-        bonds: 30,
-        cash: 10,
-      };
-      const saveEffect = saveTarget(target);
-
-      return {
-        model: { ...m, target, validationErrors: [] },
-        effects: [saveEffect],
-      };
-    }
-
-    case "CLEAR_VALIDATION_ERRORS":
       return {
         model: { ...m, validationErrors: [] },
+        effects: [],
+      };
+    }
+
+    case "LOADED_TARGET":
+      return {
+        model: {
+          ...m,
+          target: msg.target,
+          isLoaded: true,
+          validationErrors: [],
+        },
         effects: [],
       };
 

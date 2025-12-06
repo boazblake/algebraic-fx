@@ -1,30 +1,86 @@
-import { IO, Maybe, Validation, Either } from "algebraic-fx";
+import { IO } from "algebraic-fx";
+import { Reader } from "algebraic-fx";
+import { Maybe } from "algebraic-fx";
+import { Either } from "algebraic-fx";
 import type { Dispatch, RawEffect } from "algebraic-fx";
+import type { AppEnv } from "@core/env";
+
 import type { Model, Msg } from "./types";
-import type { Holding, ValidationError } from "../../shared/types";
+import type { Holding, ValidationError } from "@shared/types";
 import {
   validateHoldingInput,
   validateNoDuplicate,
 } from "../../shared/validation";
 import {
+  loadHoldings, // kept for completeness if you use it in init
   saveHoldings,
-  cachePrice,
   getCachedPrice,
+  cachePrice,
 } from "../../effects/storage";
 import {
-  createHttpEnv,
   fetchStockPrice,
   formatApiError,
-  type HttpEnv,
   type ApiError,
-  type StockQuote,
+  type GlobalQuote,
 } from "../../effects/api";
+
+const MAX_CACHE_AGE_MS = 5 * 60 * 1000;
+
+// ---------------------------------------------------------------------------
+// Small helpers
+// ---------------------------------------------------------------------------
+
+const dispatchPriceFetched = (
+  dispatch: Dispatch<Msg>,
+  ticker: string,
+  price: number
+): IO<void> =>
+  IO(() => {
+    dispatch({ type: "PRICE_FETCHED", ticker, price });
+  });
+
+const dispatchPriceError = (
+  dispatch: Dispatch<Msg>,
+  ticker: string,
+  error: string
+): IO<void> =>
+  IO(() => {
+    dispatch({ type: "PRICE_ERROR", ticker, error });
+  });
+
+// Reader<AppEnv, IO<void>> that:
+//   - builds the Task via fetchStockPrice
+//   - runs it with an AbortController
+//   - dispatches PRICE_FETCHED or PRICE_ERROR
+const fetchPriceEffect = (
+  ticker: string,
+  dispatch: Dispatch<Msg>
+): Reader<AppEnv, IO<void>> =>
+  fetchStockPrice(ticker).map((task) =>
+    IO(() => {
+      const controller = new AbortController();
+
+      task.runWith(controller.signal).then((either) => {
+        if (Either.isRight(either)) {
+          const quote: GlobalQuote = either.right;
+          dispatchPriceFetched(dispatch, ticker, quote.price).run();
+        } else {
+          const err: ApiError = either.left;
+          dispatchPriceError(dispatch, ticker, formatApiError(err)).run();
+        }
+      });
+    })
+  );
+
+// ---------------------------------------------------------------------------
+// Update
+// ---------------------------------------------------------------------------
 
 export const update = (
   msg: Msg,
   m: Model,
   dispatch: Dispatch<Msg>
-): { model: Model; effects: RawEffect<any>[] } => {
+): { model: Model; effects: RawEffect<AppEnv>[] } => {
   switch (msg.type) {
     case "SET_TICKER":
       return {
@@ -47,15 +103,11 @@ export const update = (
       };
 
     case "ADD_HOLDING": {
-      const vInput = validateHoldingInput(
-        m.input.ticker,
-        m.input.shares
-      );
+      const vInput = validateHoldingInput(m.input.ticker, m.input.shares);
 
       if (vInput._tag === "Failure") {
-        const errors: ValidationError[] = vInput.errors;
         return {
-          model: { ...m, validationErrors: errors },
+          model: { ...m, validationErrors: vInput.errors },
           effects: [],
         };
       }
@@ -64,52 +116,68 @@ export const update = (
 
       const vDup = validateNoDuplicate(ticker, m.holdings);
       if (vDup._tag === "Failure") {
-        const errors: ValidationError[] = vDup.errors;
         return {
-          model: { ...m, validationErrors: errors },
+          model: { ...m, validationErrors: vDup.errors },
           effects: [],
         };
       }
 
-      const cachedPrice = getCachedPrice(ticker).run();
-      const priceValue = Maybe.getOrElse(0, cachedPrice);
+      const newHoldings = [...m.holdings]; // temporarily mutate local copy
+      let newHolding: Holding;
 
-      const newHolding: Holding = {
-        ticker,
-        shares,
-        currentPrice: cachedPrice,
-        value: priceValue > 0 ? shares * priceValue : 0,
-      };
+      const effects: RawEffect<AppEnv>[] = [];
 
-      const newHoldings = [...m.holdings, newHolding];
-      const saveEffect = saveHoldings(newHoldings);
+      const getCached = getCachedPrice(ticker, MAX_CACHE_AGE_MS);
 
-      const effects: RawEffect<any>[] = [saveEffect];
+      const loadPrice: Reader<AppEnv, IO<void>> = Reader((env) =>
+        IO(() => {
+          const maybe = getCached.run(env).run();
+          const price = Maybe.getOrElse(0, maybe);
 
-      if (Maybe.isNothing(cachedPrice)) {
-        const env = createHttpEnv("YOUR_API_KEY_HERE");
-        effects.push(createFetchPriceEffect(ticker, env, dispatch));
-      }
+          newHolding = {
+            ticker,
+            shares,
+            currentPrice: maybe,
+            value: price > 0 ? shares * price : 0,
+          };
 
+          // Save holding list after creation
+          saveHoldings(newHoldings).run(env).run();
+
+          // Trigger price fetch if needed
+          if (Maybe.isNothing(maybe)) {
+            fetchPriceEffect(ticker, dispatch).run(env).run();
+          }
+        })
+      );
+
+      // Add an effect to load/create the holding
+      effects.push(loadPrice);
+
+      // Update model synchronously
       return {
         model: {
           ...m,
-          holdings: newHoldings,
+          holdings: [
+            ...m.holdings,
+            {
+              ticker,
+              shares,
+              currentPrice: Maybe.Nothing,
+              value: 0,
+            },
+          ],
           input: { ticker: "", shares: "" },
           validationErrors: [],
-          fetchingPrices: Maybe.isNothing(cachedPrice)
-            ? new Set([...m.fetchingPrices, ticker])
-            : m.fetchingPrices,
         },
         effects,
       };
     }
 
     case "REMOVE_HOLDING": {
-      const newHoldings = m.holdings.filter(
-        (h) => h.ticker !== msg.ticker
-      );
-      const saveEffect = saveHoldings(newHoldings);
+      const newHoldings = m.holdings.filter((h) => h.ticker !== msg.ticker);
+      const saveEffect: Reader<AppEnv, IO<void>> = saveHoldings(newHoldings);
+
       return {
         model: { ...m, holdings: newHoldings },
         effects: [saveEffect],
@@ -117,13 +185,7 @@ export const update = (
     }
 
     case "FETCH_PRICE": {
-      const env = createHttpEnv("YOUR_API_KEY_HERE");
-      const fetchEffect = createFetchPriceEffect(
-        msg.ticker,
-        env,
-        dispatch
-      );
-
+      const effect = fetchPriceEffect(msg.ticker, dispatch);
       return {
         model: {
           ...m,
@@ -132,7 +194,7 @@ export const update = (
             [...m.priceErrors].filter(([k]) => k !== msg.ticker)
           ),
         },
-        effects: [fetchEffect],
+        effects: [effect],
       };
     }
 
@@ -141,7 +203,7 @@ export const update = (
         h.ticker === msg.ticker
           ? {
               ...h,
-              currentPrice: Maybe.Just(msg.price),
+              currentPrice: Maybe.of(msg.price),
               value: h.shares * msg.price,
             }
           : h
@@ -150,8 +212,11 @@ export const update = (
       const fetchingPrices = new Set(m.fetchingPrices);
       fetchingPrices.delete(msg.ticker);
 
-      const saveEffect = saveHoldings(newHoldings);
-      const cacheEffect = cachePrice(msg.ticker, msg.price);
+      const saveEffect: Reader<AppEnv, IO<void>> = saveHoldings(newHoldings);
+      const cacheEffect: Reader<AppEnv, IO<void>> = cachePrice(
+        msg.ticker,
+        msg.price
+      );
 
       return {
         model: {
@@ -181,9 +246,8 @@ export const update = (
     }
 
     case "REFRESH_ALL_PRICES": {
-      const env = createHttpEnv("YOUR_API_KEY_HERE");
-      const effects: RawEffect<any>[] = m.holdings.map((h) =>
-        createFetchPriceEffect(h.ticker, env, dispatch)
+      const effects: RawEffect<AppEnv>[] = m.holdings.map((h) =>
+        fetchPriceEffect(h.ticker, dispatch)
       );
 
       return {
@@ -206,31 +270,3 @@ export const update = (
       return { model: m, effects: [] };
   }
 };
-
-
-const createFetchPriceEffect = (
-  ticker: string,
-  env: HttpEnv,
-  dispatch: Dispatch<Msg>
-): IO<void> =>
-  IO(() => {
-    const task = fetchStockPrice(ticker).run(env);
-    task.run().then((either: Either<ApiError, StockQuote>) => {
-      if (either._tag === "Right") {
-        const quote = either.right;
-        dispatch({
-          type: "PRICE_FETCHED",
-          ticker,
-          price: quote.price,
-        });
-      } else {
-        const e = either.left;
-        dispatch({
-          type: "PRICE_ERROR",
-          ticker,
-          error: formatApiError(e),
-        });
-      }
-    });
-
-  });

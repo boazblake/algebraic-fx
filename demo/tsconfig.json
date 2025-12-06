@@ -2,10 +2,37 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
-    "lib": ["ES2020", "DOM"],
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
     "moduleResolution": "bundler",
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    // Add these for perfect editor + build alignment
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": [
+        "src/shared/*"
+      ],
+      "@effects/*": [
+        "src/effects/*"
+      ],
+      "@panels/*": [
+        "src/panels/*"
+      ],
+      "@main/*": [
+        "src/main/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      "@core/*": [
+        "src/core/*"
+      ]
+    }
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

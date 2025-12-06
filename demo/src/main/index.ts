@@ -1,18 +1,14 @@
-import type { Program, Dispatch, VChild } from "algebraic-fx";
-import { init } from "./model";
-import { update } from "./update";
-import { view as viewImpl } from "./view";
+import { IO } from "algebraic-fx";
+import type { RawEffect, Program } from "algebraic-fx";
+import type { AppEnv } from "@core/env";
+
 import type { Model, Msg } from "./types";
+import { init } from "./init";
+import { update } from "./update";
+import { view } from "./view";
 
-export const view = (
-  model: Model,
-  dispatch: Dispatch<Msg>
-): VChild[] => viewImpl(model, dispatch);
-
-export const program: Program<Model, Msg> = {
-  init,
+export const program: Program<Model, Msg, AppEnv> = {
+  init: init as IO<{ model: Model; effects: RawEffect<AppEnv>[] }>,
   update,
   view,
 };
-
-export type { Model, Msg };

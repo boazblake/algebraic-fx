@@ -1,4 +1,4 @@
-import { m } from "../utils/renderer";
+import { m } from "@core/renderer";
 import type { Dispatch } from "algebraic-fx";
 import type { Model, Msg } from "./types";
 
@@ -9,23 +9,23 @@ import { program as TradesPanel } from "../panels/trades";
 import { program as AuditPanel } from "../panels/audit";
 
 export const view = (model: Model, dispatch: Dispatch<Msg>) => {
-  const holdingsVNode = HoldingsPanel.view(model.holdings, (msg) =>
+  const holdings = HoldingsPanel.view(model.holdings, (msg) =>
     dispatch({ type: "Holdings", msg })
   );
 
-  const targetsVNode = TargetsPanel.view(model.targets, (msg) =>
+  const targets = TargetsPanel.view(model.targets, (msg) =>
     dispatch({ type: "Targets", msg })
   );
 
-  const driftVNode = DriftPanel.view(model.drift, (msg) =>
+  const drift = DriftPanel.view(model.drift, (msg) =>
     dispatch({ type: "Drift", msg })
   );
 
-  const tradesVNode = TradesPanel.view(model.trades, (msg) =>
+  const trades = TradesPanel.view(model.trades, (msg) =>
     dispatch({ type: "Trades", msg })
   );
 
-  const auditVNode = AuditPanel.view(model.audit, (msg) =>
+  const audit = AuditPanel.view(model.audit, (msg) =>
     dispatch({ type: "Audit", msg })
   );
 
@@ -35,10 +35,10 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) => {
       m("p", "Mathematically Correct Portfolio Management"),
     ]),
 
-    m("section", holdingsVNode),
-    m("section", targetsVNode),
-    m("section", driftVNode),
-    m("section", tradesVNode),
-    m("section", auditVNode),
+    m("section", { id: "holdings" }, holdings),
+    m("section", { id: "targets" }, targets),
+    m("section", { id: "drift" }, drift),
+    m("section", { id: "trades" }, trades),
+    m("section", { id: "audit" }, audit),
   ];
 };

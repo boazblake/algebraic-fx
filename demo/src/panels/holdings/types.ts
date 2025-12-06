@@ -1,32 +1,23 @@
-// ============================================================================
-// HOLDINGS PANEL - Types
-// Complete fractal Program for managing portfolio holdings
-// ============================================================================
+// src/panels/holdings/types.ts
+import type { Holding, ValidationError } from "@shared/types";
 
-import type { Holding, ValidationError } from "../../shared/types";
-
-/**
- * Holdings panel state
- */
 export type Model = {
-  holdings: Holding[];
   input: {
     ticker: string;
     shares: string;
   };
+  holdings: Holding[];
+  fetchingPrices: Set<string>;
+  priceErrors: Map<string, string>;
   validationErrors: ValidationError[];
-  fetchingPrices: Set<string>; // Tickers currently being fetched
-  priceErrors: Map<string, string>; // Ticker -> error message
 };
 
-/**
- * Holdings panel messages (discriminated union)
- */
 export type Msg =
   | { type: "SET_TICKER"; value: string }
   | { type: "SET_SHARES"; value: string }
   | { type: "ADD_HOLDING" }
   | { type: "REMOVE_HOLDING"; ticker: string }
+  | { type: "SET_HOLDINGS"; holdings: Holding[] }
   | { type: "FETCH_PRICE"; ticker: string }
   | { type: "PRICE_FETCHED"; ticker: string; price: number }
   | { type: "PRICE_ERROR"; ticker: string; error: string }

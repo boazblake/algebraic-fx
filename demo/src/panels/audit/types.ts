@@ -1,4 +1,4 @@
-import type { AuditEntry } from "../../shared/types";
+import type { AuditEntry } from "@shared/types";
 
 export type Model = {
   entries: AuditEntry[];

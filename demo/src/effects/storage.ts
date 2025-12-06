@@ -1,11 +1,12 @@
-import { IO, Maybe } from "algebraic-fx";
-import type { Holding, TargetAllocation } from "../shared/types";
+import { IO } from "algebraic-fx";
+import { Reader } from "algebraic-fx";
+import { Maybe } from "algebraic-fx";
+import type { AppEnv } from "@core/env";
+import type { Holding, TargetAllocation } from "@shared/types";
 
-const STORAGE_KEYS = {
-  HOLDINGS: "fp-rebalance:holdings",
-  TARGET: "fp-rebalance:target",
-  PRICES_CACHE: "fp-rebalance:prices-cache",
-} as const;
+const HOLDINGS_KEY = "holdings";
+const TARGET_KEY = "target";
+const PRICE_CACHE_KEY = "price-cache";
 
 type PriceCacheEntry = {
   price: number;
@@ -14,153 +15,129 @@ type PriceCacheEntry = {
 
 type PriceCache = Record<string, PriceCacheEntry>;
 
-// --------------------- holdings ---------------------
+const safeParseJson = <A>(raw: string): Maybe<A> => {
+  try {
+    const parsed = JSON.parse(raw) as A;
+    return Maybe.of(parsed);
+  } catch {
+    return Maybe.Nothing as Maybe<A>;
+  }
+};
 
-export const saveHoldings = (holdings: Holding[]): IO<void> =>
-  IO(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.HOLDINGS, JSON.stringify(holdings));
-    } catch (error) {
-      console.error("[Storage] Failed to save holdings:", error);
-    }
-  });
+const readKey = (key: string): Reader<AppEnv, IO<Maybe<string>>> =>
+  Reader((env: AppEnv) =>
+    IO(() => {
+      const raw = env.localStorage.getItem(key);
+      return Maybe.fromNullable(raw);
+    })
+  );
 
-export const loadHoldings = (): IO<Maybe<Holding[]>> =>
-  IO(() => {
-    try {
-      const data = localStorage.getItem(STORAGE_KEYS.HOLDINGS);
-      if (!data) {
-        return Maybe.Nothing as Maybe<Holding[]>;
-      }
+const writeKey = (key: string, value: string): Reader<AppEnv, IO<void>> =>
+  Reader((env: AppEnv) =>
+    IO(() => {
+      env.localStorage.setItem(key, value);
+    })
+  );
 
-      const parsed = JSON.parse(data) as Holding[];
+/* HOLDINGS */
 
-      const holdings: Holding[] = parsed.map((h) => ({
-        ...h,
-        currentPrice: Maybe.Nothing,
-      }));
-
-      return Maybe.Just(holdings);
-    } catch (error) {
-      console.error("[Storage] Failed to load holdings:", error);
-      return Maybe.Nothing as Maybe<Holding[]>;
-    }
-  });
-
-// --------------------- target ---------------------
-
-export const saveTarget = (target: TargetAllocation): IO<void> =>
-  IO(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.TARGET, JSON.stringify(target));
-    } catch (error) {
-      console.error("[Storage] Failed to save target:", error);
-    }
-  });
-
-export const loadTarget = (): IO<Maybe<TargetAllocation>> =>
-  IO(() => {
-    try {
-      const data = localStorage.getItem(STORAGE_KEYS.TARGET);
-      if (!data) {
-        return Maybe.Nothing as Maybe<TargetAllocation>;
-      }
-
-      const parsed = JSON.parse(data) as TargetAllocation;
-      return Maybe.Just(parsed);
-    } catch (error) {
-      console.error("[Storage] Failed to load target:", error);
-      return Maybe.Nothing as Maybe<TargetAllocation>;
-    }
-  });
-
-export const clearAll = (): IO<void> =>
-  IO(() => {
-    try {
-      localStorage.removeItem(STORAGE_KEYS.HOLDINGS);
-      localStorage.removeItem(STORAGE_KEYS.TARGET);
-      localStorage.removeItem(STORAGE_KEYS.PRICES_CACHE);
-    } catch (error) {
-      console.error("[Storage] Failed to clear data:", error);
-    }
-  });
-
-// --------------------- price cache ---------------------
-
-const loadPriceCache = (): IO<PriceCache> =>
-  IO(() => {
-    try {
-      const data = localStorage.getItem(STORAGE_KEYS.PRICES_CACHE);
-      if (!data) {
-        return {};
-      }
-      return JSON.parse(data) as PriceCache;
-    } catch (error) {
-      console.error("[Storage] Failed to load price cache:", error);
-      return {};
-    }
-  });
-
-export const cachePrice = (ticker: string, price: number): IO<void> =>
-  IO(() => {
-    try {
-      const cache = loadPriceCache().run();
-      const updated: PriceCache = {
-        ...cache,
-        [ticker]: { price, timestamp: Date.now() },
-      };
-      localStorage.setItem(
-        STORAGE_KEYS.PRICES_CACHE,
-        JSON.stringify(updated)
+export const loadHoldings: Reader<AppEnv, IO<Maybe<Holding[]>>> = Reader(
+  (env: AppEnv) =>
+    IO(() => {
+      const maybeRaw = readKey(HOLDINGS_KEY).run(env).run();
+      return Maybe.chain(
+        (raw: string) => safeParseJson<Holding[]>(raw),
+        maybeRaw
       );
-    } catch (error) {
-      console.error("[Storage] Failed to cache price:", error);
-    }
-  });
+    })
+);
 
-export const getCachedPrice = (ticker: string): IO<Maybe<number>> =>
-  IO(() => {
-    try {
-      const cache = loadPriceCache().run();
+export const saveHoldings = (holdings: Holding[]): Reader<AppEnv, IO<void>> =>
+  Reader((env: AppEnv) =>
+    IO(() => {
+      const json = JSON.stringify(holdings);
+      writeKey(HOLDINGS_KEY, json).run(env).run();
+    })
+  );
+
+/* TARGET */
+
+export const loadTarget: Reader<AppEnv, IO<Maybe<TargetAllocation>>> = Reader(
+  (env: AppEnv) =>
+    IO(() => {
+      const maybeRaw = readKey(TARGET_KEY).run(env).run();
+      return Maybe.chain(
+        (raw: string) => safeParseJson<TargetAllocation>(raw),
+        maybeRaw
+      );
+    })
+);
+
+export const saveTarget = (
+  target: TargetAllocation
+): Reader<AppEnv, IO<void>> =>
+  Reader((env: AppEnv) =>
+    IO(() => {
+      const json = JSON.stringify(target);
+      writeKey(TARGET_KEY, json).run(env).run();
+    })
+  );
+
+/* PRICE CACHE */
+
+const defaultPriceCache: PriceCache = {};
+
+export const loadPriceCache: Reader<AppEnv, IO<PriceCache>> = Reader(
+  (env: AppEnv) =>
+    IO(() => {
+      const maybeRaw = readKey(PRICE_CACHE_KEY).run(env).run();
+      const maybeParsed = Maybe.chain(
+        (raw: string) => safeParseJson<PriceCache>(raw),
+        maybeRaw
+      );
+      return Maybe.getOrElse<PriceCache>(defaultPriceCache, maybeParsed);
+    })
+);
+
+export const savePriceCache = (cache: PriceCache): Reader<AppEnv, IO<void>> =>
+  Reader((env: AppEnv) =>
+    IO(() => {
+      const json = JSON.stringify(cache);
+      writeKey(PRICE_CACHE_KEY, json).run(env).run();
+    })
+  );
+
+export const getCachedPrice = (
+  ticker: string,
+  maxAgeMs: number
+): Reader<AppEnv, IO<Maybe<number>>> =>
+  Reader((env: AppEnv) =>
+    IO(() => {
+      const cache = loadPriceCache.run(env).run();
       const entry = cache[ticker];
       if (!entry) {
         return Maybe.Nothing as Maybe<number>;
       }
-
       const now = Date.now();
-      const ttl = 5 * 60 * 1000;
-
-      if (now - entry.timestamp > ttl) {
+      const age = now - entry.timestamp;
+      if (age > maxAgeMs) {
         return Maybe.Nothing as Maybe<number>;
       }
+      return Maybe.of(entry.price);
+    })
+  );
 
-      return Maybe.Just(entry.price);
-    } catch (error) {
-      console.error("[Storage] Failed to get cached price:", error);
-      return Maybe.Nothing as Maybe<number>;
-    }
-  });
-
-export const clearExpiredPrices = (): IO<void> =>
-  IO(() => {
-    try {
-      const cache = loadPriceCache().run();
-      const now = Date.now();
-      const ttl = 5 * 60 * 1000;
-
-      const cleaned: PriceCache = {};
-      for (const [ticker, entry] of Object.entries(cache)) {
-        const e = entry as PriceCacheEntry;
-        if (now - e.timestamp <= ttl) {
-          cleaned[ticker] = e;
-        }
-      }
-
-      localStorage.setItem(
-        STORAGE_KEYS.PRICES_CACHE,
-        JSON.stringify(cleaned)
-      );
-    } catch (error) {
-      console.error("[Storage] Failed to clear expired prices:", error);
-    }
-  });
+export const cachePrice = (
+  ticker: string,
+  price: number
+): Reader<AppEnv, IO<void>> =>
+  Reader((env: AppEnv) =>
+    IO(() => {
+      const cache = loadPriceCache.run(env).run();
+      const next: PriceCache = {
+        ...cache,
+        [ticker]: { price, timestamp: Date.now() },
+      };
+      savePriceCache(next).run(env).run();
+    })
+  );

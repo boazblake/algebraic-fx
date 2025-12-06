@@ -1,15 +1,14 @@
 import type { Dispatch } from "algebraic-fx";
-import { Maybe } from "algebraic-fx";
-import { m } from "../../utils/renderer";
+import { m } from "@core/renderer";
 import type { Model, Msg } from "./types";
-import { formatCurrency } from "../../shared/calculations";
+import { toViewModel } from "./model";
 
 export const view = (model: Model, dispatch: Dispatch<Msg>) => {
-console.log('holdings',model)
-  const children: any[] = [];
+  const vm = toViewModel(model, dispatch);
+  console.log(vm, model);
 
-  // Form
-  children.push(
+  return m("div", [
+    // Form
     m(
       "form",
       {
@@ -29,8 +28,8 @@ console.log('holdings',model)
             m("input", {
               type: "text",
               placeholder: "Ticker (e.g., AAPL)",
-              value: model.input.ticker,
-              oninput: (e: Event) =>
+              value: vm.inputTicker,
+              oninput: (e: any) =>
                 dispatch({
                   type: "SET_TICKER",
                   value: (e.target as HTMLInputElement).value,
@@ -39,8 +38,8 @@ console.log('holdings',model)
             m("input", {
               type: "number",
               placeholder: "Shares",
-              value: model.input.shares,
-              oninput: (e: Event) =>
+              value: vm.inputShares,
+              oninput: (e: any) =>
                 dispatch({
                   type: "SET_SHARES",
                   value: (e.target as HTMLInputElement).value,
@@ -50,108 +49,97 @@ console.log('holdings',model)
           ]
         ),
       ]
-    )
-  );
+    ),
 
-  // Validation errors
-  if (model.validationErrors.length > 0) {
-    children.push(
-      m(
-        "ul",
-        { style: "color: var(--pico-del-color); margin-top: 0.5rem;" },
-        model.validationErrors.map((err) =>
-          m("li", `${err.field}: ${err.message}`)
+    // Errors
+    vm.errors.length > 0
+      ? m(
+          "ul",
+          { style: "color: var(--pico-del-color); margin-top:0.5rem;" },
+          vm.errors.map((e) => m("li", e))
         )
-      )
-    );
-  }
+      : null,
 
-  // Holdings table or empty state
-  if (model.holdings.length > 0) {
-    children.push(
-      m("figure", { style: "margin-top:1rem;" }, [
-        m("table", [
-          m("thead", [
-            m("tr", [
-              m("th", "Ticker"),
-              m("th", "Shares"),
-              m("th", "Price"),
-              m("th", "Value"),
-              m("th", ""),
-            ]),
-          ]),
-          m(
-            "tbody",
-            model.holdings.map((h) =>
+    // Table
+    vm.hasHoldings
+      ? m("figure", { style: "margin-top:1rem;" }, [
+          m("table", [
+            m("thead", [
               m("tr", [
-                m("td", h.ticker),
-                m("td", h.shares.toString()),
-                m("td", [
-                  Maybe.isJust(h.currentPrice)
-                    ? formatCurrency(Maybe.getOrElse(0, h.currentPrice))
-                    : model.fetchingPrices.has(h.ticker)
-                      ? m("small", "Loading...")
-                      : m(
-                          "button",
-                          {
-                            onclick: () =>
-                              dispatch({
-                                type: "FETCH_PRICE",
-                                ticker: h.ticker,
-                              }),
-                            style:
-                              "padding:0.25rem 0.5rem;font-size:0.8rem;",
-                          },
-                          "Fetch"
-                        ),
-                ]),
-                m("td", formatCurrency(h.value)),
-                m("td", [
+                m("th", "Ticker"),
+                m("th", "Shares"),
+                m("th", "Price"),
+                m("th", "Value"),
+                m("th", ""),
+              ]),
+            ]),
+
+            m(
+              "tbody",
+              vm.rows.map((row) =>
+                m("tr", [
+                  m("td", row.ticker),
+                  m("td", row.shares),
+
+                  // price cell: either text or a button
                   m(
-                    "button",
-                    {
-                      onclick: () =>
-                        dispatch({
-                          type: "REMOVE_HOLDING",
-                          ticker: h.ticker,
-                        }),
-                      class: "secondary outline",
-                      style:
-                        "padding:0.25rem 0.5rem;font-size:0.8rem;",
-                    },
-                    "Remove"
+                    "td",
+                    Array.isArray(row.price)
+                      ? row.price
+                      : typeof row.price === "string"
+                        ? row.price
+                        : m(
+                            "button",
+                            {
+                              onclick:
+                                row.price.kind === "button"
+                                  ? () =>
+                                      dispatch({
+                                        type: "FETCH_PRICE",
+                                        ticker: row.ticker,
+                                      })
+                                  : undefined,
+                              style: "padding:0.25rem 0.5rem;font-size:0.8rem;",
+                            },
+                            row.price.label
+                          )
                   ),
-                ]),
-              ])
-            )
-          ),
-        ]),
-      ])
-    );
-  } else {
-    children.push(
-      m(
-        "p",
-        { style: "color: var(--pico-muted-color);" },
-        "No holdings yet. Add your first position above."
-      )
-    );
-  }
 
-  // Refresh button
-  if (model.holdings.length > 0) {
-    children.push(
-      m(
-        "button",
-        {
-          onclick: () => dispatch({ type: "REFRESH_ALL_PRICES" }),
-          class: "secondary",
-          style: "margin-top:1rem;",
-        },
-        "Refresh All Prices"
-      )
-    );
-  }
+                  m("td", row.value),
 
-  return m("div", children);
+                  m("td", [
+                    m(
+                      "button",
+                      {
+                        onclick: row.removeAction,
+                        class: "secondary outline",
+                        style: "padding:0.25rem 0.5rem;font-size:0.8rem;",
+                      },
+                      "Remove"
+                    ),
+                  ]),
+                ])
+              )
+            ),
+          ]),
+        ])
+      : m(
+          "p",
+          { style: "color: var(--pico-muted-color);" },
+          "No holdings yet. Add your first position above."
+        ),
+
+    // Refresh
+    vm.hasHoldings
+      ? m(
+          "button",
+          {
+            onclick: vm.refreshAction,
+            class: "secondary",
+            style: "margin-top:1rem;",
+          },
+          "Refresh All Prices"
+        )
+      : null,
+  ]);
 };

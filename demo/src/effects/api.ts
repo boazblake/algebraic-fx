@@ -1,170 +1,166 @@
-import { Reader, Task, Either } from "algebraic-fx";
+// src/effects/api.ts
+import { Reader } from "algebraic-fx";
+import { Task } from "algebraic-fx";
+import { Either } from "algebraic-fx";
+import type { AppEnv } from "@core/env";
 
-export type HttpEnv = {
-  apiKey: string;
-  baseUrl: string;
-  fetch: typeof fetch;
-};
+/* ------------------------------------------------------------------------
+   Domain Types
+------------------------------------------------------------------------ */
 
 export type ApiError =
-  | { type: "network"; message: string }
-  | { type: "rateLimit"; retryAfter: number }
-  | { type: "invalidTicker"; ticker: string }
-  | { type: "parseError"; raw: string }
-  | { type: "unknown"; error: unknown };
+  | { _tag: "NetworkError"; message: string }
+  | { _tag: "AbortError"; message: string }
+  | { _tag: "HttpError"; status: number; message: string }
+  | { _tag: "DecodeError"; message: string };
 
-export type StockQuote = {
+export type GlobalQuote = {
   symbol: string;
   price: number;
-  timestamp: string;
 };
 
-// --------------------- rate limit ---------------------
+/* ------------------------------------------------------------------------
+   URL Builder
+------------------------------------------------------------------------ */
 
-let apiCallCount = 0;
-let lastResetTime = Date.now();
+const mkQuoteUrl = (env: AppEnv, symbol: string): string => {
+  const base = env.baseUrl ?? "https://www.alphavantage.co";
 
-const checkRateLimit = (): Either<ApiError, void> => {
-  const now = Date.now();
-  const oneMinute = 60 * 1000;
+  const params = new URLSearchParams();
+  params.set("function", "GLOBAL_QUOTE");
+  params.set("symbol", symbol);
 
-  if (now - lastResetTime > oneMinute) {
-    apiCallCount = 0;
-    lastResetTime = now;
-  }
+  if (env.apiKey) params.set("apikey", env.apiKey);
 
-  if (apiCallCount >= 5) {
-    const retryAfter = 60 - Math.floor((now - lastResetTime) / 1000);
-    return Either.Left({
-      type: "rateLimit",
-      retryAfter: retryAfter > 0 ? retryAfter : 1,
+  return `${base}/query?${params.toString()}`;
+};
+
+/* ------------------------------------------------------------------------
+   JSON Fetch (Abort-aware, no async/await)
+------------------------------------------------------------------------ */
+
+const fetchJson = (url: string): Reader<AppEnv, Task<ApiError, unknown>> =>
+  Reader((env: AppEnv) =>
+    Task<ApiError, unknown>((signal: AbortSignal) =>
+      env
+        .fetch(url, { signal })
+        .then((res) => {
+          if (!res.ok) {
+            return Either.Left<ApiError>({
+              _tag: "HttpError",
+              status: res.status,
+              message: res.statusText,
+            });
+          }
+          return res
+            .json()
+            .then((json) => Either.Right<unknown>(json))
+            .catch((e) =>
+              Either.Left<ApiError>({
+                _tag: "DecodeError",
+                message: e instanceof Error ? e.message : String(e),
+              })
+            );
+        })
+        .catch((e: any) => {
+          const msg = e instanceof Error ? e.message : String(e);
+          if (e?.name === "AbortError") {
+            return Either.Left<ApiError>({
+              _tag: "AbortError",
+              message: msg,
+            });
+          }
+          return Either.Left<ApiError>({
+            _tag: "NetworkError",
+            message: msg,
+          });
+        })
+    )
+  );
+
+/* ------------------------------------------------------------------------
+   Decoding
+------------------------------------------------------------------------ */
+
+const decodeGlobalQuote = (raw: unknown): Either<ApiError, GlobalQuote> => {
+  if (typeof raw !== "object" || raw === null) {
+    return Either.Left<ApiError>({
+      _tag: "DecodeError",
+      message: "JSON root is not an object",
     });
   }
 
-  apiCallCount += 1;
-  return Either.Right(undefined);
+  const root = raw as Record<string, unknown>;
+  const gq = root["Global Quote"];
+
+  if (typeof gq !== "object" || gq === null) {
+    return Either.Left<ApiError>({
+      _tag: "DecodeError",
+      message: "Missing Global Quote field",
+    });
+  }
+
+  const fields = gq as Record<string, unknown>;
+  const symbol = fields["01. symbol"];
+  const priceStr = fields["05. price"];
+
+  if (typeof symbol !== "string") {
+    return Either.Left<ApiError>({
+      _tag: "DecodeError",
+      message: "Missing or invalid symbol",
+    });
+  }
+
+  if (typeof priceStr !== "string") {
+    return Either.Left<ApiError>({
+      _tag: "DecodeError",
+      message: "Missing or invalid price",
+    });
+  }
+
+  const price = Number(priceStr);
+  if (!Number.isFinite(price)) {
+    return Either.Left<ApiError>({
+      _tag: "DecodeError",
+      message: "Price is not numeric",
+    });
+  }
+
+  return Either.Right<GlobalQuote>({ symbol, price });
 };
 
-// --------------------- main API ---------------------
+/* ------------------------------------------------------------------------
+   PUBLIC API — Fetch Stock Quote (Abort-aware, no async)
+------------------------------------------------------------------------ */
 
 export const fetchStockPrice = (
-  ticker: string
-): Reader<HttpEnv, Task<ApiError, StockQuote>> =>
-  Reader((env: HttpEnv) =>
-    Task<ApiError, StockQuote>(async (signal?: AbortSignal) => {
-      const rl = checkRateLimit();
-      if (rl._tag === "Left") {
-        return rl as Either<ApiError, StockQuote>;
-      }
+  symbol: string
+): Reader<AppEnv, Task<ApiError, GlobalQuote>> =>
+  Reader((env: AppEnv) => {
+    const url = mkQuoteUrl(env, symbol);
 
-      try {
-        const url = `${env.baseUrl}/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${env.apiKey}`;
+    const jsonTask = fetchJson(url).run(env); // Task<ApiError, unknown>
 
-        const response = await env.fetch(url, { signal });
+    // Chain decoding in the Task context
+    return jsonTask.chain((raw) =>
+      Task.fromEither<ApiError, GlobalQuote>(decodeGlobalQuote(raw))
+    );
+  });
 
-        if (!response.ok) {
-          if (response.status === 429) {
-            return Either.Left<ApiError>({
-              type: "rateLimit",
-              retryAfter: 60,
-            });
-          }
+/* ------------------------------------------------------------------------
+   Error Formatting
+------------------------------------------------------------------------ */
 
-          return Either.Left<ApiError>({
-            type: "network",
-            message: `HTTP ${response.status}: ${response.statusText}`,
-          });
-        }
+export const formatApiError = (e: ApiError): string => {
+  switch (e._tag) {
+    case "NetworkError":
+    case "AbortError":
+      return e.message;
 
-        const data = await response.json();
+    case "HttpError":
+      return `HTTP ${e.status}: ${e.message}`;
 
-        if (data["Error Message"]) {
-          return Either.Left<ApiError>({
-            type: "invalidTicker",
-            ticker,
-          });
-        }
-
-        if (data["Note"]) {
-          return Either.Left<ApiError>({
-            type: "rateLimit",
-            retryAfter: 60,
-          });
-        }
-
-        const quote = data["Global Quote"];
-
-        if (!quote || !quote["01. symbol"] || !quote["05. price"]) {
-          return Either.Left<ApiError>({
-            type: "parseError",
-            raw: JSON.stringify(data),
-          });
-        }
-
-        const stockQuote: StockQuote = {
-          symbol: quote["01. symbol"],
-          price: parseFloat(quote["05. price"]),
-          timestamp: quote["07. latest trading day"],
-        };
-
-        return Either.Right<StockQuote>(stockQuote);
-      } catch (error) {
-        if (error instanceof Error && error.name === "AbortError") {
-          return Either.Left<ApiError>({
-            type: "network",
-            message: "Request cancelled",
-          });
-        }
-
-        return Either.Left<ApiError>({
-          type: "unknown",
-          error,
-        });
-      }
-    })
-  );
-
-export const formatApiError = (error: ApiError): string => {
-  switch (error.type) {
-    case "network":
-      return `Network error: ${error.message}`;
-    case "rateLimit":
-      return `Rate limit exceeded. Try again in ${error.retryAfter} seconds.`;
-    case "invalidTicker":
-      return `Invalid ticker: ${error.ticker}`;
-    case "parseError":
-      return "Failed to parse API response";
-    case "unknown":
-      return "Unknown error occurred";
+    case "DecodeError":
+      return `Decode error: ${e.message}`;
   }
 };
-
-export const createHttpEnv = (apiKey: string): HttpEnv => ({
-  apiKey,
-  baseUrl: "https://www.alphavantage.co",
-  fetch: window.fetch.bind(window),
-});
-
-export const createMockHttpEnv = (): HttpEnv => ({
-  apiKey: "demo",
-  baseUrl: "https://www.alphavantage.co",
-  fetch: async (
-    _input: RequestInfo | URL,
-    _init?: RequestInit
-  ): Promise<Response> => {
-    const mockData = {
-      "Global Quote": {
-        "01. symbol": "AAPL",
-        "05. price": "150.25",
-        "07. latest trading day": "2024-12-04",
-      },
-    };
-
-    return {
-      ok: true,
-      status: 200,
-      statusText: "OK",
-      json: async () => mockData,
-    } as Response;
-  },
-});

@@ -1,5 +1,5 @@
 import type { Program } from "algebraic-fx";
-import { init } from "./model";
+import { init } from "./init";
 import { update } from "./update";
 import { view as viewImpl } from "./view";
 import type { Model, Msg } from "./types";
