@@ -22,7 +22,6 @@ export default defineConfig({
       "@effects": path.resolve(__dirname, "src/effects"),
       "@panels": path.resolve(__dirname, "src/panels"),
       "@main": path.resolve(__dirname, "src/main"),
-      "@utils": path.resolve(__dirname, "src/utils"),
       "@core": path.resolve(__dirname, "src/core"),
 
       // Alternative shorter syntax that also works in most cases:

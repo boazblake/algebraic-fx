@@ -24,9 +24,6 @@
       "@main/*": [
         "src/main/*"
       ],
-      "@utils/*": [
-        "src/utils/*"
-      ],
       "@core/*": [
         "src/core/*"
       ]

@@ -8,6 +8,7 @@ export const init = IO(() => ({
       ticker: "",
       shares: "",
     },
+    editingShares: {},
     validationErrors: [],
     fetchingPrices: new Set<string>(),
     priceErrors: new Map<string, string>(),

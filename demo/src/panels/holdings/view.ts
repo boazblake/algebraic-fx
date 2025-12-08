@@ -117,6 +117,27 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) => {
                       },
                       "Remove"
                     ),
+                    // inside holdings view row
+                    m("input", {
+                      value: vm.editingShares[row.ticker] ?? String(row.shares),
+                      oninput: (e: any) =>
+                        dispatch({
+                          type: "SET_EDITING_SHARES",
+                          ticker: row.ticker,
+                          value: e.target.value,
+                        }),
+                    }),
+                    m(
+                      "button",
+                      {
+                        onclick: () =>
+                          dispatch({
+                            type: "APPLY_EDITING_SHARES",
+                            ticker: row.ticker,
+                          }),
+                      },
+                      "Update shares"
+                    ),
                   ]),
                 ])
               )

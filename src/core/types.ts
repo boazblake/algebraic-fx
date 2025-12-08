@@ -70,8 +70,8 @@ export type Dispatch<P> = (payload: P) => void;
  *
  * renderApp executes these effects after rendering each frame.
  */
-export interface EffectLike {
-  run: () => void;
+export interface EffectLike<Env = unknown, P = Payload> {
+  run: (env: Env, dispatch: Dispatch<P>) => void | Promise<void>;
 }
 
 export const IOEffectTag = Symbol("IOEffect");
@@ -111,11 +111,9 @@ export const readerEffect = <E>(
  * It is normalized inside `renderApp` into an executable effect.
  */
 export type RawEffect<E> =
-  | IO<void> // backward compat
-  | Reader<E, IO<void>> // backward compat
-  | EffectLike
-  | IOEffect
-  | ReaderEffect<E>;
+  // | IO<void> // backward compat
+  // | Reader<E, IO<void>> // backward compat
+  EffectLike | IOEffect | ReaderEffect<E>;
 
 /**
  * A pure functional application description.

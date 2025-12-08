@@ -2,26 +2,25 @@
 // SHARED DOMAIN TYPES
 // Core business entities used across all panels
 // ============================================================================
-
 import type { Maybe } from "algebraic-fx";
 
 /**
  * A single stock/bond holding in the portfolio
  */
 export type Holding = {
-  ticker: string;              // e.g. "AAPL"
-  shares: number;              // Number of shares owned
+  ticker: string; // e.g. "AAPL"
+  shares: number; // Number of shares owned
   currentPrice: Maybe<number>; // Just(150.25) or Nothing if not fetched
-  value: number;               // shares * price (0 if price not available)
+  value: number; // shares * price (0 if price not available)
 };
 
 /**
  * Target portfolio allocation (must sum to 100%)
  */
 export type TargetAllocation = {
-  stocks: number;  // 0-100
-  bonds: number;   // 0-100
-  cash: number;    // 0-100
+  stocks: number; // 0-100
+  bonds: number; // 0-100
+  cash: number; // 0-100
 };
 
 /**
@@ -44,7 +43,7 @@ export type DriftReport = {
     cash: number;
   };
   drift: {
-    stocks: number;  // Current - Target (negative = underweight)
+    stocks: number; // Current - Target (negative = underweight)
     bonds: number;
     cash: number;
   };
@@ -59,7 +58,7 @@ export type Trade = {
   ticker: string;
   shares: number;
   price: number;
-  total: number;  // shares * price
+  total: number; // shares * price
 };
 
 /**
@@ -72,7 +71,7 @@ export type TradePlan = {
     bonds: number;
     cash: number;
   };
-  cashNeeded: number;  // Positive = need to add, negative = will receive
+  cashNeeded: number; // Positive = need to add, negative = will receive
 };
 
 /**

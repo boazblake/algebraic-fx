@@ -41,9 +41,9 @@ const mkQuoteUrl = (env: AppEnv, symbol: string): string => {
 
 const fetchJson = (url: string): Reader<AppEnv, Task<ApiError, unknown>> =>
   Reader((env: AppEnv) =>
-    Task<ApiError, unknown>((signal: AbortSignal) =>
+    Task<ApiError, unknown>(() =>
       env
-        .fetch(url, { signal })
+        .fetch(url)
         .then((res) => {
           if (!res.ok) {
             return Either.Left<ApiError>({

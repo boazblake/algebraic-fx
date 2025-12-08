@@ -1,34 +1,31 @@
-import { IO } from "algebraic-fx";
-import { Reader } from "algebraic-fx";
-import { Maybe } from "algebraic-fx";
-import { Either } from "algebraic-fx";
-import type { Dispatch, RawEffect } from "algebraic-fx";
-import type { AppEnv } from "@core/env";
+// src/panels/holdings/update.ts
 
+import { IO, Maybe, Reader, Either } from "algebraic-fx";
+import type { Dispatch, RawEffect } from "algebraic-fx";
+
+import type { AppEnv } from "@core/env";
 import type { Model, Msg } from "./types";
 import type { Holding, ValidationError } from "@shared/types";
+
+import { validateHoldingInput, validateNoDuplicate } from "@shared/validation";
+
 import {
-  validateHoldingInput,
-  validateNoDuplicate,
-} from "../../shared/validation";
-import {
-  loadHoldings, // kept for completeness if you use it in init
+  loadHoldings,
   saveHoldings,
   getCachedPrice,
   cachePrice,
-} from "../../effects/storage";
+} from "@effects/storage";
+
 import {
   fetchStockPrice,
   formatApiError,
   type ApiError,
   type GlobalQuote,
-} from "../../effects/api";
+} from "@effects/api";
 
 const MAX_CACHE_AGE_MS = 5 * 60 * 1000;
 
-// ---------------------------------------------------------------------------
-// Small helpers
-// ---------------------------------------------------------------------------
+/* helpers --------------------------------------------------------------- */
 
 const dispatchPriceFetched = (
   dispatch: Dispatch<Msg>,
@@ -48,33 +45,65 @@ const dispatchPriceError = (
     dispatch({ type: "PRICE_ERROR", ticker, error });
   });
 
-// Reader<AppEnv, IO<void>> that:
-//   - builds the Task via fetchStockPrice
-//   - runs it with an AbortController
-//   - dispatches PRICE_FETCHED or PRICE_ERROR
+/**
+ * Reader<AppEnv, IO<void>> that:
+ *  - calls Alpha Vantage for latest price
+ *  - dispatches PRICE_FETCHED or PRICE_ERROR
+ */
 const fetchPriceEffect = (
   ticker: string,
   dispatch: Dispatch<Msg>
 ): Reader<AppEnv, IO<void>> =>
   fetchStockPrice(ticker).map((task) =>
     IO(() => {
-      const controller = new AbortController();
-
-      task.runWith(controller.signal).then((either) => {
+      // No cancellation needed, so run()
+      task.run().then((either) => {
         if (Either.isRight(either)) {
-          const quote: GlobalQuote = either.right;
+          const quote: GlobalQuote = (either as any).right;
           dispatchPriceFetched(dispatch, ticker, quote.price).run();
         } else {
-          const err: ApiError = either.left;
+          const err = (either as any).left as ApiError;
           dispatchPriceError(dispatch, ticker, formatApiError(err)).run();
         }
       });
     })
   );
 
-// ---------------------------------------------------------------------------
-// Update
-// ---------------------------------------------------------------------------
+/**
+ * Compute value from shares and currentPrice.
+ */
+const computeValue = (shares: number, currentPrice: Maybe<number>): number =>
+  Maybe.fold(
+    () => 0,
+    (p) => shares * p,
+    currentPrice
+  );
+
+/**
+ * Convenience to update a single holding's shares (pure).
+ */
+const updateHoldingShares = (
+  holdings: Holding[],
+  ticker: string,
+  newShares: number
+): Holding[] => {
+  if (newShares <= 0) {
+    // Selling everything: remove holding
+    return holdings.filter((h) => h.ticker !== ticker);
+  }
+
+  return holdings.map((h) =>
+    h.ticker === ticker
+      ? {
+          ...h,
+          shares: newShares,
+          value: computeValue(newShares, h.currentPrice),
+        }
+      : h
+  );
+};
+
+/* update ---------------------------------------------------------------- */
 
 export const update = (
   msg: Msg,
@@ -106,71 +135,67 @@ export const update = (
       const vInput = validateHoldingInput(m.input.ticker, m.input.shares);
 
       if (vInput._tag === "Failure") {
+        const errors: ValidationError[] = (vInput as any).errors;
         return {
-          model: { ...m, validationErrors: vInput.errors },
+          model: { ...m, validationErrors: errors },
           effects: [],
         };
       }
 
-      const { ticker, shares } = vInput.value;
+      const { ticker, shares } = (vInput as any).value;
 
       const vDup = validateNoDuplicate(ticker, m.holdings);
       if (vDup._tag === "Failure") {
+        const errors: ValidationError[] = (vDup as any).errors;
         return {
-          model: { ...m, validationErrors: vDup.errors },
+          model: { ...m, validationErrors: errors },
           effects: [],
         };
       }
 
-      const newHoldings = [...m.holdings]; // temporarily mutate local copy
-      let newHolding: Holding;
-
-      const effects: RawEffect<AppEnv>[] = [];
-
       const getCached = getCachedPrice(ticker, MAX_CACHE_AGE_MS);
 
-      const loadPrice: Reader<AppEnv, IO<void>> = Reader((env) =>
+      const loadAndAdd: Reader<AppEnv, IO<void>> = Reader((env: AppEnv) =>
         IO(() => {
-          const maybe = getCached.run(env).run();
-          const price = Maybe.getOrElse(0, maybe);
+          const maybePrice = getCached.run(env).run();
+          const price = Maybe.getOrElse(0, maybePrice);
 
-          newHolding = {
+          const currentPrice = Maybe.isNothing(maybePrice)
+            ? Maybe.Nothing
+            : Maybe.of(price);
+
+          const newHolding: Holding = {
             ticker,
             shares,
-            currentPrice: maybe,
+            currentPrice,
             value: price > 0 ? shares * price : 0,
           };
 
-          // Save holding list after creation
+          const newHoldings = [...m.holdings, newHolding];
+
+          // persist to storage
           saveHoldings(newHoldings).run(env).run();
 
-          // Trigger price fetch if needed
-          if (Maybe.isNothing(maybe)) {
+          // fetch fresh price if cache miss
+          if (Maybe.isNothing(maybePrice)) {
             fetchPriceEffect(ticker, dispatch).run(env).run();
           }
+
+          // inform parent (main/update.ts) that holdings changed
+          dispatch({
+            type: "SET_HOLDINGS",
+            holdings: newHoldings,
+          });
         })
       );
 
-      // Add an effect to load/create the holding
-      effects.push(loadPrice);
-
-      // Update model synchronously
       return {
         model: {
           ...m,
-          holdings: [
-            ...m.holdings,
-            {
-              ticker,
-              shares,
-              currentPrice: Maybe.Nothing,
-              value: 0,
-            },
-          ],
           input: { ticker: "", shares: "" },
           validationErrors: [],
         },
-        effects,
+        effects: [loadAndAdd],
       };
     }
 
@@ -186,6 +211,7 @@ export const update = (
 
     case "FETCH_PRICE": {
       const effect = fetchPriceEffect(msg.ticker, dispatch);
+
       return {
         model: {
           ...m,
@@ -259,6 +285,109 @@ export const update = (
         effects,
       };
     }
+
+    /* NEW: inline buy/sell via absolute share edit --------------------- */
+
+    case "SET_EDITING_SHARES": {
+      const nextEditing = {
+        ...m.editingShares,
+        [msg.ticker]: msg.value,
+      };
+
+      return {
+        model: {
+          ...m,
+          editingShares: nextEditing,
+          validationErrors: [],
+        },
+        effects: [],
+      };
+    }
+
+    case "APPLY_EDITING_SHARES": {
+      const raw = m.editingShares[msg.ticker];
+
+      // Nothing entered -> no-op
+      if (raw == null || raw.trim() === "") {
+        return { model: m, effects: [] };
+      }
+
+      // Reuse existing validation for share count
+      const vInput = validateHoldingInput(msg.ticker, raw);
+
+      if (vInput._tag === "Failure") {
+        const errors: ValidationError[] = (vInput as any).errors;
+        return {
+          model: { ...m, validationErrors: errors },
+          effects: [],
+        };
+      }
+
+      const { shares: newShares } = (vInput as any).value;
+
+      const existing = m.holdings.find((h) => h.ticker === msg.ticker);
+      if (!existing) {
+        // No such holding; ignore
+        return { model: m, effects: [] };
+      }
+
+      // If shares unchanged, just clear the edit buffer
+      if (existing.shares === newShares) {
+        const { [msg.ticker]: _removed, ...rest } = m.editingShares;
+
+        return {
+          model: {
+            ...m,
+            editingShares: rest,
+            validationErrors: [],
+          },
+          effects: [],
+        };
+      }
+
+      const newHoldings = updateHoldingShares(
+        m.holdings,
+        msg.ticker,
+        newShares
+      );
+
+      const saveEffect: Reader<AppEnv, IO<void>> = saveHoldings(newHoldings);
+      const priceEffect: Reader<AppEnv, IO<void>> = fetchPriceEffect(
+        msg.ticker,
+        dispatch
+      );
+
+      const fetchingPrices = new Set(m.fetchingPrices);
+      fetchingPrices.add(msg.ticker);
+
+      const priceErrors = new Map(
+        [...m.priceErrors].filter(([k]) => k !== msg.ticker)
+      );
+
+      const { [msg.ticker]: _removed, ...restEditing } = m.editingShares;
+
+      // Tell parent that holdings changed (drift/trades, audit, etc.)
+      const coord: IO<void> = IO(() => {
+        dispatch({
+          type: "SET_HOLDINGS",
+          holdings: newHoldings,
+        });
+      });
+
+      return {
+        model: {
+          ...m,
+          holdings: newHoldings,
+          editingShares: restEditing,
+          validationErrors: [],
+          fetchingPrices,
+          priceErrors,
+        },
+        effects: [saveEffect, priceEffect, coord],
+      };
+    }
+
+    /* housekeeping ----------------------------------------------------- */
 
     case "CLEAR_VALIDATION_ERRORS":
       return {

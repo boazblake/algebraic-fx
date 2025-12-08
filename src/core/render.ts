@@ -80,11 +80,11 @@ export const renderApp =
          * Execute a list of raw effects against the current environment.
          *
          * Handles:
-         * - tagged `IOEffect`
-         * - tagged `ReaderEffect<DomEnv>`
-         * - legacy `EffectLike` with `run()` or `run(env)` signatures
-         *
-         * @param fx Optional array of effects to run
+         * - IOEffect
+         * - ReaderEffect<E>
+         * - EffectLike(env, dispatch)
+         * - Legacy EffectLike: run()
+         * - Legacy EffectLike: run(env)
          */
         const runEffects = (fx?: RawEffect<DomEnv>[]) => {
           fx?.forEach((effect) => {
@@ -96,7 +96,7 @@ export const renderApp =
               return;
             }
 
-            // Tagged ReaderEffect
+            // Tagged ReaderEffect<E>
             if ((effect as ReaderEffect<DomEnv>)._tag === ReaderEffectTag) {
               const r = (effect as ReaderEffect<DomEnv>).reader;
               const io = r.run(env);
@@ -104,23 +104,32 @@ export const renderApp =
               return;
             }
 
-            // Backward compat: EffectLike (IO-like) with no env
-            if (typeof (effect as any).run === "function") {
-              const candidate = effect as any;
+            // EffectLike — new or legacy
+            const cand = effect as any;
 
-              // If run(env) returns an IO, treat it as Reader<E, IO<void>>
-              if (candidate.run.length >= 1) {
-                const io = candidate.run(env);
-                if (io && typeof io.run === "function") io.run();
-                return;
+            if (typeof cand.run === "function") {
+              const arity = cand.run.length;
+
+              switch (arity) {
+                case 0:
+                  // Legacy: run()
+                  cand.run();
+                  return;
+
+                case 1:
+                  // Legacy: run(env)
+                  const result = cand.run(env);
+                  if (result && typeof result.run === "function") result.run();
+                  return;
+
+                default:
+                  // New signature: run(env, dispatch)
+                  cand.run(env, dispatch);
+                  return;
               }
-
-              // Otherwise treat as IO<void>/EffectLike: run()
-              candidate.run();
             }
           });
         };
-
         /**
          * Render the view for the given model and then execute the provided effects.
          *

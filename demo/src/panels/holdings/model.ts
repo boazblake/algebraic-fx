@@ -12,6 +12,7 @@ export type HoldingsRowVM = {
 };
 
 export type HoldingsVM = {
+  editingShares: Record<string, string>;
   inputTicker: string;
   inputShares: string;
   errors: string[];
@@ -51,6 +52,7 @@ export const toViewModel = (
   });
 
   return {
+    editingShares: {},
     inputTicker: model.input.ticker,
     inputShares: model.input.shares,
     errors,

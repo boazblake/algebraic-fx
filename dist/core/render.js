@@ -38,11 +38,11 @@ program) => rootIO
      * Execute a list of raw effects against the current environment.
      *
      * Handles:
-     * - tagged `IOEffect`
-     * - tagged `ReaderEffect<DomEnv>`
-     * - legacy `EffectLike` with `run()` or `run(env)` signatures
-     *
-     * @param fx Optional array of effects to run
+     * - IOEffect
+     * - ReaderEffect<E>
+     * - EffectLike(env, dispatch)
+     * - Legacy EffectLike: run()
+     * - Legacy EffectLike: run(env)
      */
     const runEffects = (fx) => {
         fx?.forEach((effect) => {
@@ -53,25 +53,33 @@ program) => rootIO
                 effect.io.run();
                 return;
             }
-            // Tagged ReaderEffect
+            // Tagged ReaderEffect<E>
             if (effect._tag === ReaderEffectTag) {
                 const r = effect.reader;
                 const io = r.run(env);
                 io.run();
                 return;
             }
-            // Backward compat: EffectLike (IO-like) with no env
-            if (typeof effect.run === "function") {
-                const candidate = effect;
-                // If run(env) returns an IO, treat it as Reader<E, IO<void>>
-                if (candidate.run.length >= 1) {
-                    const io = candidate.run(env);
-                    if (io && typeof io.run === "function")
-                        io.run();
-                    return;
+            // EffectLike — new or legacy
+            const cand = effect;
+            if (typeof cand.run === "function") {
+                const arity = cand.run.length;
+                switch (arity) {
+                    case 0:
+                        // Legacy: run()
+                        cand.run();
+                        return;
+                    case 1:
+                        // Legacy: run(env)
+                        const result = cand.run(env);
+                        if (result && typeof result.run === "function")
+                            result.run();
+                        return;
+                    default:
+                        // New signature: run(env, dispatch)
+                        cand.run(env, dispatch);
+                        return;
                 }
-                // Otherwise treat as IO<void>/EffectLike: run()
-                candidate.run();
             }
         });
     };
