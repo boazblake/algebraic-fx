@@ -1,1 +1,0 @@
-{"version":3,"file":"ws-subscription.d.ts","sourceRoot":"","sources":["../../src/handlers/ws-subscription.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,mBAAmB,EAAE,MAAM,uCAAuC,CAAC;AAEjF,MAAM,MAAM,SAAS,GAAG;IAAE,GAAG,EAAE,MAAM,CAAA;CAAE,CAAC;AAExC,eAAO,MAAM,qBAAqB,EAAE,mBAqDnC,CAAC"}

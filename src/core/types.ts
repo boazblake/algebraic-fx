@@ -1,36 +1,37 @@
-import type { IO } from "../adt/io.js";
-import type { Reader } from "../adt/reader.js";
-import type { DomEnv } from "./dom-env.js";
-
 /**
+ * @module core/types
+ *
  * Core type definitions for algebraic-fx programs, effects, and virtual DOM.
  *
- * This module defines:
- * - VNodes for the mithril-lite renderer
- * - Dispatch and Payload types
- * - RawEffect (IO, Reader, EffectLike)
- * - Program<M,P,E> interface
- *
- * These types are consumed by `renderApp` and userland programs.
+ * Defines:
+ *  - VNode / VChild / Props
+ *  - Dispatch
+ *  - Payload<T, M>
+ *  - Effect<Env, Msg>
+ *  - IOEffect / ReaderEffect / RawEffect<E>
+ *  - Program<M, Msg, Env>
  */
 
+import type { IO } from "../adt/io.js";
+import type { Reader } from "../adt/reader.js";
+
+/* ============================================================================
+ * Virtual DOM
+ * ==========================================================================*/
+
 /**
- * Union of all possible vnode children types.
+ * Union of all possible VNode child types.
  *
- * A child may be:
- * - another VNode
- * - primitive text (string/number)
- * - boolean/null/undefined (ignored)
+ * Children may be:
+ *   - VNode
+ *   - string / number
+ *   - boolean / null / undefined (ignored)
  */
 export type VChild = VNode | string | number | boolean | null | undefined;
 
-export type Msg = Record<string, string>;
-
-export type Payload<T extends string = string, M extends Msg = Msg> = {
-  type: T;
-  msg: M;
-};
-
+/**
+ * Attributes and event handlers for VNode props.
+ */
 export type Props = Record<string, any> & {
   oncreate?: (el: Element) => void;
   onupdate?: (el: Element, oldProps: Props) => void;
@@ -38,60 +39,112 @@ export type Props = Record<string, any> & {
 };
 
 /**
- * Virtual DOM node produced by hyperscript (`m`) and consumed by the renderer.
+ * Virtual DOM node.
  *
- * @property tag  HTML/SVG tag name (or "#" for text node)
- * @property props Attributes and properties applied to DOM elements
- * @property children Array of vnode children
- * @property key Stable identity used for keyed diffing
- * @property dom Reference to the actual DOM node after rendering
+ * @property tag      tag name or "#" for text node
+ * @property props    attributes / props
+ * @property children child vnodes
+ * @property key      stable identity for keyed diffing
+ * @property dom      real DOM node reference (set by renderer)
  */
 export type VNode = {
   tag: string;
   props?: Props | null;
   children: VChild[] | null;
   key?: string | number;
+  dom?: Node | null;
 };
 
+/* ============================================================================
+ * Dispatch & Payload
+ * ==========================================================================*/
+
 /**
- * Dispatch function for sending messages to the program's update function.
- *
- * @template P Payload message type
+ * Dispatch function for sending messages into Program.update.
  */
 export type Dispatch<P> = (payload: P) => void;
 
 /**
- * Normalized effect representation.
+ * Canonical message shape.
  *
- * Any RawEffect is normalized to one of:
- * - IO<void>
- * - Reader<E, IO<void>>
- * - EffectLike (object containing a .run(): void)
+ * @typeParam T   string literal type tag, recommend namespacing: "Holdings.Add"
+ * @typeParam M   payload record for this message, defaults to {}
  *
- * renderApp executes these effects after rendering each frame.
+ * Example:
+ *
+ *   type Msg =
+ *     | Payload<"Holdings.Add">
+ *     | Payload<"Holdings.SetTicker", { value: string }>;
+ *
+ *   dispatch({ type: "Holdings.SetTicker", msg: { value: "AAPL" } });
  */
-export interface EffectLike<Env = unknown, P = Payload> {
-  run: (env: Env, dispatch: Dispatch<P>) => void | Promise<void>;
+export type Payload<T extends string, M extends object = {}> = {
+  type: T;
+  msg: M;
+};
+
+/* ============================================================================
+ * Effect System
+ * ==========================================================================*/
+
+/**
+ * Effect<Env, Msg>
+ *
+ * The primary abstraction for side effects in algebraic-fx.
+ *
+ * Effect responsibilities:
+ *   - read from Env (HTTP, storage, etc.)
+ *   - perform asynchronous work
+ *   - emit follow-up Msg values via dispatch
+ *
+ * The runtime calls:
+ *
+ *   effect.run(env, dispatch)
+ *
+ * @typeParam Env environment type
+ * @typeParam Msg message union type for the Program
+ */
+export interface Effect<Env = unknown, Msg = unknown> {
+  run: (env: Env, dispatch: Dispatch<Msg>) => void | Promise<void>;
 }
 
+/**
+ * Tagged IO wrapper for scheduling IO<void> as a runtime effect.
+ */
 export const IOEffectTag = Symbol("IOEffect");
-export const ReaderEffectTag = Symbol("ReaderEffect");
 
+/**
+ * IOEffect wraps an IO<void>.
+ */
 export type IOEffect = {
   _tag: typeof IOEffectTag;
   io: IO<void>;
 };
 
+/**
+ * Tagged Reader wrapper for scheduling Reader<Env,IO<void>> as an effect.
+ */
+export const ReaderEffectTag = Symbol("ReaderEffect");
+
+/**
+ * ReaderEffect wraps Reader<Env, IO<void>>.
+ */
 export type ReaderEffect<E> = {
   _tag: typeof ReaderEffectTag;
   reader: Reader<E, IO<void>>;
 };
 
+/**
+ * Construct an IOEffect from IO<void>.
+ */
 export const ioEffect = (io: IO<void>): IOEffect => ({
   _tag: IOEffectTag,
   io,
 });
 
+/**
+ * Construct a ReaderEffect from Reader<Env, IO<void>>.
+ */
 export const readerEffect = <E>(
   reader: Reader<E, IO<void>>
 ): ReaderEffect<E> => ({
@@ -100,41 +153,50 @@ export const readerEffect = <E>(
 });
 
 /**
- * Effect description accepted by the runtime.
+ * RawEffect<E>
  *
- * A raw effect may be:
- * - IO<void>
- * - Reader<E, IO<void>>
- * - EffectLike (already normalized)
- * - Tagged IOEffect / ReaderEffect<E>
+ * Normalized effect representation understood by the runtime:
+ *   - IO<void>
+ *   - Reader<E, IO<void>>
+ *   - Effect<Env, Msg>
+ *   - IOEffect
+ *   - ReaderEffect<E>
  *
- * It is normalized inside `renderApp` into an executable effect.
+ * Env is threaded by the runtime, Msg is program-specific.
  */
 export type RawEffect<E> =
-  // | IO<void> // backward compat
-  // | Reader<E, IO<void>> // backward compat
-  EffectLike | IOEffect | ReaderEffect<E>;
+  | IO<void>
+  | Reader<E, IO<void>>
+  | Effect<E, any>
+  | IOEffect
+  | ReaderEffect<E>;
+
+/* ============================================================================
+ * Program
+ * ==========================================================================*/
 
 /**
- * A pure functional application description.
+ * Pure functional application description.
  *
- * A Program consists of:
- * - init: IO returning initial model + initial effects
- * - update: pure function (payload, model) => new model + effects
- * - view: pure function (model, dispatch) => virtual DOM tree
+ * init:
+ *   IO<{ model; effects }>
  *
- * renderApp wires the Program to a renderer and executes the effects.
+ * update:
+ *   (msg, model, dispatch) => { model; effects }
  *
- * @template M Model type
- * @template P Payload type
- * @template E Environment used for Reader<E,IO<void>>
+ * view:
+ *   (model, dispatch) => vnode
+ *
+ * @typeParam M   model type
+ * @typeParam Msg message union type
+ * @typeParam Env environment type used by Reader and Effect
  */
-export type Program<M, P, E = DomEnv> = {
-  init: IO<{ model: M; effects: RawEffect<E>[] }>;
+export type Program<M, Msg, Env> = {
+  init: IO<{ model: M; effects: RawEffect<Env>[] }>;
   update: (
-    payload: P,
+    msg: Msg,
     model: M,
-    dispatch: Dispatch<P>
-  ) => { model: M; effects: RawEffect<E>[] };
-  view: (model: M, dispatch: Dispatch<P>) => VChild | VChild[];
+    dispatch: Dispatch<Msg>
+  ) => { model: M; effects: RawEffect<Env>[] };
+  view: (model: M, dispatch: Dispatch<Msg>) => VChild | VChild[];
 };

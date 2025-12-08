@@ -8,7 +8,7 @@
 
 > **of**\<`W`, `A`\>(`a`, `empty`, `combine?`): [`Writer`](../../../type-aliases/Writer.md)\<`W`, `A`\>
 
-Defined in: [src/adt/writer.ts:91](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/writer.ts#L91)
+Defined in: [adt/writer.ts:90](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/writer.ts#L90)
 
 Lift a value into Writer with empty log.
 

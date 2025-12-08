@@ -8,7 +8,7 @@
 
 > **Validation**: `object`
 
-Defined in: [src/adt/validation.ts:20](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/validation.ts#L20)
+Defined in: [adt/validation.ts:20](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/validation.ts#L20)
 
 Namespace-style export object for ergonomic importing.
 

@@ -4,20 +4,22 @@
 
 [algebraic-fx](../../README.md) / [index](../README.md) / Program
 
-# Type Alias: Program\<M, P, E\>
+# Type Alias: Program\<M, Msg, Env\>
 
-> **Program**\<`M`, `P`, `E`\> = `object`
+> **Program**\<`M`, `Msg`, `Env`\> = `object`
 
-Defined in: [src/core/types.ts:134](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L134)
+Defined in: [core/types.ts:194](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L194)
 
-A pure functional application description.
+Pure functional application description.
 
-A Program consists of:
-- init: IO returning initial model + initial effects
-- update: pure function (payload, model) => new model + effects
-- view: pure function (model, dispatch) => virtual DOM tree
+init:
+  IO<{ model; effects }>
 
-renderApp wires the Program to a renderer and executes the effects.
+update:
+  (msg, model, dispatch) => { model; effects }
+
+view:
+  (model, dispatch) => vnode
 
 ## Type Parameters
 
@@ -25,41 +27,41 @@ renderApp wires the Program to a renderer and executes the effects.
 
 `M`
 
-Model type
+model type
 
-### P
+### Msg
 
-`P`
+`Msg`
 
-Message payload type
+message union type
 
-### E
+### Env
 
-`E` = [`DomEnv`](DomEnv.md)
+`Env`
 
-Environment used for Reader<E,IO<void>>
+environment type used by Reader and Effect
 
 ## Properties
 
 ### init
 
-> **init**: [`IO`](IO.md)\<\{ `effects`: [`RawEffect`](RawEffect.md)\<`E`\>[]; `model`: `M`; \}\>
+> **init**: [`IO`](IO.md)\<\{ `effects`: [`RawEffect`](RawEffect.md)\<`Env`\>[]; `model`: `M`; \}\>
 
-Defined in: [src/core/types.ts:135](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L135)
+Defined in: [core/types.ts:195](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L195)
 
 ***
 
 ### update()
 
-> **update**: (`payload`, `model`, `dispatch`) => `object`
+> **update**: (`msg`, `model`, `dispatch`) => `object`
 
-Defined in: [src/core/types.ts:136](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L136)
+Defined in: [core/types.ts:196](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L196)
 
 #### Parameters
 
-##### payload
+##### msg
 
-`P`
+`Msg`
 
 ##### model
 
@@ -67,7 +69,7 @@ Defined in: [src/core/types.ts:136](https://github.com/boazblake/algebraic-fx/bl
 
 ##### dispatch
 
-[`Dispatch`](Dispatch.md)\<`P`\>
+[`Dispatch`](Dispatch.md)\<`Msg`\>
 
 #### Returns
 
@@ -75,7 +77,7 @@ Defined in: [src/core/types.ts:136](https://github.com/boazblake/algebraic-fx/bl
 
 ##### effects
 
-> **effects**: [`RawEffect`](RawEffect.md)\<`E`\>[]
+> **effects**: [`RawEffect`](RawEffect.md)\<`Env`\>[]
 
 ##### model
 
@@ -87,7 +89,7 @@ Defined in: [src/core/types.ts:136](https://github.com/boazblake/algebraic-fx/bl
 
 > **view**: (`model`, `dispatch`) => [`VChild`](VChild.md) \| [`VChild`](VChild.md)[]
 
-Defined in: [src/core/types.ts:141](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L141)
+Defined in: [core/types.ts:201](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L201)
 
 #### Parameters
 
@@ -97,7 +99,7 @@ Defined in: [src/core/types.ts:141](https://github.com/boazblake/algebraic-fx/bl
 
 ##### dispatch
 
-[`Dispatch`](Dispatch.md)\<`P`\>
+[`Dispatch`](Dispatch.md)\<`Msg`\>
 
 #### Returns
 

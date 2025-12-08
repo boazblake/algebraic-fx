@@ -8,7 +8,9 @@
 
 > **IOEffect** = `object`
 
-Defined in: [src/core/types.ts:80](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L80)
+Defined in: [core/types.ts:119](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L119)
+
+IOEffect wraps an IO<void>.
 
 ## Properties
 
@@ -16,7 +18,7 @@ Defined in: [src/core/types.ts:80](https://github.com/boazblake/algebraic-fx/blo
 
 > **\_tag**: *typeof* [`IOEffectTag`](../variables/IOEffectTag.md)
 
-Defined in: [src/core/types.ts:81](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L81)
+Defined in: [core/types.ts:120](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L120)
 
 ***
 
@@ -24,4 +26,4 @@ Defined in: [src/core/types.ts:81](https://github.com/boazblake/algebraic-fx/blo
 
 > **io**: [`IO`](IO.md)\<`void`\>
 
-Defined in: [src/core/types.ts:82](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L82)
+Defined in: [core/types.ts:121](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L121)

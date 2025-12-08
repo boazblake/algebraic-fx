@@ -8,19 +8,29 @@
 
 > **VNode** = `object`
 
-Defined in: [src/core/types.ts:49](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L49)
+Defined in: [core/types.ts:50](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L50)
 
-Virtual DOM node produced by hyperscript (`m`) and consumed by the renderer.
+Virtual DOM node.
 
 ## Properties
 
 ### children
 
-> **children**: [`VChild`](VChild.md)[]
+> **children**: [`VChild`](VChild.md)[] \| `null`
 
-Defined in: [src/core/types.ts:52](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L52)
+Defined in: [core/types.ts:53](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L53)
 
-Array of vnode children
+child vnodes
+
+***
+
+### dom?
+
+> `optional` **dom**: `Node` \| `null`
+
+Defined in: [core/types.ts:55](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L55)
+
+real DOM node reference (set by renderer)
 
 ***
 
@@ -28,9 +38,9 @@ Array of vnode children
 
 > `optional` **key**: `string` \| `number`
 
-Defined in: [src/core/types.ts:53](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L53)
+Defined in: [core/types.ts:54](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L54)
 
-Stable identity used for keyed diffing
+stable identity for keyed diffing
 
 ***
 
@@ -38,9 +48,9 @@ Stable identity used for keyed diffing
 
 > `optional` **props**: [`Props`](Props.md) \| `null`
 
-Defined in: [src/core/types.ts:51](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L51)
+Defined in: [core/types.ts:52](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L52)
 
-Attributes and properties applied to DOM elements
+attributes / props
 
 ***
 
@@ -48,6 +58,6 @@ Attributes and properties applied to DOM elements
 
 > **tag**: `string`
 
-Defined in: [src/core/types.ts:50](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L50)
+Defined in: [core/types.ts:51](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L51)
 
-HTML/SVG tag name (or "#" for text node)
+tag name or "#" for text node

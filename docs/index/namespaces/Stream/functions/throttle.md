@@ -8,7 +8,7 @@
 
 > **throttle**\<`A`\>(`ms`): (`s`) => [`Stream`](../../../type-aliases/Stream.md)\<`A`\>
 
-Defined in: [src/adt/stream.ts:439](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/stream.ts#L439)
+Defined in: [adt/stream.ts:438](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/stream.ts#L438)
 
 Throttle a stream: emit at most one event every `ms` milliseconds.
 

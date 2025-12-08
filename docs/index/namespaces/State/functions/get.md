@@ -8,7 +8,7 @@
 
 > **get**\<`S`\>(): [`State`](../../../type-aliases/State.md)\<`S`, `S`\>
 
-Defined in: [src/adt/state.ts:84](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/state.ts#L84)
+Defined in: [adt/state.ts:84](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/state.ts#L84)
 
 Retrieve the current state as the result value.
 

@@ -8,7 +8,7 @@
 
 > **Vnode**\<`T`\> = `object`
 
-Defined in: [src/core/mithril-lite.ts:59](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/mithril-lite.ts#L59)
+Defined in: [core/mithril-lite.ts:59](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/mithril-lite.ts#L59)
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ Defined in: [src/core/mithril-lite.ts:59](https://github.com/boazblake/algebraic
 
 > **attrs**: [`VnodeAttrs`](VnodeAttrs.md)
 
-Defined in: [src/core/mithril-lite.ts:53](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/mithril-lite.ts#L53)
+Defined in: [core/mithril-lite.ts:53](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/mithril-lite.ts#L53)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [src/core/mithril-lite.ts:53](https://github.com/boazblake/algebraic
 
 > **children**: [`VnodeChildren`](VnodeChildren.md)
 
-Defined in: [src/core/mithril-lite.ts:54](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/mithril-lite.ts#L54)
+Defined in: [core/mithril-lite.ts:54](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/mithril-lite.ts#L54)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [src/core/mithril-lite.ts:54](https://github.com/boazblake/algebraic
 
 > **dom**: `T` \| `null`
 
-Defined in: [src/core/mithril-lite.ts:56](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/mithril-lite.ts#L56)
+Defined in: [core/mithril-lite.ts:56](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/mithril-lite.ts#L56)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [src/core/mithril-lite.ts:56](https://github.com/boazblake/algebraic
 
 > **key**: `any`
 
-Defined in: [src/core/mithril-lite.ts:52](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/mithril-lite.ts#L52)
+Defined in: [core/mithril-lite.ts:52](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/mithril-lite.ts#L52)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [src/core/mithril-lite.ts:52](https://github.com/boazblake/algebraic
 
 > **tag**: `string`
 
-Defined in: [src/core/mithril-lite.ts:51](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/mithril-lite.ts#L51)
+Defined in: [core/mithril-lite.ts:51](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/mithril-lite.ts#L51)
 
 ***
 
@@ -62,4 +62,4 @@ Defined in: [src/core/mithril-lite.ts:51](https://github.com/boazblake/algebraic
 
 > **text**: `string` \| `null`
 
-Defined in: [src/core/mithril-lite.ts:55](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/mithril-lite.ts#L55)
+Defined in: [core/mithril-lite.ts:55](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/mithril-lite.ts#L55)

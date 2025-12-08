@@ -8,7 +8,7 @@
 
 > **map**\<`E`, `A`, `B`\>(`f`): (`r`) => [`Reader`](../../../type-aliases/Reader.md)\<`E`, `B`\>
 
-Defined in: [src/adt/reader.ts:80](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/reader.ts#L80)
+Defined in: [adt/reader.ts:80](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/reader.ts#L80)
 
 Point-free functor map.
 

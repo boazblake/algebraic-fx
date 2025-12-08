@@ -8,11 +8,11 @@
 
 > **VChild** = [`VNode`](VNode-1.md) \| `string` \| `number` \| `boolean` \| `null` \| `undefined`
 
-Defined in: [src/core/types.ts:25](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L25)
+Defined in: [core/types.ts:30](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L30)
 
-Union of all possible vnode children types.
+Union of all possible VNode child types.
 
-A child may be:
-- another VNode
-- primitive text (string/number)
-- boolean/null/undefined (ignored)
+Children may be:
+  - VNode
+  - string / number
+  - boolean / null / undefined (ignored)

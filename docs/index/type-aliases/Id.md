@@ -8,7 +8,7 @@
 
 > **Id**\<`A`\> = `object`
 
-Defined in: [src/adt/id.ts:22](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/id.ts#L22)
+Defined in: [adt/id.ts:22](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/id.ts#L22)
 
 Identity monad.
 
@@ -37,7 +37,7 @@ Wrapped value type
 
 > `readonly` **\[IdBrand\]**: `true`
 
-Defined in: [src/adt/id.ts:23](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/id.ts#L23)
+Defined in: [adt/id.ts:23](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/id.ts#L23)
 
 ***
 
@@ -45,7 +45,7 @@ Defined in: [src/adt/id.ts:23](https://github.com/boazblake/algebraic-fx/blob/0b
 
 > **ap**: \<`B`\>(`fb`) => `Id`\<`B`\>
 
-Defined in: [src/adt/id.ts:35](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/id.ts#L35)
+Defined in: [adt/id.ts:35](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/id.ts#L35)
 
 Applicative apply.
 
@@ -71,7 +71,7 @@ Applicative apply.
 
 > **chain**: \<`B`\>(`f`) => `Id`\<`B`\>
 
-Defined in: [src/adt/id.ts:32](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/id.ts#L32)
+Defined in: [adt/id.ts:32](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/id.ts#L32)
 
 Monad chain.
 
@@ -97,7 +97,7 @@ Monad chain.
 
 > **map**: \<`B`\>(`f`) => `Id`\<`B`\>
 
-Defined in: [src/adt/id.ts:29](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/id.ts#L29)
+Defined in: [adt/id.ts:29](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/id.ts#L29)
 
 Functor map.
 
@@ -123,7 +123,7 @@ Functor map.
 
 > **run**: () => `A`
 
-Defined in: [src/adt/id.ts:26](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/id.ts#L26)
+Defined in: [adt/id.ts:26](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/id.ts#L26)
 
 Extract the wrapped value.
 

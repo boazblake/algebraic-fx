@@ -8,63 +8,15 @@
 
 ## References
 
-### askDocument
-
-Re-exports [askDocument](../index/variables/askDocument.md)
-
-***
-
-### askEnv
-
-Re-exports [askEnv](../index/variables/askEnv.md)
-
-***
-
-### askFetch
-
-Re-exports [askFetch](../index/variables/askFetch.md)
-
-***
-
-### askLocal
-
-Re-exports [askLocal](../index/variables/askLocal.md)
-
-***
-
-### askSession
-
-Re-exports [askSession](../index/variables/askSession.md)
-
-***
-
-### askWindow
-
-Re-exports [askWindow](../index/variables/askWindow.md)
-
-***
-
-### browserEnv
-
-Re-exports [browserEnv](../index/functions/browserEnv.md)
-
-***
-
 ### Dispatch
 
 Re-exports [Dispatch](../index/type-aliases/Dispatch.md)
 
 ***
 
-### DomEnv
+### Effect
 
-Re-exports [DomEnv](../index/type-aliases/DomEnv.md)
-
-***
-
-### EffectLike
-
-Re-exports [EffectLike](../index/interfaces/EffectLike.md)
+Re-exports [Effect](../index/interfaces/Effect.md)
 
 ***
 
@@ -89,18 +41,6 @@ Re-exports [IOEffectTag](../index/variables/IOEffectTag.md)
 ### m
 
 Re-exports [m](../index/functions/m.md)
-
-***
-
-### Msg
-
-Re-exports [Msg](../index/type-aliases/Msg.md)
-
-***
-
-### NetEnv
-
-Re-exports [NetEnv](../index/type-aliases/NetEnv.md)
 
 ***
 
@@ -167,6 +107,12 @@ Re-exports [Renderer](../index/type-aliases/Renderer.md)
 ### renderToString
 
 Re-exports [renderToString](../index/functions/renderToString.md)
+
+***
+
+### runEffects
+
+Re-exports [runEffects](../index/functions/runEffects.md)
 
 ***
 

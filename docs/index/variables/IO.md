@@ -8,7 +8,7 @@
 
 > **IO**: \{\<`A`\>(`run`): [`IO`](../type-aliases/IO.md)\<`A`\>; `ap`: (`fa`) => [`IO`](../type-aliases/IO.md)\<`B`\>; `chain`: (`io`) => [`IO`](../type-aliases/IO.md)\<`B`\>; `map`: (`io`) => [`IO`](../type-aliases/IO.md)\<`B`\>; `of`: [`IO`](../type-aliases/IO.md)\<`A`\>; `run`: `A`; `sequence`: [`IO`](../type-aliases/IO.md)\<`A`[]\>; `traverse`: (`arr`) => [`IO`](../type-aliases/IO.md)\<`B`[]\>; `tryCatch`: [`IO`](../type-aliases/IO.md)\<`A`\>; \}
 
-Defined in: [src/adt/io.ts:22](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/io.ts#L22)
+Defined in: [adt/io.ts:22](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/io.ts#L22)
 
 Construct a new lazy IO effect.
 

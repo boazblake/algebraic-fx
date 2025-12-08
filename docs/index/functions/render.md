@@ -8,7 +8,7 @@
 
 > **render**(`dom`, `vnodes`): `void`
 
-Defined in: [src/core/mithril-lite.ts:635](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/mithril-lite.ts#L635)
+Defined in: [core/mithril-lite.ts:701](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/mithril-lite.ts#L701)
 
 Patch DOM tree under `root` using mithril-lite's virtual DOM diffing.
 

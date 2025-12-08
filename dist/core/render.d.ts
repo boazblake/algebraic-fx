@@ -1,65 +1,47 @@
-import { IO } from "../adt/io.js";
-import type { Program } from "./types.js";
-import type { DomEnv } from "./dom-env.js";
 /**
- * A DOM renderer function.
+ * @module core/render
  *
- * The renderer is responsible for:
- * - receiving a root DOM element
- * - receiving a virtual node (vnode)
- * - updating the DOM to reflect the vnode
+ * Runtime loop wiring Program<M,Msg,Env> to a renderer and environment.
  *
- * Compatible with `mithril-lite` and similar virtual DOM renderers.
+ * Responsibilities:
+ *  - run Program.init
+ *  - render initial view
+ *  - process dispatch(msg) → update → view → effects
+ *  - execute RawEffect<Env> via Effect<Env,Msg>, IO, Reader
+ */
+import type { Program, RawEffect, Dispatch } from "./types.js";
+/**
+ * Renderer function type.
  *
- * @param root Root DOM element to render into
- * @param vnode Virtual node tree to render
+ * User supplies a function that updates the DOM from a VNode tree.
  */
 export type Renderer = (root: Element, vnode: any) => void;
 /**
- * Connects a `Program<M, P, E>` to a DOM renderer and environment, producing
- * an `IO` that, when executed, starts the application runtime.
+ * Execute a list of RawEffect<Env> against the current environment.
  *
- * The runtime:
- * - runs `program.init` to obtain the initial model and effects
- * - renders the view via the provided `renderer`
- * - executes effects (`IOEffect`, `ReaderEffect`, or legacy `EffectLike`)
- * - batches dispatches using `requestAnimationFrame`
+ * Supported forms:
+ *   - IOEffect
+ *   - ReaderEffect<Env>
+ *   - Effect<Env,Msg>
  *
- * @typeParam M Model type
- * @typeParam P Payload/message type
- *
- * @param renderer Rendering function that updates the DOM
- * @param env Environment used by `Reader<DomEnv, IO<void>>` effects
- *
- * @returns Function that, given a root `IO<Element>` and a `Program`,
- *          produces an `IO` which starts the program when run.
+ * @param effects  list of effects to run
+ * @param env      environment for Readers and Effects
+ * @param dispatch dispatch function for messages emitted by Effects
  */
-export declare const renderApp: (renderer: Renderer, env?: DomEnv) => <M, P>(
+export declare const runEffects: <Env, Msg>(effects: RawEffect<Env>[] | undefined, env: Env, dispatch: Dispatch<Msg>) => void;
 /**
- * An `IO` that yields the root DOM element to render into.
+ * Connect Program<M,Msg,Env> to a renderer and environment.
+ *
+ * Flow:
+ *   1. Run program.init
+ *   2. Render initial view
+ *   3. Run initial effects
+ *   4. Return closed-over dispatch for user events
+ *
+ * @param root     DOM root element
+ * @param program  functional program
+ * @param env      environment passed to effects
+ * @param renderer renderer function
  */
-rootIO: IO<Element>, 
-/**
- * The program definition (init, update, view).
- */
-program: Program<M, P, DomEnv>) => IO<{
-    /**
-     * Enqueue a payload for processing by `program.update`.
-     * Dispatches are batched and processed on the next animation frame.
-     */
-    dispatch: (payload: P) => void;
-    /**
-     * Retrieve the current model, or `undefined` if not yet initialized.
-     */
-    getModel: () => M | undefined;
-    /**
-     * Stop the runtime:
-     * - prevents new dispatches from being processed
-     * - clears the pending queue
-     * - prevents further rendering or effect execution
-     *
-     * Safe to call multiple times.
-     */
-    destroy: () => void;
-}>;
+export declare const renderApp: <M, Msg, Env>(root: Element, program: Program<M, Msg, Env>, env: Env, renderer: Renderer) => void;
 //# sourceMappingURL=render.d.ts.map

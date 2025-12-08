@@ -18,7 +18,7 @@
 
 ## Interfaces
 
-- [EffectLike](interfaces/EffectLike.md)
+- [Effect](interfaces/Effect.md)
 
 ## Type Aliases
 
@@ -31,8 +31,6 @@
 - [IO](type-aliases/IO.md)
 - [IOEffect](type-aliases/IOEffect.md)
 - [Maybe](type-aliases/Maybe.md)
-- [Msg](type-aliases/Msg.md)
-- [NetEnv](type-aliases/NetEnv.md)
 - [Payload](type-aliases/Payload.md)
 - [Program](type-aliases/Program.md)
 - [Props](type-aliases/Props.md)
@@ -55,12 +53,6 @@
 
 ## Variables
 
-- [askDocument](variables/askDocument.md)
-- [askEnv](variables/askEnv.md)
-- [askFetch](variables/askFetch.md)
-- [askLocal](variables/askLocal.md)
-- [askSession](variables/askSession.md)
-- [askWindow](variables/askWindow.md)
 - [Either](variables/Either.md)
 - [Id](variables/Id.md)
 - [IO](variables/IO.md)
@@ -76,25 +68,13 @@
 
 ## Functions
 
-- [alertIO](functions/alertIO.md)
-- [appendToElement](functions/appendToElement.md)
-- [browserEnv](functions/browserEnv.md)
-- [fetchIO](functions/fetchIO.md)
 - [httpTask](functions/httpTask.md)
 - [ioEffect](functions/ioEffect.md)
-- [localGet](functions/localGet.md)
-- [localSet](functions/localSet.md)
 - [m](functions/m.md)
 - [readerEffect](functions/readerEffect.md)
 - [render](functions/render.md)
 - [renderApp](functions/renderApp.md)
 - [renderToString](functions/renderToString.md)
-- [runDomIO](functions/runDomIO.md)
-- [runTask](functions/runTask.md)
-- [scrollToIO](functions/scrollToIO.md)
-- [sessionGet](functions/sessionGet.md)
-- [sessionSet](functions/sessionSet.md)
+- [runEffects](functions/runEffects.md)
 - [Vnode](functions/Vnode.md)
-- [writeText](functions/writeText.md)
-- [writeToElement](functions/writeToElement.md)
 - [wsTask](functions/wsTask.md)

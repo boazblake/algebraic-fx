@@ -8,7 +8,7 @@
 
 > **empty**\<`A`\>(): [`Stream`](../../../type-aliases/Stream.md)\<`A`\>
 
-Defined in: [src/adt/stream.ts:236](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/stream.ts#L236)
+Defined in: [adt/stream.ts:235](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/stream.ts#L235)
 
 Stream that immediately completes without emitting values.
 

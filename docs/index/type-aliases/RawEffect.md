@@ -6,19 +6,20 @@
 
 # Type Alias: RawEffect\<E\>
 
-> **RawEffect**\<`E`\> = [`IO`](IO.md)\<`void`\> \| [`Reader`](Reader.md)\<`E`, [`IO`](IO.md)\<`void`\>\> \| [`EffectLike`](../interfaces/EffectLike.md) \| [`IOEffect`](IOEffect.md) \| [`ReaderEffect`](ReaderEffect.md)\<`E`\>
+> **RawEffect**\<`E`\> = [`IO`](IO.md)\<`void`\> \| [`Reader`](Reader.md)\<`E`, [`IO`](IO.md)\<`void`\>\> \| [`Effect`](../interfaces/Effect.md)\<`E`, `any`\> \| [`IOEffect`](IOEffect.md) \| [`ReaderEffect`](ReaderEffect.md)\<`E`\>
 
-Defined in: [src/core/types.ts:113](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L113)
+Defined in: [core/types.ts:167](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L167)
 
-Effect description accepted by the runtime.
+RawEffect<E>
 
-A raw effect may be:
-- IO<void>
-- Reader<E, IO<void>>
-- EffectLike (already normalized)
-- Tagged IOEffect / ReaderEffect<E>
+Normalized effect representation understood by the runtime:
+  - IO<void>
+  - Reader<E, IO<void>>
+  - Effect<Env, Msg>
+  - IOEffect
+  - ReaderEffect<E>
 
-It is normalized inside `renderApp` into an executable effect.
+Env is threaded by the runtime, Msg is program-specific.
 
 ## Type Parameters
 

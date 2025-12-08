@@ -6,32 +6,25 @@
 
 # Function: httpTask()
 
-Create an HTTP request Task inside a Reader<HttpEnv,_>.
+Construct a Reader<HttpEnv, Task<E,A>> that performs a JSON HTTP request.
 
 ## Param
 
-URL path (resolved against baseUrl)
+URL path (resolved against HttpEnv.baseUrl if present)
 
 ## Param
 
-Fetch options (optional)
+fetch options
 
 ## Param
 
-Optional mapper to convert default errors to user-defined errors
-
-## Example
-
-```ts
-const getUser = httpTask<User>("/users/1");
-getUser.run(httpEnv).runWith(signal);
-```
+optional mapper from DefaultHttpError | unknown to user E
 
 ## Call Signature
 
 > **httpTask**\<`A`\>(`path`, `options?`): [`Reader`](../type-aliases/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../type-aliases/Task.md)\<[`DefaultHttpError`](../type-aliases/DefaultHttpError.md), `A`\>\>
 
-Defined in: [src/helpers/http-task.ts:39](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/helpers/http-task.ts#L39)
+Defined in: [helpers/http-task.ts:34](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/helpers/http-task.ts#L34)
 
 ### Type Parameters
 
@@ -57,7 +50,7 @@ Defined in: [src/helpers/http-task.ts:39](https://github.com/boazblake/algebraic
 
 > **httpTask**\<`E`, `A`\>(`path`, `options`, `handleError`): [`Reader`](../type-aliases/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../type-aliases/Task.md)\<`E`, `A`\>\>
 
-Defined in: [src/helpers/http-task.ts:44](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/helpers/http-task.ts#L44)
+Defined in: [helpers/http-task.ts:39](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/helpers/http-task.ts#L39)
 
 ### Type Parameters
 

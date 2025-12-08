@@ -1,40 +1,35 @@
+/**
+ * @module helpers/http-task
+ *
+ * Pure HTTP helper using Reader<HttpEnv, Task<E,A>>.
+ *
+ * This helper:
+ *   - does not depend on Program or Effect
+ *   - returns Task<E,A> for algebraic composition
+ *   - respects AbortSignal provided by Task.run(signal?)
+ *
+ * Integrate with algebraic-fx by wrapping Task in an Effect<Env,Msg>.
+ */
+
 import { Reader } from "../adt/reader.js";
 import { Task } from "../adt/task.js";
-import { Either, Left, Right } from "../adt/either.js";
-/**
- * HTTP helper using Reader<HttpEnv, Task<E,A>>.
- *
- * Features:
- *  - Respects AbortSignal from Task.runWith
- *  - Supports optional custom error mapping
- *  - Handles JSON decoding errors
- *  - Non-breaking URL normalization
- *
- * Use with:
- *  - Reader chaining for configuration
- *  - Task chaining for async workflows
- */
+import { Left, Right } from "../adt/either.js";
 
 /**
  * Environment required by httpTask.
- *
- * @property fetch Fetch-like function
- * @property baseUrl Optional base URL for path resolution
  */
 export type HttpEnv = {
   fetch: typeof fetch;
   baseUrl?: string;
 };
 
+/**
+ * Default error shape for HTTP failures.
+ */
 export type DefaultHttpError = {
   status: number;
   message: string;
 };
-
-export const runTask =
-  <E, A>(task: Task<E, A>, f: (either: Either<E, A>) => void) =>
-  (): Promise<void> =>
-    task.run().then(f);
 
 export function httpTask<A = unknown>(
   path: string,
@@ -48,17 +43,11 @@ export function httpTask<E, A>(
 ): Reader<HttpEnv, Task<E, A>>;
 
 /**
- * Create an HTTP request Task inside a Reader<HttpEnv,_>.
+ * Construct a Reader<HttpEnv, Task<E,A>> that performs a JSON HTTP request.
  *
- * @param path URL path (resolved against baseUrl)
- * @param options Fetch options (optional)
- * @param handleError Optional mapper to convert default errors to user-defined errors
- *
- * @returns Reader<HttpEnv, Task<E, A>>
- *
- * @example
- * const getUser = httpTask<User>("/users/1");
- * getUser.run(httpEnv).runWith(signal);
+ * @param path        URL path (resolved against HttpEnv.baseUrl if present)
+ * @param options     fetch options
+ * @param handleError optional mapper from DefaultHttpError | unknown to user E
  */
 export function httpTask<E, A>(
   path: string,
@@ -77,42 +66,34 @@ export function httpTask<E, A>(
 
       const base = env.baseUrl ?? "";
 
-      let url: string;
-      if (base === "") {
-        url = path;
-      } else {
-        const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
-        const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-        url = normalizedBase + normalizedPath;
-      }
+      const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
+      const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+      const url = base ? normalizedBase + normalizedPath : path;
 
       try {
-        const res = await env.fetch(url, {
-          ...options,
-          signal,
-        });
+        const res = await env.fetch(url, { ...options, signal });
 
         if (!res.ok) {
           const baseErr = toDefaultError(
             res.status,
             res.statusText || "HTTP error"
           );
-          return Left<DefaultHttpError | E>(mapError(baseErr));
+          return Left(mapError(baseErr));
         }
 
         try {
           const data = (await res.json()) as A;
-          return Right<A>(data);
+          return Right(data);
         } catch {
           const baseErr = toDefaultError(res.status, "Invalid JSON");
-          return Left<DefaultHttpError | E>(mapError(baseErr));
+          return Left(mapError(baseErr));
         }
       } catch (e: any) {
         const baseErr = toDefaultError(
           0,
           e instanceof Error ? e.message : String(e)
         );
-        return Left<DefaultHttpError | E>(mapError(baseErr));
+        return Left(mapError(baseErr));
       }
     })
   );

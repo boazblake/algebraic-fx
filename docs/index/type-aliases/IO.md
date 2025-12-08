@@ -8,7 +8,7 @@
 
 > **IO**\<`A`\> = `object`
 
-Defined in: [src/adt/io.ts:22](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/io.ts#L22)
+Defined in: [adt/io.ts:22](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/io.ts#L22)
 
 IO<A> represents a *lazy*, *purely described* effect that produces a value of type A.
 
@@ -36,7 +36,7 @@ The produced value type
 
 > `readonly` **\[IOBrand\]**: `true`
 
-Defined in: [src/adt/io.ts:23](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/io.ts#L23)
+Defined in: [adt/io.ts:23](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/io.ts#L23)
 
 ***
 
@@ -44,7 +44,7 @@ Defined in: [src/adt/io.ts:23](https://github.com/boazblake/algebraic-fx/blob/0b
 
 > **ap**: \<`B`\>(`fb`) => `IO`\<`B`\>
 
-Defined in: [src/adt/io.ts:43](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/io.ts#L43)
+Defined in: [adt/io.ts:43](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/io.ts#L43)
 
 Applicative apply:
 Apply an IO that produces a function to an IO that produces a value.
@@ -71,7 +71,7 @@ Apply an IO that produces a function to an IO that produces a value.
 
 > **chain**: \<`B`\>(`f`) => `IO`\<`B`\>
 
-Defined in: [src/adt/io.ts:37](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/io.ts#L37)
+Defined in: [adt/io.ts:37](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/io.ts#L37)
 
 Monad chain / flatMap:
 Feed the result into another IO-producing function.
@@ -100,7 +100,7 @@ IO(() => a).chain(x => IO(() => f(x)))
 
 > **map**: \<`B`\>(`f`) => `IO`\<`B`\>
 
-Defined in: [src/adt/io.ts:29](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/io.ts#L29)
+Defined in: [adt/io.ts:29](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/io.ts#L29)
 
 Functor map: transform the result of running the IO.
 
@@ -126,7 +126,7 @@ Functor map: transform the result of running the IO.
 
 > **run**: () => `A`
 
-Defined in: [src/adt/io.ts:26](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/adt/io.ts#L26)
+Defined in: [adt/io.ts:26](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/io.ts#L26)
 
 Execute the effect and return the value.
 

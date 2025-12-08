@@ -1,163 +1,75 @@
-import { IO } from "../adt/io.js";
+/**
+ * @module core/render
+ *
+ * Runtime loop wiring Program<M,Msg,Env> to a renderer and environment.
+ *
+ * Responsibilities:
+ *  - run Program.init
+ *  - render initial view
+ *  - process dispatch(msg) → update → view → effects
+ *  - execute RawEffect<Env> via Effect<Env,Msg>, IO, Reader
+ */
 import { IOEffectTag, ReaderEffectTag } from "./types.js";
-import { browserEnv } from "./dom-env.js";
 /**
- * Connects a `Program<M, P, E>` to a DOM renderer and environment, producing
- * an `IO` that, when executed, starts the application runtime.
+ * Execute a list of RawEffect<Env> against the current environment.
  *
- * The runtime:
- * - runs `program.init` to obtain the initial model and effects
- * - renders the view via the provided `renderer`
- * - executes effects (`IOEffect`, `ReaderEffect`, or legacy `EffectLike`)
- * - batches dispatches using `requestAnimationFrame`
+ * Supported forms:
+ *   - IOEffect
+ *   - ReaderEffect<Env>
+ *   - Effect<Env,Msg>
  *
- * @typeParam M Model type
- * @typeParam P Payload/message type
- *
- * @param renderer Rendering function that updates the DOM
- * @param env Environment used by `Reader<DomEnv, IO<void>>` effects
- *
- * @returns Function that, given a root `IO<Element>` and a `Program`,
- *          produces an `IO` which starts the program when run.
+ * @param effects  list of effects to run
+ * @param env      environment for Readers and Effects
+ * @param dispatch dispatch function for messages emitted by Effects
  */
-export const renderApp = (renderer, env = browserEnv()) => (
-/**
- * An `IO` that yields the root DOM element to render into.
- */
-rootIO, 
-/**
- * The program definition (init, update, view).
- */
-program) => rootIO
-    .map((root) => {
-    let model = undefined;
-    const queue = [];
-    let queued = false;
-    let destroyed = false;
-    /**
-     * Execute a list of raw effects against the current environment.
-     *
-     * Handles:
-     * - IOEffect
-     * - ReaderEffect<E>
-     * - EffectLike(env, dispatch)
-     * - Legacy EffectLike: run()
-     * - Legacy EffectLike: run(env)
-     */
-    const runEffects = (fx) => {
-        fx?.forEach((effect) => {
-            if (!effect)
-                return;
-            // Tagged IOEffect
-            if (effect._tag === IOEffectTag) {
-                effect.io.run();
-                return;
-            }
-            // Tagged ReaderEffect<E>
-            if (effect._tag === ReaderEffectTag) {
-                const r = effect.reader;
-                const io = r.run(env);
-                io.run();
-                return;
-            }
-            // EffectLike — new or legacy
-            const cand = effect;
-            if (typeof cand.run === "function") {
-                const arity = cand.run.length;
-                switch (arity) {
-                    case 0:
-                        // Legacy: run()
-                        cand.run();
-                        return;
-                    case 1:
-                        // Legacy: run(env)
-                        const result = cand.run(env);
-                        if (result && typeof result.run === "function")
-                            result.run();
-                        return;
-                    default:
-                        // New signature: run(env, dispatch)
-                        cand.run(env, dispatch);
-                        return;
-                }
-            }
-        });
-    };
-    /**
-     * Render the view for the given model and then execute the provided effects.
-     *
-     * @param m Current model to render
-     * @param effects Effects to run after rendering
-     */
-    const renderAndRunEffects = (m, effects) => {
-        renderer(root, program.view(m, dispatch));
-        runEffects(effects);
-    };
-    /**
-     * Process a single payload:
-     * - runs `program.update`
-     * - updates the model
-     * - renders and executes effects
-     *
-     * @param payload Message/payload to process
-     */
-    const step = (payload) => {
-        if (model === undefined || destroyed)
+export const runEffects = (effects, env, dispatch) => {
+    effects?.forEach((effect) => {
+        if (!effect)
             return;
-        const { model: next, effects } = program.update(payload, model, dispatch);
-        model = next;
-        renderAndRunEffects(model, effects);
-    };
-    /**
-     * Dispatches a payload to the program's update function.
-     *
-     * Dispatch is batched:
-     * - multiple dispatches in a frame accumulate in `queue`
-     * - the batch is processed in the next animation frame
-     *
-     * This reduces redundant rendering and improves performance.
-     *
-     * @param payload Message/payload to enqueue
-     */
-    const dispatch = (payload) => {
-        if (destroyed)
+        // IOEffect
+        if (effect._tag === IOEffectTag) {
+            effect.io.run();
             return;
-        queue.push(payload);
-        if (!queued) {
-            queued = true;
-            requestAnimationFrame(() => {
-                if (destroyed)
-                    return;
-                const msgs = queue.splice(0, queue.length);
-                queued = false; // reset AFTER draining
-                for (const msg of msgs)
-                    step(msg);
-            });
         }
-    };
-    /**
-     * Initialize the program by:
-     * - running `program.init`
-     * - setting the initial model
-     * - rendering and running the initial effects
-     */
-    const start = () => {
-        const { model: m0, effects } = program.init.run();
-        model = m0;
-        renderAndRunEffects(model, effects);
-    };
-    return IO(() => {
-        start();
-        return {
-            dispatch,
-            getModel: () => model,
-            destroy: () => {
-                destroyed = true;
-                queue.length = 0;
-                queued = true;
-            },
-        };
+        // ReaderEffect
+        if (effect._tag === ReaderEffectTag) {
+            const r = effect.reader;
+            const io = r.run(env);
+            io.run();
+            return;
+        }
+        // Effect<Env,Msg>
+        const fx = effect;
+        fx.run(env, dispatch);
     });
-})
-    .chain((io) => io);
+};
+/**
+ * Connect Program<M,Msg,Env> to a renderer and environment.
+ *
+ * Flow:
+ *   1. Run program.init
+ *   2. Render initial view
+ *   3. Run initial effects
+ *   4. Return closed-over dispatch for user events
+ *
+ * @param root     DOM root element
+ * @param program  functional program
+ * @param env      environment passed to effects
+ * @param renderer renderer function
+ */
+export const renderApp = (root, program, env, renderer) => {
+    let currentModel;
+    const dispatch = (msg) => {
+        const { model, effects } = program.update(msg, currentModel, dispatch);
+        currentModel = model;
+        const vnode = program.view(currentModel, dispatch);
+        renderer(root, vnode);
+        runEffects(effects, env, dispatch);
+    };
+    const initResult = program.init.run();
+    currentModel = initResult.model;
+    const vnode = program.view(currentModel, dispatch);
+    renderer(root, vnode);
+    runEffects(initResult.effects, env, dispatch);
+};
 //# sourceMappingURL=render.js.map

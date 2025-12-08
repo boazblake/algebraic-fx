@@ -8,17 +8,31 @@
 
 > **Payload**\<`T`, `M`\> = `object`
 
-Defined in: [src/core/types.ts:29](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L29)
+Defined in: [core/types.ts:81](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L81)
+
+Canonical message shape.
 
 ## Type Parameters
 
 ### T
 
-`T` *extends* `string` = `string`
+`T` *extends* `string`
+
+string literal type tag, recommend namespacing: "Holdings.Add"
 
 ### M
 
-`M` *extends* [`Msg`](Msg.md) = [`Msg`](Msg.md)
+`M` *extends* `object` = \{ \}
+
+payload record for this message, defaults to {}
+
+Example:
+
+  type Msg =
+    | Payload<"Holdings.Add">
+    | Payload<"Holdings.SetTicker", { value: string }>;
+
+  dispatch({ type: "Holdings.SetTicker", msg: { value: "AAPL" } });
 
 ## Properties
 
@@ -26,7 +40,7 @@ Defined in: [src/core/types.ts:29](https://github.com/boazblake/algebraic-fx/blo
 
 > **msg**: `M`
 
-Defined in: [src/core/types.ts:31](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L31)
+Defined in: [core/types.ts:83](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L83)
 
 ***
 
@@ -34,4 +48,4 @@ Defined in: [src/core/types.ts:31](https://github.com/boazblake/algebraic-fx/blo
 
 > **type**: `T`
 
-Defined in: [src/core/types.ts:30](https://github.com/boazblake/algebraic-fx/blob/0b28b3727a07ca5e1acb960c3972c30126bce32d/src/core/types.ts#L30)
+Defined in: [core/types.ts:82](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L82)
