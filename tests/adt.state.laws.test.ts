@@ -1,7 +1,7 @@
 // tests/adt.state.laws.test.ts
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
-import StateModule, { type State as StateT } from "../src/adt/state.js";
+import StateModule, { type State as StateT } from "../src/adt/state.ts";
 
 const State = StateModule;
 

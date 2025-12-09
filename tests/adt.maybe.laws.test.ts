@@ -4,7 +4,7 @@ import MaybeModule, {
   Just,
   Nothing,
   type Maybe as MaybeT,
-} from "../src/adt/maybe.js";
+} from "../src/adt/maybe.ts";
 
 const { map, chain, of, fromNullable, toNullable } = MaybeModule;
 

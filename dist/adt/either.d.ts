@@ -12,6 +12,7 @@ declare const EitherBrand: unique symbol;
 export type Left<L> = {
     _tag: "Left";
     left: L;
+    readonly [EitherBrand]: true;
 };
 /**
  * Right value of Either.
@@ -23,6 +24,7 @@ export type Left<L> = {
 export type Right<R> = {
     _tag: "Right";
     right: R;
+    readonly [EitherBrand]: true;
 };
 /**
  * Either<L, R> — Sum type representing success or failure.
@@ -90,11 +92,11 @@ export declare const alt: <L, A>(e1: Either<L, A>, e2: Either<L, A>) => Either<L
 /**
  * Type guard: check if e is Left.
  */
-export declare const isLeft: <L, A>(e: Either<L, A>) => e is Either<L, never>;
+export declare const isLeft: <L, A>(e: Either<L, A>) => e is Left<L>;
 /**
  * Type guard: check if e is Right.
  */
-export declare const isRight: <L, A>(e: Either<L, A>) => e is Either<never, A>;
+export declare const isRight: <L, A>(e: Either<L, A>) => e is Right<A>;
 /**
  * Convert nullable to Either.
  *
@@ -143,8 +145,8 @@ export declare const Either: {
     getOrElse: <L, A>(defaultValue: A, e: Either<L, A>) => A;
     getOrElseW: <L, A, B>(onLeft: (l: L) => B, e: Either<L, A>) => A | B;
     alt: <L, A>(e1: Either<L, A>, e2: Either<L, A>) => Either<L, A>;
-    isLeft: <L, A>(e: Either<L, A>) => e is Either<L, never>;
-    isRight: <L, A>(e: Either<L, A>) => e is Either<never, A>;
+    isLeft: <L, A>(e: Either<L, A>) => e is Left<L>;
+    isRight: <L, A>(e: Either<L, A>) => e is Right<A>;
     fromNullable: <L>(onNull: L) => <A>(a: A | null | undefined) => Either<L, NonNullable<A>>;
     tryCatch: <A>(f: () => A) => Either<unknown, A>;
     tryCatchK: <E, A>(f: () => A, onError: (e: unknown) => E) => Either<E, A>;

@@ -9,7 +9,9 @@
  *  - process dispatch(msg) → update → view → effects
  *  - execute RawEffect<Env> via Effect<Env,Msg>, IO, Reader
  */
-import type { Program, RawEffect, Dispatch } from "./types.js";
+import type { Program, RawEffect, IOEffect, ReaderEffect, Dispatch } from "./types.js";
+import type { IO } from "../adt/io.js";
+import type { Reader } from "../adt/reader.js";
 /**
  * Renderer function type.
  *
@@ -24,11 +26,21 @@ export type Renderer = (root: Element, vnode: any) => void;
  *   - ReaderEffect<Env>
  *   - Effect<Env,Msg>
  *
+ * CORRECTED: Added runtime validation for dispatch and env
+ *
  * @param effects  list of effects to run
  * @param env      environment for Readers and Effects
  * @param dispatch dispatch function for messages emitted by Effects
  */
 export declare const runEffects: <Env, Msg>(effects: RawEffect<Env>[] | undefined, env: Env, dispatch: Dispatch<Msg>) => void;
+/**
+ * Construct an IOEffect from IO<void>.
+ */
+export declare const ioEffect: (io: IO<void>) => IOEffect;
+/**
+ * Construct a ReaderEffect from Reader<Env, IO<void>>.
+ */
+export declare const readerEffect: <E>(reader: Reader<E, IO<void>>) => ReaderEffect<E>;
 /**
  * Connect Program<M,Msg,Env> to a renderer and environment.
  *
@@ -37,6 +49,8 @@ export declare const runEffects: <Env, Msg>(effects: RawEffect<Env>[] | undefine
  *   2. Render initial view
  *   3. Run initial effects
  *   4. Return closed-over dispatch for user events
+ *
+ * CORRECTED: Added validation and error handling
  *
  * @param root     DOM root element
  * @param program  functional program

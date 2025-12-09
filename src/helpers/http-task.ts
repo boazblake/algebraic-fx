@@ -13,7 +13,7 @@
 
 import { Reader } from "../adt/reader.js";
 import { Task } from "../adt/task.js";
-import { Left, Right } from "../adt/either.js";
+import { Left, Right, Either } from "../adt/either.js";
 
 /**
  * Environment required by httpTask.

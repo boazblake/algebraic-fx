@@ -19,8 +19,8 @@ const MaybeBrand = Symbol("MaybeBrand");
  *
  * @typeParam A The wrapped value type
  */
-export type Just<A> = { _tag: "Just"; value: A };
-export type Nothing = { _tag: "Nothing" };
+export type Just<A> = { _tag: "Just"; value: A; [MaybeBrand]: true };
+export type Nothing = { _tag: "Nothing"; [MaybeBrand]: true };
 
 /**
  * Union type for Maybe, enriched with a nominal brand.

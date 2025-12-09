@@ -4,7 +4,7 @@ import ValidationModule, {
   Success,
   Failure,
   type Validation as V,
-} from "../src/adt/validation.js";
+} from "../src/adt/validation.ts";
 
 const { map, ap, of } = ValidationModule;
 

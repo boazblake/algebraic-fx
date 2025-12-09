@@ -1,7 +1,7 @@
 // tests/adt.writer.laws.test.ts
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
-import WriterModule, { type Writer as WriterT } from "../src/adt/writer.js";
+import WriterModule, { type Writer as WriterT } from "../src/adt/writer.ts";
 
 const Writer = WriterModule;
 

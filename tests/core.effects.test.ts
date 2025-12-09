@@ -1,8 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { runEffects } from "../src/core/render.js";
+import { runEffects, ioEffect, readerEffect } from "../src/core/render.js";
 import {
-  ioEffect,
-  readerEffect,
   type Effect,
   type RawEffect,
   type IOEffect,

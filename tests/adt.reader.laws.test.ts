@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
-import ReaderModule from "../src/adt/reader.js";
+import ReaderModule from "../src/adt/reader.ts";
 
 const Reader = ReaderModule;
 

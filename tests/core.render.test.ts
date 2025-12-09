@@ -1,7 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { renderApp, runEffects } from "../src/core/render.js";
+import {
+  renderApp,
+  runEffects,
+  ioEffect,
+  readerEffect,
+} from "../src/core/render.js";
 import { IO } from "../src/adt/io.js";
-import { ioEffect, readerEffect } from "../src/core/types.js";
 import { Reader } from "../src/adt/reader.js";
 
 describe("runEffects", () => {

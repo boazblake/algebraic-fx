@@ -1,8 +1,8 @@
 // tests/adt.task.laws.test.ts
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
-import TaskModule, { type Task as TaskT } from "../src/adt/task.js";
-import { Right, Left, type Either as EitherT } from "../src/adt/either.js";
+import TaskModule, { type Task as TaskT } from "../src/adt/task.ts";
+import { Right, Left, type Either as EitherT } from "../src/adt/either.ts";
 
 const Task = TaskModule;
 

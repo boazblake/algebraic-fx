@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { m, render, Vnode } from "../src/core/mithril-lite.js";
+import { m, render, Vnode } from "../src/core/mithril-lite.ts";
 
 describe("mithril-lite: Hyperscript", () => {
   it("creates simple element", () => {

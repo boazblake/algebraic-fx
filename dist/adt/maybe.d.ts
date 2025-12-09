@@ -19,9 +19,11 @@ declare const MaybeBrand: unique symbol;
 export type Just<A> = {
     _tag: "Just";
     value: A;
+    [MaybeBrand]: true;
 };
 export type Nothing = {
     _tag: "Nothing";
+    [MaybeBrand]: true;
 };
 /**
  * Union type for Maybe, enriched with a nominal brand.
@@ -108,11 +110,11 @@ export declare const toUndefined: <A>(ma: Maybe<A>) => A | undefined;
 /**
  * Type guard: detect Just.
  */
-export declare const isJust: <A>(ma: Maybe<A>) => ma is Maybe<A>;
+export declare const isJust: <A>(ma: Maybe<A>) => ma is Just<A>;
 /**
  * Type guard: detect Nothing.
  */
-export declare const isNothing: <A>(ma: Maybe<A>) => ma is Maybe<never>;
+export declare const isNothing: <A>(ma: Maybe<A>) => ma is Nothing;
 /**
  * Filter a Maybe by predicate.
  *
@@ -149,8 +151,8 @@ export declare const Maybe: {
     fromNullable: <A>(a: A | null | undefined) => Maybe<NonNullable<A>>;
     toNullable: <A>(ma: Maybe<A>) => A | null;
     toUndefined: <A>(ma: Maybe<A>) => A | undefined;
-    isJust: <A>(ma: Maybe<A>) => ma is Maybe<A>;
-    isNothing: <A>(ma: Maybe<A>) => ma is Maybe<never>;
+    isJust: <A>(ma: Maybe<A>) => ma is Just<A>;
+    isNothing: <A>(ma: Maybe<A>) => ma is Nothing;
     filter: <A>(predicate: (a: A) => boolean, ma: Maybe<A>) => Maybe<A>;
     traverse: <A, B>(f: (a: A) => Maybe<B>, arr: A[]) => Maybe<B[]>;
     sequence: <A>(arr: Maybe<A>[]) => Maybe<A[]>;

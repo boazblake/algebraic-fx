@@ -10,7 +10,7 @@ const EitherBrand = Symbol("EitherBrand");
  *
  * @typeParam L Error or alternate type
  */
-export type Left<L> = { _tag: "Left"; left: L };
+export type Left<L> = { _tag: "Left"; left: L; readonly [EitherBrand]: true };
 
 /**
  * Right value of Either.
@@ -19,7 +19,11 @@ export type Left<L> = { _tag: "Left"; left: L };
  *
  * @typeParam R Success type
  */
-export type Right<R> = { _tag: "Right"; right: R };
+export type Right<R> = {
+  _tag: "Right";
+  right: R;
+  readonly [EitherBrand]: true;
+};
 
 /**
  * Either<L, R> — Sum type representing success or failure.

@@ -5,19 +5,27 @@
  *  - Escapes text and attribute values
  *  - Supports nested VNodes, arrays, and primitives
  *  - Handles void HTML elements
+ *  - Compatible with mithril-lite.ts Vnode structure
  *
  * Use this for SSR or pre-rendering static HTML.
  */
 // Escape text node content
 const escapeText = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-// Escape attribute values (stricter)
+// Escape attribute values (stricter) - now includes newline/tab escaping
 const escapeAttr = (s) => s
     .replace(/&/g, "&amp;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;")
     .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-const isVNode = (n) => !!n && typeof n === "object" && "tag" in n;
+    .replace(/>/g, "&gt;")
+    .replace(/\n/g, "&#10;")
+    .replace(/\r/g, "&#13;")
+    .replace(/\t/g, "&#9;");
+// Type guard for Vnode (compatible with mithril-lite.ts structure)
+const isVnode = (n) => !!n &&
+    typeof n === "object" &&
+    "tag" in n &&
+    typeof n.tag === "string";
 const VOID = new Set([
     "area",
     "base",
@@ -37,6 +45,8 @@ const VOID = new Set([
 /**
  * Convert a vnode tree into an HTML string.
  *
+ * CORRECTED: Now works with mithril-lite.ts Vnode structure using 'attrs' instead of 'props'.
+ *
  * @param node A vnode, array, string, number, or null
  * @returns Escaped HTML string
  *
@@ -45,6 +55,7 @@ const VOID = new Set([
  *
  * @example
  * renderToString(m("div", "Hello")) === "<div>Hello</div>"
+ * renderToString(m("div", { class: "test" }, "Hi")) === '<div class="test">Hi</div>'
  */
 export const renderToString = (node) => {
     if (node === null || node === false || node === true)
@@ -60,27 +71,54 @@ export const renderToString = (node) => {
         }
         return out;
     }
-    if (!isVNode(node))
+    if (!isVnode(node))
         return "";
-    const { tag, props = {}, children = [] } = node;
-    const rawProps = props || {};
-    const attrs = Object.entries(rawProps)
-        .filter(([, v]) => v !== null && v !== false && typeof v !== "function")
+    const { tag, attrs, children, text } = node;
+    // Handle text nodes (tag === "#")
+    if (tag === "#") {
+        return text != null ? escapeText(text) : "";
+    }
+    // Build attribute string from attrs (not props!)
+    const rawAttrs = attrs || {};
+    const attrStr = Object.entries(rawAttrs)
+        .filter(([k, v]) => {
+        // Skip special keys and non-serializable values
+        if (k === "key")
+            return false;
+        if (k.startsWith("on"))
+            return false; // Skip event handlers
+        if (v === null || v === false || v === undefined)
+            return false;
+        if (typeof v === "function")
+            return false;
+        return true;
+    })
         .map(([k, v]) => {
         if (v === true)
             return k;
+        // Handle style object
+        if (k === "style" && typeof v === "object" && v !== null) {
+            const styleStr = Object.entries(v)
+                .filter(([, val]) => val != null)
+                .map(([prop, val]) => `${prop}: ${val}`)
+                .join("; ");
+            return styleStr ? `style="${escapeAttr(styleStr)}"` : "";
+        }
         return `${k}="${escapeAttr(String(v))}"`;
     })
+        .filter(Boolean)
         .join(" ");
-    const open = attrs ? `<${tag} ${attrs}>` : `<${tag}>`;
+    const open = attrStr ? `<${tag} ${attrStr}>` : `<${tag}>`;
     if (VOID.has(tag))
         return open;
-    const kids = Array.isArray(children)
-        ? children
-        : [children];
+    // Render children
+    const kids = children || [];
     let inner = "";
     for (let i = 0; i < kids.length; i++) {
-        inner += renderToString(kids[i]);
+        const child = kids[i];
+        if (child != null) {
+            inner += renderToString(child);
+        }
     }
     return `${open}${inner}</${tag}>`;
 };

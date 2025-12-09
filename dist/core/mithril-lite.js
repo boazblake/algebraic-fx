@@ -1,7 +1,7 @@
 // Minimal Mithril-style vdom + renderer, SVG support, no lifecycle, no fragments.
-// Longest Increasing Subsequence on an index array.
-// Returns the list of positions that form the LIS.
-// Entries < 0 are ignored.
+// -----------------------------------------------------------------------------
+// LIS (keyed diff support)
+// -----------------------------------------------------------------------------
 function lis(arr) {
     const n = arr.length;
     const p = new Array(n);
@@ -39,11 +39,9 @@ function lis(arr) {
 export function Vnode(tag, key, attrs, children, text, dom) {
     return { tag, key, attrs, children: children || [], text, dom };
 }
-// Normalize a single node into a vnode or null
-Vnode.normalize = function (node) {
+Vnode.normalize = function normalize(node) {
     if (Array.isArray(node)) {
         const normalized = Vnode.normalizeChildren(node);
-        // Return first element or null for arrays
         return normalized.length > 0 ? normalized[0] : null;
     }
     if (node == null || typeof node === "boolean")
@@ -52,19 +50,20 @@ Vnode.normalize = function (node) {
         return node;
     return Vnode("#", null, null, [], String(node), null);
 };
-// Normalize children: returns a dense array, no nulls
-Vnode.normalizeChildren = function (input) {
-    const out = [];
+Vnode.normalizeChildren = function normalizeChildren(input) {
+    const len = input.length;
+    const out = new Array(len);
+    let ptr = 0;
     let keyed = 0;
     let elems = 0;
-    for (let i = 0; i < input.length; i++) {
+    for (let i = 0; i < len; i++) {
         const raw = input[i];
-        // Handle nested arrays by flattening them
         if (Array.isArray(raw)) {
             const nested = Vnode.normalizeChildren(raw);
-            for (let j = 0; j < nested.length; j++) {
+            const nLen = nested.length;
+            for (let j = 0; j < nLen; j++) {
                 const child = nested[j];
-                out.push(child);
+                out[ptr++] = child;
                 if (child.tag !== "#") {
                     elems++;
                     if (child.key != null)
@@ -74,10 +73,9 @@ Vnode.normalizeChildren = function (input) {
             continue;
         }
         const child = Vnode.normalize(raw);
-        // Skip nulls
         if (child == null)
             continue;
-        out.push(child);
+        out[ptr++] = child;
         if (child.tag !== "#") {
             elems++;
             if (child.key != null)
@@ -87,7 +85,7 @@ Vnode.normalizeChildren = function (input) {
     if (elems > 0 && keyed !== 0 && keyed !== elems) {
         throw new TypeError("All element children must either all have keys or none.");
     }
-    return out;
+    return ptr === out.length ? out : out.slice(0, ptr);
 };
 // -----------------------------------------------------------------------------
 // HYPERSCRIPT
@@ -96,8 +94,6 @@ const hasOwn = {}.hasOwnProperty;
 const emptyAttrs = {};
 const selectorParser = /(^|#|\.)([^#\.]+)/g;
 const selectorCache = Object.create(null);
-const MAX_CACHE_SIZE = 1000;
-let cacheSize = 0;
 const isEmpty = (o) => {
     for (const k in o)
         if (hasOwn.call(o, k))
@@ -109,6 +105,7 @@ function compileSelector(selector) {
     let tag = "div";
     const classes = [];
     let attrs = {};
+    selectorParser.lastIndex = 0;
     while ((match = selectorParser.exec(selector))) {
         const type = match[1];
         const value = match[2];
@@ -124,23 +121,12 @@ function compileSelector(selector) {
     if (isEmpty(attrs))
         attrs = emptyAttrs;
     const result = { tag, attrs };
-    // Evict half the cache if full
-    if (cacheSize >= MAX_CACHE_SIZE) {
-        const keys = Object.keys(selectorCache);
-        // Remove the oldest half (simple deterministic policy)
-        const removeCount = Math.floor(keys.length / 2);
-        for (let i = 0; i < removeCount; i++) {
-            delete selectorCache[keys[i]];
-        }
-        cacheSize -= removeCount;
-    }
     selectorCache[selector] = result;
-    cacheSize++;
     return result;
 }
 function execSelector(state, vnode) {
     vnode.tag = state.tag;
-    let a = vnode.attrs;
+    const a = vnode.attrs;
     if (a == null) {
         vnode.attrs = state.attrs;
         return vnode;
@@ -154,41 +140,21 @@ function execSelector(state, vnode) {
     }
     return vnode;
 }
-/**
- * Hyperscript function for building VNodes.
- *
- * Syntax:
- *  - m("div", "text")
- *  - m("div#id.class1.class2", {...attrs}, children...)
- *  - m("svg", {...attrs}, [...children])
- *
- * Selector grammar:
- *  - tag (div)
- *  - #id (#main)
- *  - .class (.container)
- *  - combined (div#header.title.highlight)
- *
- * Keys:
- *  - pass { key: string } inside attrs to enable keyed diffing
- *
- * @returns VNode
- */
+function isVnode(x) {
+    return (x != null &&
+        typeof x === "object" &&
+        typeof x.tag === "string" &&
+        "children" in x &&
+        "attrs" in x);
+}
 export function m(selector, ...rest) {
     if (typeof selector !== "string") {
         throw new Error("Selector must be a string");
     }
     let attrs = null;
     let i = 0;
-    function isVnode(x) {
-        return (x != null &&
-            typeof x === "object" &&
-            typeof x.tag === "string" &&
-            "children" in x &&
-            "attrs" in x);
-    }
     if (rest.length) {
         const first = rest[0];
-        // Only treat as attrs if it's a plain object (NOT a vnode, NOT an array)
         if (first == null ||
             (typeof first === "object" && !Array.isArray(first) && !isVnode(first))) {
             attrs = first;
@@ -203,114 +169,130 @@ export function m(selector, ...rest) {
 // -----------------------------------------------------------------------------
 // DOM RENDERER
 // -----------------------------------------------------------------------------
-const namespaceMap = {
-    svg: "http://www.w3.org/2000/svg",
-    math: "http://www.w3.org/1998/Math/MathML",
-};
-function getNameSpace(vnode) {
-    return (vnode.attrs && vnode.attrs.xmlns) || namespaceMap[vnode.tag];
+const SVG_NS = "http://www.w3.org/2000/svg";
+const MATH_NS = "http://www.w3.org/1998/Math/MathML";
+function getNsFast(vnode, inherited) {
+    const a = vnode.attrs;
+    if (a && a.xmlns)
+        return a.xmlns;
+    const t = vnode.tag;
+    if (t === "svg")
+        return SVG_NS;
+    if (t === "math")
+        return MATH_NS;
+    return inherited;
 }
-function createNodes(parent, vnodes, start, end, nextSibling, ns) {
+// Simple pooling for common tags
+const pool = {
+    div: [],
+    span: [],
+    li: [],
+    ul: [],
+    p: [],
+};
+function getPooledElement(tag, doc) {
+    const list = pool[tag];
+    if (list && list.length > 0) {
+        const el = list.pop();
+        el.innerHTML = "";
+        return el;
+    }
+    return doc.createElement(tag);
+}
+function recycleNode(vnode, parent) {
+    const dom = vnode.dom;
+    if (!dom)
+        return;
+    if (dom.parentNode === parent)
+        parent.removeChild(dom);
+    const tag = vnode.tag;
+    const list = pool[tag];
+    if (list)
+        list.push(dom);
+}
+// Create a range of nodes
+function createNodes(parent, vnodes, start, end, nextSibling, ns, doc) {
     for (let i = start; i < end; i++) {
         const v = vnodes[i];
-        createNode(parent, v, nextSibling, ns);
+        createNode(parent, v, nextSibling, ns, doc);
     }
 }
-function createNode(parent, vnode, nextSibling, ns) {
+function createNode(parent, vnode, nextSibling, ns, doc) {
     if (vnode.tag === "#") {
-        const doc = parent.ownerDocument;
-        if (!doc)
-            throw new Error("Parent node has no ownerDocument");
         const t = (vnode.dom = doc.createTextNode(vnode.text || ""));
         insertDOM(parent, t, nextSibling);
     }
     else {
-        createElement(parent, vnode, ns, nextSibling);
+        createElement(parent, vnode, ns, nextSibling, doc);
     }
 }
-function createElement(parent, vnode, ns, nextSibling) {
+function createElement(parent, vnode, ns, nextSibling, doc) {
     const tag = vnode.tag;
     const attrs = vnode.attrs;
-    ns = getNameSpace(vnode) || ns;
-    const doc = parent.ownerDocument;
-    const el = ns != null ? doc.createElementNS(ns, tag) : doc.createElement(tag);
+    const nodeNs = getNsFast(vnode, ns);
+    const el = nodeNs
+        ? doc.createElementNS(nodeNs, tag)
+        : getPooledElement(tag, doc);
     vnode.dom = el;
     if (attrs != null)
-        setAttrs(vnode, attrs, ns);
+        setAttrs(vnode, attrs, nodeNs);
     insertDOM(parent, el, nextSibling);
     const kids = vnode.children;
-    if (kids != null)
-        createNodes(el, kids, 0, kids.length, null, ns);
+    if (kids != null && kids.length > 0) {
+        createNodes(el, kids, 0, kids.length, null, nodeNs, doc);
+    }
 }
-function updateNodes(parent, oldRaw, newRaw, nextSibling, ns) {
+function updateNodes(parent, oldRaw, newRaw, nextSibling, ns, doc) {
     const old = oldRaw || [];
     const vnodes = newRaw || [];
-    // Fast path: nothing to do
     if (old === vnodes)
         return;
     const oldLen = old.length;
     const newLen = vnodes.length;
-    // Old empty → create all new
     if (oldLen === 0) {
         if (newLen > 0) {
-            createNodes(parent, vnodes, 0, newLen, nextSibling, ns);
+            createNodes(parent, vnodes, 0, newLen, nextSibling, ns, doc);
         }
         return;
     }
-    // New empty → remove all old
     if (newLen === 0) {
         removeNodes(parent, old, 0, oldLen);
         return;
     }
     const oldKeyed = old[0] != null && old[0].key != null;
     const newKeyed = vnodes[0] != null && vnodes[0].key != null;
-    // Key mode switched (keyed ↔ unkeyed) → full replace
     if (oldKeyed !== newKeyed) {
         removeNodes(parent, old, 0, oldLen);
-        createNodes(parent, vnodes, 0, newLen, nextSibling, ns);
+        createNodes(parent, vnodes, 0, newLen, nextSibling, ns, doc);
         return;
     }
-    // ------------------------------------------------------------
-    // UNKEYED LIST (simple index-based diff)
-    // ------------------------------------------------------------
     if (!newKeyed) {
-        const common = Math.min(oldLen, newLen);
-        // Patch common prefix
+        const common = oldLen < newLen ? oldLen : newLen;
         for (let i = 0; i < common; i++) {
             const o = old[i];
             const v = vnodes[i];
             if (o === v)
                 continue;
             const next = getNextSibling(old, i + 1, nextSibling);
-            updateNode(parent, o, v, next, ns);
+            updateNode(parent, o, v, next, ns, doc);
         }
-        // Remove surplus old nodes
         if (oldLen > common) {
             removeNodes(parent, old, common, oldLen);
         }
-        // Add surplus new nodes
         if (newLen > common) {
-            createNodes(parent, vnodes, common, newLen, nextSibling, ns);
+            createNodes(parent, vnodes, common, newLen, nextSibling, ns, doc);
         }
         return;
     }
-    // ------------------------------------------------------------
-    // KEYED LIST (full reorder support: O(n log n) LIS diff)
-    // ------------------------------------------------------------
-    // Map: key → oldIndex
     const oldIndexByKey = new Map();
     for (let i = 0; i < oldLen; i++) {
         const o = old[i];
         if (o != null && o.key != null)
             oldIndexByKey.set(o.key, i);
     }
-    // Track which old indices have been consumed (instead of nullifying array)
     const consumedOldIndices = new Set();
-    // newIndexToOldIndex[i] = old index for vnodes[i], else -1
-    const newIndexToOldIndex = new Array(newLen);
-    for (let i = 0; i < newLen; i++)
-        newIndexToOldIndex[i] = -1;
-    // 1. Attempt to match + patch existing keyed nodes
+    const newIndexToOldIndex = new Int32Array(newLen);
+    newIndexToOldIndex.fill(-1);
     for (let newIndex = 0; newIndex < newLen; newIndex++) {
         const v = vnodes[newIndex];
         const key = v != null ? v.key : null;
@@ -318,39 +300,31 @@ function updateNodes(parent, oldRaw, newRaw, nextSibling, ns) {
         newIndexToOldIndex[newIndex] = oldIndex;
         if (oldIndex >= 0) {
             const oldV = old[oldIndex];
-            consumedOldIndices.add(oldIndex); // ✅ mark as consumed using Set
+            consumedOldIndices.add(oldIndex);
             if (oldV !== v) {
-                const next = null;
-                updateNode(parent, oldV, v, next, ns);
+                updateNode(parent, oldV, v, null, ns, doc);
             }
         }
     }
-    // 2. Remove leftover old nodes (not matched to new list)
     for (let i = 0; i < oldLen; i++) {
         if (!consumedOldIndices.has(i)) {
-            // ✅ check Set instead of null check
             removeNode(parent, old[i]);
         }
     }
-    // 3. Compute LIS over the positions that mapped to old nodes
-    const indices = newIndexToOldIndex;
-    const increasing = lis(indices); // returns positions
+    const increasing = lis(Array.from(newIndexToOldIndex));
     const stablePositions = new Set(increasing);
-    // 4. Move + insert nodes from right to left
     let nextDom = nextSibling;
     for (let i = newLen - 1; i >= 0; i--) {
         const v = vnodes[i];
         if (!v)
             continue;
-        const oldIndex = indices[i];
+        const oldIndex = newIndexToOldIndex[i];
         let dom = v.dom;
-        // Node did not exist previously → create it
         if (oldIndex < 0) {
-            createNode(parent, v, nextDom, ns);
+            createNode(parent, v, nextDom, ns, doc);
             dom = v.dom;
         }
         else {
-            // Existing node: reorder if necessary
             if (!stablePositions.has(i) && dom) {
                 if (dom.nextSibling !== nextDom) {
                     insertDOM(parent, dom, nextDom);
@@ -360,7 +334,7 @@ function updateNodes(parent, oldRaw, newRaw, nextSibling, ns) {
         nextDom = dom;
     }
 }
-function updateNode(parent, old, vnode, nextSibling, ns) {
+function updateNode(parent, old, vnode, nextSibling, ns, doc) {
     if (old === vnode)
         return;
     if (old.tag === "#" && vnode.tag === "#") {
@@ -372,24 +346,31 @@ function updateNode(parent, old, vnode, nextSibling, ns) {
         return;
     }
     if (old.tag === vnode.tag) {
-        const oldNs = ns;
-        const nextNs = vnode.tag === "svg" ? "http://www.w3.org/2000/svg" : ns;
-        // If namespace meaningfully changed, blow away and recreate subtree
-        if (oldNs !== nextNs) {
-            createNode(parent, vnode, nextSibling, nextNs);
-            removeNode(parent, old);
+        const oldDom = old.dom;
+        vnode.dom = oldDom;
+        const oldChildren = old.children;
+        const newChildren = vnode.children;
+        if (oldChildren.length === 0 &&
+            newChildren.length === 0 &&
+            vnode.text != null &&
+            old.tag !== "#") {
+            const el = oldDom;
+            const firstChild = el && el.firstChild;
+            const oldText = (firstChild && firstChild.nodeValue) || "";
+            if (oldText !== vnode.text) {
+                el.textContent = vnode.text;
+            }
             return;
         }
-        vnode.dom = old.dom;
-        if (old.attrs !== vnode.attrs)
+        const nextNs = getNsFast(vnode, ns);
+        if (old.attrs !== vnode.attrs) {
             updateAttrs(vnode, old.attrs, vnode.attrs, nextNs);
-        updateNodes(vnode.dom, old.children, vnode.children, null, nextNs);
+        }
+        updateNodes(oldDom, oldChildren, newChildren, null, nextNs, doc);
         return;
     }
-    else {
-        removeNode(parent, old);
-        createNode(parent, vnode, nextSibling, ns);
-    }
+    removeNode(parent, old);
+    createNode(parent, vnode, nextSibling, ns, doc);
 }
 function insertDOM(parent, dom, next) {
     if (next)
@@ -404,12 +385,11 @@ function removeNodes(parent, vnodes, start, end) {
     }
 }
 function removeNode(parent, vnode) {
-    const dom = vnode.dom;
-    if (dom && dom.parentNode === parent)
-        parent.removeChild(dom);
+    recycleNode(vnode, parent);
 }
 function getNextSibling(vnodes, i, next) {
-    for (; i < vnodes.length; i++) {
+    const len = vnodes.length;
+    for (; i < len; i++) {
         const v = vnodes[i];
         if (v && v.dom)
             return v.dom;
@@ -417,19 +397,19 @@ function getNextSibling(vnodes, i, next) {
     return next;
 }
 // -----------------------------------------------------------------------------
-// ATTRIBUTES (strict mithril-lite)
+// ATTRIBUTES
 // -----------------------------------------------------------------------------
 function setAttrs(vnode, attrs, ns) {
-    for (const k in attrs)
+    for (const k in attrs) {
         if (hasOwn.call(attrs, k))
             setAttr(vnode, k, null, attrs[k], ns);
+    }
 }
 function setAttr(vnode, key, old, value, ns) {
     if (key === "key")
         return;
     const dom = vnode.dom;
-    // events
-    if (key.startsWith("on")) {
+    if (key.slice(0, 2) === "on") {
         dom[key] = typeof value === "function" ? value : null;
         return;
     }
@@ -437,21 +417,21 @@ function setAttr(vnode, key, old, value, ns) {
         removeAttr(vnode, key, old, ns);
         return;
     }
-    // form control properties
     if (key === "value") {
-        // keep property in sync so sliders/text inputs move when the model changes
         if (dom.value !== value)
             dom.value = value;
         return;
     }
     if (key === "checked") {
-        if (dom.checked !== !!value)
-            dom.checked = !!value;
+        const b = !!value;
+        if (dom.checked !== b)
+            dom.checked = b;
         return;
     }
     if (key === "selected") {
-        if (dom.selected !== !!value)
-            dom.selected = !!value;
+        const b = !!value;
+        if (dom.selected !== b)
+            dom.selected = b;
         return;
     }
     if (key === "style") {
@@ -459,7 +439,7 @@ function setAttr(vnode, key, old, value, ns) {
         return;
     }
     if (key === "class") {
-        dom.setAttribute("class", value);
+        dom.className = value;
         return;
     }
     if (typeof value === "boolean") {
@@ -470,7 +450,7 @@ function setAttr(vnode, key, old, value, ns) {
 }
 function removeAttr(vnode, key, old, ns) {
     const dom = vnode.dom;
-    if (key.startsWith("on")) {
+    if (key.slice(0, 2) === "on") {
         dom[key] = null;
         return;
     }
@@ -488,8 +468,9 @@ function updateAttrs(vnode, old, attrs, ns) {
     if (old) {
         for (const k in old) {
             const ov = old[k];
-            if (ov != null && (!attrs || attrs[k] == null))
+            if (ov != null && (!attrs || attrs[k] == null)) {
                 removeAttr(vnode, k, ov, ns);
+            }
         }
     }
     if (attrs) {
@@ -514,23 +495,17 @@ function updateStyle(dom, old, style) {
     for (const k in style) {
         const v = style[k];
         if (v != null) {
-            if (k.includes("-"))
+            if (k.indexOf("-") !== -1)
                 dom.style.setProperty(k, String(v));
             else
                 dom.style[k] = String(v);
         }
     }
 }
-/**
- * Patch DOM tree under `root` using mithril-lite's virtual DOM diffing.
- *
- * - Supports keyed diffing (O(n log n)) with LIS algorithm
- * - Supports SVG namespace transitions
- * - Only minimal DOM updates performed
- *
- * @param root Root DOM element
- * @param vnodes VNode or array of VNodes
- */ export function render(dom, vnodes) {
+// -----------------------------------------------------------------------------
+// PUBLIC RENDER
+// -----------------------------------------------------------------------------
+export function render(dom, vnodes) {
     if (!dom)
         throw new TypeError("Root DOM is null");
     const ns = dom.namespaceURI;
@@ -538,7 +513,8 @@ function updateStyle(dom, old, style) {
     if (prev == null)
         dom.textContent = "";
     const list = Vnode.normalizeChildren(Array.isArray(vnodes) ? vnodes : [vnodes]);
-    updateNodes(dom, prev, list, null, ns === "http://www.w3.org/1999/xhtml" ? undefined : (ns ?? undefined));
+    const doc = dom.ownerDocument;
+    updateNodes(dom, prev, list, null, ns === "http://www.w3.org/1999/xhtml" ? undefined : (ns ?? undefined), doc);
     dom.vnodes = list;
 }
 //# sourceMappingURL=mithril-lite.js.map

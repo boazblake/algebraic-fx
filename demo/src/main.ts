@@ -14,4 +14,4 @@ const rootIO = IO(() => {
   return el;
 });
 
-renderApp(render, env)(rootIO, program).run();
+renderApp(render, env)(rootIO, program);

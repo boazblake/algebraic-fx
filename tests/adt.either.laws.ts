@@ -5,7 +5,7 @@ import EitherModule, {
   Left,
   Right,
   type Either as EitherT,
-} from "../src/adt/either.js";
+} from "../src/adt/either.ts";
 
 const { map, chain, of, bimap, mapLeft } = EitherModule;
 

@@ -2,10 +2,8 @@
 import { describe, it, expect, vi } from "vitest";
 import fc from "fast-check";
 
-import { runEffects } from "../src/core/render.js";
+import { runEffects, ioEffect, readerEffect } from "../src/core/render.ts";
 import {
-  ioEffect,
-  readerEffect,
   IOEffectTag,
   ReaderEffectTag,
   type Effect,

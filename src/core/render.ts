@@ -92,6 +92,24 @@ export const runEffects = <Env, Msg>(
 };
 
 /**
+ * Construct an IOEffect from IO<void>.
+ */
+export const ioEffect = (io: IO<void>): IOEffect => ({
+  _tag: IOEffectTag,
+  io,
+});
+
+/**
+ * Construct a ReaderEffect from Reader<Env, IO<void>>.
+ */
+export const readerEffect = <E>(
+  reader: Reader<E, IO<void>>
+): ReaderEffect<E> => ({
+  _tag: ReaderEffectTag,
+  reader,
+});
+
+/**
  * Connect Program<M,Msg,Env> to a renderer and environment.
  *
  * Flow:

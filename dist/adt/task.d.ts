@@ -50,6 +50,7 @@ export declare const Task: {
     <E, A>(run0: (signal?: AbortSignal) => Promise<Either<E, A>>): Task<E, A>;
     of<A>(a: A): Task<never, A>;
     reject<E>(e: E): Task<E, never>;
+    fromAbortable<E, A>(register: (signal: AbortSignal) => Promise<A>, onError: (e: unknown) => E): Task<E, A>;
     tryCatch<A>(f: () => Promise<A>): Task<unknown, A>;
     tryCatchK<E, A>(f: () => Promise<A>, onError: (e: unknown) => E): Task<E, A>;
     map<E, A, B>(f: (a: A) => B): (t: Task<E, A>) => Task<E, B>;
@@ -68,12 +69,5 @@ export declare const Task: {
     fromEither<E, A>(e: Either<E, A>): Task<E, A>;
     toPromise<E, A>(t: Task<E, A>): Promise<A>;
 };
-/**
- * Wrap an abort-aware async registration function into a Task.
- *
- * @param register Function that takes an AbortSignal and returns a Promise<A>
- * @param onError Map unknown errors into E
- */
-export declare const taskFromAbortable: <E, A>(register: (signal: AbortSignal) => Promise<A>, onError: (e: unknown) => E) => Task<E, A>;
 export default Task;
 //# sourceMappingURL=task.d.ts.map

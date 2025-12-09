@@ -111,14 +111,6 @@ export type ReaderEffect<E> = {
     reader: Reader<E, IO<void>>;
 };
 /**
- * Construct an IOEffect from IO<void>.
- */
-export declare const ioEffect: (io: IO<void>) => IOEffect;
-/**
- * Construct a ReaderEffect from Reader<Env, IO<void>>.
- */
-export declare const readerEffect: <E>(reader: Reader<E, IO<void>>) => ReaderEffect<E>;
-/**
  * RawEffect<E>
  *
  * Normalized effect representation understood by the runtime:

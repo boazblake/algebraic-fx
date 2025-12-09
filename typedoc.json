@@ -3,7 +3,8 @@
     "src/index.ts",
     "src/adt",
     "src/core",
-    "src/helpers"
+    "src/helpers",
+    "src/*.md"
   ],
   "out": "docs",
   "excludePrivate": true,
