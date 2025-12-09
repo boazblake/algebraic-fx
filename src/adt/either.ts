@@ -136,13 +136,13 @@ export const alt = <L, A>(e1: Either<L, A>, e2: Either<L, A>): Either<L, A> =>
 /**
  * Type guard: check if e is Left.
  */
-export const isLeft = <L, A>(e: Either<L, A>): e is Either<L, never> =>
+export const isLeft = <L, A>(e: Either<L, A>): e is Left<L> =>
   e._tag === "Left";
 
 /**
  * Type guard: check if e is Right.
  */
-export const isRight = <L, A>(e: Either<L, A>): e is Either<never, A> =>
+export const isRight = <L, A>(e: Either<L, A>): e is Right<A> =>
   e._tag === "Right";
 
 /**

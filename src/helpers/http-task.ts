@@ -55,46 +55,52 @@ export function httpTask<E, A>(
   handleError?: (e: DefaultHttpError | unknown) => E
 ): Reader<HttpEnv, Task<DefaultHttpError | E, A>> {
   return Reader((env: HttpEnv) =>
-    Task<DefaultHttpError | E, A>(async (signal?: AbortSignal) => {
-      const toDefaultError = (
-        status: number,
-        message: string
-      ): DefaultHttpError => ({ status, message });
+    Task<DefaultHttpError | E, A>(
+      async (
+        signal?: AbortSignal
+      ): Promise<Either<DefaultHttpError | E, A>> => {
+        const toDefaultError = (
+          status: number,
+          message: string
+        ): DefaultHttpError => ({ status, message });
 
-      const mapError = (e: DefaultHttpError | unknown): DefaultHttpError | E =>
-        handleError ? handleError(e) : (e as DefaultHttpError);
+        const mapError = (
+          e: DefaultHttpError | unknown
+        ): DefaultHttpError | E =>
+          handleError ? handleError(e) : (e as DefaultHttpError);
 
-      const base = env.baseUrl ?? "";
+        const base = env.baseUrl ?? "";
 
-      const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
-      const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-      const url = base ? normalizedBase + normalizedPath : path;
+        const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
+        const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+        const url = base ? normalizedBase + normalizedPath : path;
 
-      try {
-        const res = await env.fetch(url, { ...options, signal });
+        try {
+          const res = await env.fetch(url, { ...options, signal });
 
-        if (!res.ok) {
+          if (!res.ok) {
+            const baseErr = toDefaultError(
+              res.status,
+              res.statusText || "HTTP error"
+            );
+            return Left(mapError(baseErr));
+          }
+
+          try {
+            const data = (await res.json()) as A;
+            return Right(data);
+          } catch {
+            const baseErr = toDefaultError(res.status, "Invalid JSON");
+            return Left(mapError(baseErr));
+          }
+        } catch (e: any) {
           const baseErr = toDefaultError(
-            res.status,
-            res.statusText || "HTTP error"
+            0,
+            e instanceof Error ? e.message : String(e)
           );
           return Left(mapError(baseErr));
         }
-
-        try {
-          const data = (await res.json()) as A;
-          return Right(data);
-        } catch {
-          const baseErr = toDefaultError(res.status, "Invalid JSON");
-          return Left(mapError(baseErr));
-        }
-      } catch (e: any) {
-        const baseErr = toDefaultError(
-          0,
-          e instanceof Error ? e.message : String(e)
-        );
-        return Left(mapError(baseErr));
       }
-    })
+    )
   );
 }

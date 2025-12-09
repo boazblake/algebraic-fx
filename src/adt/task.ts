@@ -64,7 +64,7 @@ export const Task = <E, A>(
   run: () => run0(),
 
   runWith: (signal: AbortSignal) => {
-    if (!signal) {
+    if (signal === undefined || signal === null) {
       throw new Error(
         "Task.runWith requires an AbortSignal. Use run() if cancellation is not needed."
       );
@@ -81,27 +81,37 @@ export const Task = <E, A>(
 
   chain: <B>(f: (a: A) => Task<E, B>): Task<E, B> =>
     Task((signal) =>
-      run0(signal).then((ea) =>
-        ea._tag === "Right"
-          ? f(ea.right).runWith(signal as AbortSignal)
-          : (Promise.resolve(ea) as Promise<Either<E, B>>)
-      )
+      run0(signal).then((ea) => {
+        if (ea._tag === "Right") {
+          const nextTask = f(ea.right);
+          // CORRECTED: Check if signal exists before using runWith
+          return signal !== undefined
+            ? nextTask.runWith(signal)
+            : nextTask.run();
+        }
+        return Promise.resolve(ea) as Promise<Either<E, B>>;
+      })
     ),
 
   ap: <B>(fb: Task<E, (a: A) => B>): Task<E, B> =>
-    Task((signal) =>
-      fb
-        .runWith(signal as AbortSignal)
-        .then((ef) =>
-          ef._tag === "Right"
-            ? run0(signal).then((ea) =>
-                ea._tag === "Right"
-                  ? Right<B>(ef.right(ea.right))
-                  : (ea as Either<E, B>)
-              )
-            : (Promise.resolve(ef) as Promise<Either<E, B>>)
-        )
-    ),
+    Task((signal) => {
+      // CORRECTED: Check if signal exists before using runWith
+      const fbPromise = signal !== undefined ? fb.runWith(signal) : fb.run();
+
+      return fbPromise.then((ef) => {
+        if (ef._tag === "Left") {
+          return Promise.resolve(ef) as Promise<Either<E, B>>;
+        }
+
+        // CORRECTED: Check if signal exists before using runWith
+        const faPromise = signal !== undefined ? run0(signal) : run0();
+        return faPromise.then((ea) =>
+          ea._tag === "Right"
+            ? Right<B>(ef.right(ea.right))
+            : (ea as Either<E, B>)
+        );
+      });
+    }),
 
   mapError: <E2>(f: (e: E) => E2): Task<E2, A> =>
     Task((signal) =>
@@ -137,7 +147,7 @@ Task.reject = <E>(e: E): Task<E, never> =>
  * @param register Function that takes an AbortSignal and returns a Promise<A>
  * @param onError Map unknown errors into E
  */
-export const taskFromAbortable = <E, A>(
+Task.fromAbortable = <E, A>(
   register: (signal: AbortSignal) => Promise<A>,
   onError: (e: unknown) => E
 ): Task<E, A> =>
@@ -220,7 +230,7 @@ Task.getOrElse =
     t.run().then((ea) => (ea._tag === "Right" ? ea.right : defaultValue));
 
 /**
- * Delay a Task’s execution by N milliseconds (abort-aware).
+ * Delay a Task's execution by N milliseconds (abort-aware).
  */
 Task.delay =
   (ms: number) =>
@@ -229,7 +239,12 @@ Task.delay =
       (signal) =>
         new Promise<Either<E, A>>((resolve) => {
           const id = setTimeout(() => {
-            t.runWith(signal as AbortSignal).then(resolve);
+            // CORRECTED: Check if signal exists before using runWith
+            if (signal !== undefined) {
+              t.runWith(signal).then(resolve);
+            } else {
+              t.run().then(resolve);
+            }
           }, ms);
 
           if (signal) {
@@ -259,7 +274,11 @@ Task.timeout =
         new Promise<Either<E, A>>((resolve) => {
           const timeoutId = setTimeout(() => resolve(Left<E>(onTimeout)), ms);
 
-          const chainRun = t.runWith(signal as AbortSignal).then((ea) => {
+          // CORRECTED: Check if signal exists before using runWith
+          const taskPromise =
+            signal !== undefined ? t.runWith(signal) : t.run();
+
+          taskPromise.then((ea) => {
             clearTimeout(timeoutId);
             resolve(ea);
           });
@@ -269,8 +288,6 @@ Task.timeout =
               clearTimeout(timeoutId);
             });
           }
-
-          return chainRun;
         })
     );
 
@@ -282,7 +299,9 @@ Task.sequence = <E, A>(tasks: Task<E, A>[]): Task<E, A[]> =>
     (async () => {
       const results: A[] = [];
       for (const task of tasks) {
-        const ea = await task.runWith(signal as AbortSignal);
+        // CORRECTED: Check if signal exists before using runWith
+        const ea =
+          signal !== undefined ? await task.runWith(signal) : await task.run();
         if (ea._tag === "Left") return ea;
         results.push(ea.right);
       }
@@ -303,26 +322,36 @@ Task.traverse =
  * Fails fast if any task fails.
  */
 Task.all = <E, A>(tasks: Task<E, A>[]): Task<E, A[]> =>
-  Task((signal) =>
-    Promise.all(tasks.map((t) => t.runWith(signal as AbortSignal))).then(
-      (results) => {
-        const values: A[] = [];
-        for (const ea of results) {
-          if (ea._tag === "Left") return ea;
-          values.push(ea.right);
-        }
-        return Right<A[]>(values);
+  Task((signal) => {
+    // CORRECTED: Check if signal exists before using runWith
+    const promises =
+      signal !== undefined
+        ? tasks.map((t) => t.runWith(signal))
+        : tasks.map((t) => t.run());
+
+    return Promise.all(promises).then((results) => {
+      const values: A[] = [];
+      for (const ea of results) {
+        if (ea._tag === "Left") return ea;
+        values.push(ea.right);
       }
-    )
-  );
+      return Right<A[]>(values);
+    });
+  });
 
 /**
  * Race multiple Tasks, resolving with the first to finish.
  */
 Task.race = <E, A>(tasks: Task<E, A>[]): Task<E, A> =>
-  Task((signal) =>
-    Promise.race(tasks.map((t) => t.runWith(signal as AbortSignal)))
-  );
+  Task((signal) => {
+    // CORRECTED: Check if signal exists before using runWith
+    const promises =
+      signal !== undefined
+        ? tasks.map((t) => t.runWith(signal))
+        : tasks.map((t) => t.run());
+
+    return Promise.race(promises);
+  });
 
 /**
  * Lift an Either into a Task.

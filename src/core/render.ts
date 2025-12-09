@@ -37,6 +37,8 @@ export type Renderer = (root: Element, vnode: any) => void;
  *   - ReaderEffect<Env>
  *   - Effect<Env,Msg>
  *
+ * CORRECTED: Added runtime validation for dispatch and env
+ *
  * @param effects  list of effects to run
  * @param env      environment for Readers and Effects
  * @param dispatch dispatch function for messages emitted by Effects
@@ -46,26 +48,46 @@ export const runEffects = <Env, Msg>(
   env: Env,
   dispatch: Dispatch<Msg>
 ): void => {
-  effects?.forEach((effect) => {
+  // ADDED: Runtime validation
+  if (dispatch == null || typeof dispatch !== "function") {
+    throw new TypeError("runEffects: dispatch must be a function");
+  }
+
+  if (!effects || effects.length === 0) return;
+
+  effects.forEach((effect) => {
     if (!effect) return;
 
-    // IOEffect
-    if ((effect as IOEffect)._tag === IOEffectTag) {
-      (effect as IOEffect).io.run();
-      return;
-    }
+    try {
+      // IOEffect
+      if ((effect as IOEffect)._tag === IOEffectTag) {
+        (effect as IOEffect).io.run();
+        return;
+      }
 
-    // ReaderEffect
-    if ((effect as ReaderEffect<Env>)._tag === ReaderEffectTag) {
-      const r = (effect as ReaderEffect<Env>).reader as Reader<Env, IO<void>>;
-      const io = r.run(env);
-      io.run();
-      return;
-    }
+      // ReaderEffect
+      if ((effect as ReaderEffect<Env>)._tag === ReaderEffectTag) {
+        const r = (effect as ReaderEffect<Env>).reader as Reader<Env, IO<void>>;
+        const io = r.run(env);
+        io.run();
+        return;
+      }
 
-    // Effect<Env,Msg>
-    const fx = effect as Effect<Env, Msg>;
-    fx.run(env, dispatch);
+      // Effect<Env,Msg>
+      const fx = effect as Effect<Env, Msg>;
+      if (fx.run && typeof fx.run === "function") {
+        const result = fx.run(env, dispatch);
+        // Handle async effects
+        if (result && typeof (result as any).catch === "function") {
+          (result as Promise<void>).catch((err) => {
+            console.error("Effect execution error:", err);
+          });
+        }
+      }
+    } catch (err) {
+      // ADDED: Error handling to prevent one bad effect from breaking all effects
+      console.error("Effect execution error:", err);
+    }
   });
 };
 
@@ -78,6 +100,8 @@ export const runEffects = <Env, Msg>(
  *   3. Run initial effects
  *   4. Return closed-over dispatch for user events
  *
+ * CORRECTED: Added validation and error handling
+ *
  * @param root     DOM root element
  * @param program  functional program
  * @param env      environment passed to effects
@@ -89,18 +113,49 @@ export const renderApp = <M, Msg, Env>(
   env: Env,
   renderer: Renderer
 ): void => {
+  // ADDED: Validation
+  if (!root) {
+    throw new TypeError("renderApp: root element is required");
+  }
+
+  if (!program) {
+    throw new TypeError("renderApp: program is required");
+  }
+
+  if (!program.init || typeof program.init.run !== "function") {
+    throw new TypeError("renderApp: program.init must be an IO");
+  }
+
+  if (!program.update || typeof program.update !== "function") {
+    throw new TypeError("renderApp: program.update must be a function");
+  }
+
+  if (!program.view || typeof program.view !== "function") {
+    throw new TypeError("renderApp: program.view must be a function");
+  }
+
+  if (!renderer || typeof renderer !== "function") {
+    throw new TypeError("renderApp: renderer must be a function");
+  }
+
   let currentModel: M;
 
   const dispatch: Dispatch<Msg> = (msg) => {
-    const { model, effects } = program.update(msg, currentModel, dispatch);
-    currentModel = model;
+    try {
+      const { model, effects } = program.update(msg, currentModel, dispatch);
+      currentModel = model;
 
-    const vnode = program.view(currentModel, dispatch);
-    renderer(root, vnode);
+      const vnode = program.view(currentModel, dispatch);
+      renderer(root, vnode);
 
-    runEffects<Env, Msg>(effects, env, dispatch);
+      runEffects<Env, Msg>(effects, env, dispatch);
+    } catch (err) {
+      console.error("Update/render cycle error:", err);
+      throw err; // Re-throw so caller can handle
+    }
   };
 
+  // Initialize
   const initResult = program.init.run();
   currentModel = initResult.model;
 

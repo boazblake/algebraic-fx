@@ -111,16 +111,30 @@ Reader.run =
 /**
  * Modify the environment for the duration of a Reader computation.
  *
+ * Transforms environment from E1 to E2, allowing the Reader to work with
+ * a transformed environment.
+ *
  * Equivalent to:
- *    local : (env -> env) -> Reader env a -> Reader env a
+ *    local : (e1 -> e2) -> Reader e2 a -> Reader e1 a
+ *
+ * This is the CORRECTED version that allows transforming between different
+ * environment types.
  *
  * @example
- * const withTestConfig = Reader.local(cfg => ({ ...cfg, test: true }));
+ * type Config = { dbUrl: string };
+ * type ExtendedConfig = Config & { debug: boolean };
+ *
+ * const readDb = Reader<Config, string>(env => env.dbUrl);
+ * const withDebug = Reader.local<ExtendedConfig, Config, string>(
+ *   env => ({ dbUrl: env.dbUrl })
+ * )(readDb);
+ *
+ * withDebug.run({ dbUrl: "localhost", debug: true }); // "localhost"
  */
 Reader.local =
-  <E, A>(f: (env: E) => E) =>
-  (r: Reader<E, A>): Reader<E, A> =>
-    Reader((env) => r.run(f(env)));
+  <E1, E2, A>(f: (env: E1) => E2) =>
+  (r: Reader<E2, A>): Reader<E1, A> =>
+    Reader((env: E1) => r.run(f(env)));
 
 /**
  * Execute multiple Readers under the same environment.

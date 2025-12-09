@@ -142,12 +142,13 @@ export const toUndefined = <A>(ma: Maybe<A>): A | undefined =>
 /**
  * Type guard: detect Just.
  */
-export const isJust = <A>(ma: Maybe<A>): ma is Maybe<A> => ma._tag === "Just";
+export const isJust = <A>(ma: Maybe<A>): ma is Just<A> => ma._tag === "Just";
 
 /**
  * Type guard: detect Nothing.
  */
-export const isNothing = <A>(ma: Maybe<A>): ma is Maybe<never> =>
+
+export const isNothing = <A>(ma: Maybe<A>): ma is Nothing =>
   ma._tag === "Nothing";
 
 /**
