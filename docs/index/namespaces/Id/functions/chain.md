@@ -8,7 +8,7 @@
 
 > **chain**\<`A`, `B`\>(`f`): (`id`) => [`Id`](../../../type-aliases/Id.md)\<`B`\>
 
-Defined in: [adt/id.ts:75](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/id.ts#L75)
+Defined in: [adt/id.ts:75](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/id.ts#L75)
 
 Point-free monadic chain.
 

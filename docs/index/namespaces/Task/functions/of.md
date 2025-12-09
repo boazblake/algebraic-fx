@@ -8,7 +8,7 @@
 
 > **of**\<`A`\>(`a`): [`Task`](../../../type-aliases/Task.md)\<`never`, `A`\>
 
-Defined in: [adt/task.ts:126](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/task.ts#L126)
+Defined in: [adt/task.ts:136](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/task.ts#L136)
 
 Lift a value into a successful Task.
 

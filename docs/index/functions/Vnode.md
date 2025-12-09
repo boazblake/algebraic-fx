@@ -8,7 +8,7 @@
 
 > **Vnode**(`tag`, `key`, `attrs`, `children`, `text`, `dom`): [`Vnode`](../type-aliases/Vnode.md)
 
-Defined in: [core/mithril-lite.ts:59](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/mithril-lite.ts#L59)
+Defined in: [core/mithril-lite.ts:60](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/mithril-lite.ts#L60)
 
 ## Parameters
 

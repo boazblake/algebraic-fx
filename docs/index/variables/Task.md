@@ -6,9 +6,9 @@
 
 # Variable: Task
 
-> **Task**: \{\<`E`, `A`\>(`run0`): [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `all`: [`Task`](../type-aliases/Task.md)\<`E`, `A`[]\>; `ap`: (`fa`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`\>; `bimap`: (`t`) => [`Task`](../type-aliases/Task.md)\<`E2`, `B`\>; `chain`: (`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`\>; `delay`: \<`E`, `A`\>(`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `fold`: (`t`) => `Promise`\<`B`\>; `fromEither`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `getOrElse`: (`t`) => `Promise`\<`A`\>; `map`: (`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`\>; `mapError`: \<`A`\>(`t`) => [`Task`](../type-aliases/Task.md)\<`E2`, `A`\>; `of`: [`Task`](../type-aliases/Task.md)\<`never`, `A`\>; `race`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `reject`: [`Task`](../type-aliases/Task.md)\<`E`, `never`\>; `sequence`: [`Task`](../type-aliases/Task.md)\<`E`, `A`[]\>; `timeout`: \<`A`\>(`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `toPromise`: `Promise`\<`A`\>; `traverse`: (`arr`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`[]\>; `tryCatch`: [`Task`](../type-aliases/Task.md)\<`unknown`, `A`\>; `tryCatchK`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; \}
+> **Task**: \{\<`E`, `A`\>(`run0`): [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `all`: [`Task`](../type-aliases/Task.md)\<`E`, `A`[]\>; `ap`: (`fa`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`\>; `bimap`: (`t`) => [`Task`](../type-aliases/Task.md)\<`E2`, `B`\>; `chain`: (`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`\>; `delay`: \<`E`, `A`\>(`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `fold`: (`t`) => `Promise`\<`B`\>; `fromAbortable`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `fromEither`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `getOrElse`: (`t`) => `Promise`\<`A`\>; `map`: (`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`\>; `mapError`: \<`A`\>(`t`) => [`Task`](../type-aliases/Task.md)\<`E2`, `A`\>; `of`: [`Task`](../type-aliases/Task.md)\<`never`, `A`\>; `race`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `reject`: [`Task`](../type-aliases/Task.md)\<`E`, `never`\>; `sequence`: [`Task`](../type-aliases/Task.md)\<`E`, `A`[]\>; `timeout`: \<`A`\>(`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `toPromise`: `Promise`\<`A`\>; `traverse`: (`arr`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`[]\>; `tryCatch`: [`Task`](../type-aliases/Task.md)\<`unknown`, `A`\>; `tryCatchK`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; \}
 
-Defined in: [adt/task.ts:24](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/task.ts#L24)
+Defined in: [adt/task.ts:24](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/task.ts#L24)
 
 Construct a Task given a function that accepts an optional AbortSignal.
 
@@ -197,7 +197,7 @@ Point-free chain.
 
 > **delay**(`ms`): \<`E`, `A`\>(`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `A`\>
 
-Delay a Task’s execution by N milliseconds (abort-aware).
+Delay a Task's execution by N milliseconds (abort-aware).
 
 #### Parameters
 
@@ -272,6 +272,40 @@ Consume a Task by converting its Either result into the final pure value.
 ##### Returns
 
 `Promise`\<`B`\>
+
+### fromAbortable()
+
+> **fromAbortable**\<`E`, `A`\>(`register`, `onError`): [`Task`](../type-aliases/Task.md)\<`E`, `A`\>
+
+Wrap an abort-aware async registration function into a Task.
+
+#### Type Parameters
+
+##### E
+
+`E`
+
+##### A
+
+`A`
+
+#### Parameters
+
+##### register
+
+(`signal`) => `Promise`\<`A`\>
+
+Function that takes an AbortSignal and returns a Promise<A>
+
+##### onError
+
+(`e`) => `E`
+
+Map unknown errors into E
+
+#### Returns
+
+[`Task`](../type-aliases/Task.md)\<`E`, `A`\>
 
 ### fromEither()
 

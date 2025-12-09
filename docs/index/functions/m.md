@@ -6,25 +6,9 @@
 
 # Function: m()
 
-> **m**(`selector`, ...`rest`): [`Vnode`](../type-aliases/Vnode.md)
+> **m**(`selector`, ...`rest`): `AnyVnode`
 
-Defined in: [core/mithril-lite.ts:220](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/mithril-lite.ts#L220)
-
-Hyperscript function for building VNodes.
-
-Syntax:
- - m("div", "text")
- - m("div#id.class1.class2", {...attrs}, children...)
- - m("svg", {...attrs}, [...children])
-
-Selector grammar:
- - tag (div)
- - #id (#main)
- - .class (.container)
- - combined (div#header.title.highlight)
-
-Keys:
- - pass { key: string } inside attrs to enable keyed diffing
+Defined in: [core/mithril-lite.ts:197](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/mithril-lite.ts#L197)
 
 ## Parameters
 
@@ -38,6 +22,4 @@ Keys:
 
 ## Returns
 
-[`Vnode`](../type-aliases/Vnode.md)
-
-VNode
+`AnyVnode`

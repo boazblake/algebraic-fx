@@ -8,7 +8,7 @@
 
 > **State**: \{\<`S`, `A`\>(`run`): [`State`](../type-aliases/State.md)\<`S`, `A`\>; `ap`: (`fa`) => [`State`](../type-aliases/State.md)\<`S`, `B`\>; `chain`: (`st`) => [`State`](../type-aliases/State.md)\<`S`, `B`\>; `evalState`: (`st`) => `A`; `execState`: (`st`) => `S`; `get`: [`State`](../type-aliases/State.md)\<`S`, `S`\>; `gets`: [`State`](../type-aliases/State.md)\<`S`, `A`\>; `map`: (`st`) => [`State`](../type-aliases/State.md)\<`S`, `B`\>; `modify`: [`State`](../type-aliases/State.md)\<`S`, `void`\>; `of`: [`State`](../type-aliases/State.md)\<`S`, `A`\>; `put`: [`State`](../type-aliases/State.md)\<`S`, `void`\>; `run`: (`st`) => \[`A`, `S`\]; `sequence`: [`State`](../type-aliases/State.md)\<`S`, `A`[]\>; `traverse`: (`arr`) => [`State`](../type-aliases/State.md)\<`S`, `B`[]\>; \}
 
-Defined in: [adt/state.ts:25](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/state.ts#L25)
+Defined in: [adt/state.ts:25](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/state.ts#L25)
 
 Construct a new State computation.
 

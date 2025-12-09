@@ -8,7 +8,7 @@
 
 > **debounce**\<`A`\>(`ms`): (`s`) => [`Stream`](../../../type-aliases/Stream.md)\<`A`\>
 
-Defined in: [adt/stream.ts:416](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/stream.ts#L416)
+Defined in: [adt/stream.ts:416](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/stream.ts#L416)
 
 Debounce a stream: wait `ms` milliseconds after each event before emitting.
 

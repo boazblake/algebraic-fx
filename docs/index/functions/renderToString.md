@@ -8,9 +8,11 @@
 
 > **renderToString**(`node`): `string`
 
-Defined in: [core/render-to-string.ts:61](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/render-to-string.ts#L61)
+Defined in: [core/render-to-string.ts:72](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/render-to-string.ts#L72)
 
 Convert a vnode tree into an HTML string.
+
+CORRECTED: Now works with mithril-lite.ts Vnode structure using 'attrs' instead of 'props'.
 
 ## Parameters
 
@@ -33,4 +35,5 @@ Attributes are escaped via escapeAttr.
 
 ```ts
 renderToString(m("div", "Hello")) === "<div>Hello</div>"
+renderToString(m("div", { class: "test" }, "Hi")) === '<div class="test">Hi</div>'
 ```

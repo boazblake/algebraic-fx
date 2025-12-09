@@ -24,7 +24,7 @@ optional mapper from DefaultHttpError | unknown to user E
 
 > **httpTask**\<`A`\>(`path`, `options?`): [`Reader`](../type-aliases/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../type-aliases/Task.md)\<[`DefaultHttpError`](../type-aliases/DefaultHttpError.md), `A`\>\>
 
-Defined in: [helpers/http-task.ts:34](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/helpers/http-task.ts#L34)
+Defined in: [helpers/http-task.ts:34](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/helpers/http-task.ts#L34)
 
 ### Type Parameters
 
@@ -50,7 +50,7 @@ Defined in: [helpers/http-task.ts:34](https://github.com/boazblake/algebraic-fx/
 
 > **httpTask**\<`E`, `A`\>(`path`, `options`, `handleError`): [`Reader`](../type-aliases/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../type-aliases/Task.md)\<`E`, `A`\>\>
 
-Defined in: [helpers/http-task.ts:39](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/helpers/http-task.ts#L39)
+Defined in: [helpers/http-task.ts:39](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/helpers/http-task.ts#L39)
 
 ### Type Parameters
 

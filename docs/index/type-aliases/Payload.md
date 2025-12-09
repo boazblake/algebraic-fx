@@ -8,7 +8,7 @@
 
 > **Payload**\<`T`, `M`\> = `object`
 
-Defined in: [core/types.ts:81](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L81)
+Defined in: [core/types.ts:81](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L81)
 
 Canonical message shape.
 
@@ -40,7 +40,7 @@ Example:
 
 > **msg**: `M`
 
-Defined in: [core/types.ts:83](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L83)
+Defined in: [core/types.ts:83](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L83)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [core/types.ts:83](https://github.com/boazblake/algebraic-fx/blob/b0
 
 > **type**: `T`
 
-Defined in: [core/types.ts:82](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L82)
+Defined in: [core/types.ts:82](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L82)

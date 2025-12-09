@@ -8,7 +8,7 @@
 
 > **renderApp**\<`M`, `Msg`, `Env`\>(`root`, `program`, `env`, `renderer`): `void`
 
-Defined in: [core/render.ts:86](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/render.ts#L86)
+Defined in: [core/render.ts:128](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/render.ts#L128)
 
 Connect Program<M,Msg,Env> to a renderer and environment.
 
@@ -17,6 +17,8 @@ Flow:
   2. Render initial view
   3. Run initial effects
   4. Return closed-over dispatch for user events
+
+CORRECTED: Added validation and error handling
 
 ## Type Parameters
 

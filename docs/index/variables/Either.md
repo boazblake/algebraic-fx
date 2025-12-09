@@ -8,7 +8,7 @@
 
 > **Either**: `object`
 
-Defined in: [adt/either.ts:36](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/either.ts#L36)
+Defined in: [adt/either.ts:40](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/either.ts#L40)
 
 Unified namespace export.
 
@@ -337,7 +337,7 @@ Extract Right or compute fallback.
 
 ### isLeft()
 
-> **isLeft**: \<`L`, `A`\>(`e`) => `e is Either<L, never>`
+> **isLeft**: \<`L`, `A`\>(`e`) => `e is Left<L>`
 
 Type guard: check if e is Left.
 
@@ -359,11 +359,11 @@ Type guard: check if e is Left.
 
 #### Returns
 
-`e is Either<L, never>`
+`e is Left<L>`
 
 ### isRight()
 
-> **isRight**: \<`L`, `A`\>(`e`) => `e is Either<never, A>`
+> **isRight**: \<`L`, `A`\>(`e`) => `e is Right<A>`
 
 Type guard: check if e is Right.
 
@@ -385,7 +385,7 @@ Type guard: check if e is Right.
 
 #### Returns
 
-`e is Either<never, A>`
+`e is Right<A>`
 
 ### Left()
 

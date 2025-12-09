@@ -8,7 +8,7 @@
 
 > **traverse**\<`S`, `A`, `B`\>(`f`): (`arr`) => [`State`](../../../type-aliases/State.md)\<`S`, `B`[]\>
 
-Defined in: [adt/state.ts:167](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/state.ts#L167)
+Defined in: [adt/state.ts:167](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/state.ts#L167)
 
 Traverse an array using a function that returns a State.
 Equivalent to: `State.sequence(arr.map(f))`.

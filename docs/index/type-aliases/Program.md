@@ -8,7 +8,7 @@
 
 > **Program**\<`M`, `Msg`, `Env`\> = `object`
 
-Defined in: [core/types.ts:194](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L194)
+Defined in: [core/types.ts:176](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L176)
 
 Pure functional application description.
 
@@ -47,7 +47,7 @@ environment type used by Reader and Effect
 
 > **init**: [`IO`](IO.md)\<\{ `effects`: [`RawEffect`](RawEffect.md)\<`Env`\>[]; `model`: `M`; \}\>
 
-Defined in: [core/types.ts:195](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L195)
+Defined in: [core/types.ts:177](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L177)
 
 ***
 
@@ -55,7 +55,7 @@ Defined in: [core/types.ts:195](https://github.com/boazblake/algebraic-fx/blob/b
 
 > **update**: (`msg`, `model`, `dispatch`) => `object`
 
-Defined in: [core/types.ts:196](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L196)
+Defined in: [core/types.ts:178](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L178)
 
 #### Parameters
 
@@ -89,7 +89,7 @@ Defined in: [core/types.ts:196](https://github.com/boazblake/algebraic-fx/blob/b
 
 > **view**: (`model`, `dispatch`) => [`VChild`](VChild.md) \| [`VChild`](VChild.md)[]
 
-Defined in: [core/types.ts:201](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L201)
+Defined in: [core/types.ts:183](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L183)
 
 #### Parameters
 

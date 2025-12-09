@@ -8,7 +8,7 @@
 
 > **ap**\<`A`, `B`\>(`fb`): (`fa`) => [`IO`](../../../type-aliases/IO.md)\<`B`\>
 
-Defined in: [adt/io.ts:86](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/io.ts#L86)
+Defined in: [adt/io.ts:86](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/io.ts#L86)
 
 Point-free applicative apply.
 

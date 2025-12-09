@@ -6,9 +6,9 @@
 
 # Variable: Reader
 
-> **Reader**: \{\<`E`, `A`\>(`run`): [`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>; `ap`: (`fa`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `B`\>; `ask`: [`Reader`](../type-aliases/Reader.md)\<`E`, `E`\>; `asks`: [`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>; `chain`: (`r`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `B`\>; `local`: (`r`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>; `map`: (`r`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `B`\>; `of`: [`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>; `run`: (`r`) => `A`; `sequence`: [`Reader`](../type-aliases/Reader.md)\<`E`, `A`[]\>; `traverse`: (`arr`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `B`[]\>; \}
+> **Reader**: \{\<`E`, `A`\>(`run`): [`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>; `ap`: (`fa`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `B`\>; `ask`: [`Reader`](../type-aliases/Reader.md)\<`E`, `E`\>; `asks`: [`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>; `chain`: (`r`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `B`\>; `local`: (`r`) => [`Reader`](../type-aliases/Reader.md)\<`E1`, `A`\>; `map`: (`r`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `B`\>; `of`: [`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>; `run`: (`r`) => `A`; `sequence`: [`Reader`](../type-aliases/Reader.md)\<`E`, `A`[]\>; `traverse`: (`arr`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `B`[]\>; \}
 
-Defined in: [adt/reader.ts:24](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/reader.ts#L24)
+Defined in: [adt/reader.ts:24](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/reader.ts#L24)
 
 Construct a Reader from a function `(env: E) => A`.
 
@@ -162,18 +162,28 @@ Point-free chain.
 
 ### local()
 
-> **local**\<`E`, `A`\>(`f`): (`r`) => [`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>
+> **local**\<`E1`, `E2`, `A`\>(`f`): (`r`) => [`Reader`](../type-aliases/Reader.md)\<`E1`, `A`\>
 
 Modify the environment for the duration of a Reader computation.
 
+Transforms environment from E1 to E2, allowing the Reader to work with
+a transformed environment.
+
 Equivalent to:
-   local : (env -> env) -> Reader env a -> Reader env a
+   local : (e1 -> e2) -> Reader e2 a -> Reader e1 a
+
+This is the CORRECTED version that allows transforming between different
+environment types.
 
 #### Type Parameters
 
-##### E
+##### E1
 
-`E`
+`E1`
+
+##### E2
+
+`E2`
 
 ##### A
 
@@ -183,26 +193,34 @@ Equivalent to:
 
 ##### f
 
-(`env`) => `E`
+(`env`) => `E2`
 
 #### Returns
 
-> (`r`): [`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>
+> (`r`): [`Reader`](../type-aliases/Reader.md)\<`E1`, `A`\>
 
 ##### Parameters
 
 ###### r
 
-[`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>
+[`Reader`](../type-aliases/Reader.md)\<`E2`, `A`\>
 
 ##### Returns
 
-[`Reader`](../type-aliases/Reader.md)\<`E`, `A`\>
+[`Reader`](../type-aliases/Reader.md)\<`E1`, `A`\>
 
 #### Example
 
 ```ts
-const withTestConfig = Reader.local(cfg => ({ ...cfg, test: true }));
+type Config = { dbUrl: string };
+type ExtendedConfig = Config & { debug: boolean };
+
+const readDb = Reader<Config, string>(env => env.dbUrl);
+const withDebug = Reader.local<ExtendedConfig, Config, string>(
+  env => ({ dbUrl: env.dbUrl })
+)(readDb);
+
+withDebug.run({ dbUrl: "localhost", debug: true }); // "localhost"
 ```
 
 ### map()

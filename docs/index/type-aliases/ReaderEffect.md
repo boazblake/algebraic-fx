@@ -8,7 +8,7 @@
 
 > **ReaderEffect**\<`E`\> = `object`
 
-Defined in: [core/types.ts:132](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L132)
+Defined in: [core/types.ts:132](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L132)
 
 ReaderEffect wraps Reader<Env, IO<void>>.
 
@@ -24,7 +24,7 @@ ReaderEffect wraps Reader<Env, IO<void>>.
 
 > **\_tag**: *typeof* [`ReaderEffectTag`](../variables/ReaderEffectTag.md)
 
-Defined in: [core/types.ts:133](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L133)
+Defined in: [core/types.ts:133](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L133)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [core/types.ts:133](https://github.com/boazblake/algebraic-fx/blob/b
 
 > **reader**: [`Reader`](Reader.md)\<`E`, [`IO`](IO.md)\<`void`\>\>
 
-Defined in: [core/types.ts:134](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L134)
+Defined in: [core/types.ts:134](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L134)

@@ -6,7 +6,7 @@
 
 # Interface: Effect\<Env, Msg\>
 
-Defined in: [core/types.ts:107](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L107)
+Defined in: [core/types.ts:107](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L107)
 
 Effect<Env, Msg>
 
@@ -41,7 +41,7 @@ message union type for the Program
 
 > **run**: (`env`, `dispatch`) => `void` \| `Promise`\<`void`\>
 
-Defined in: [core/types.ts:108](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/types.ts#L108)
+Defined in: [core/types.ts:108](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L108)
 
 #### Parameters
 

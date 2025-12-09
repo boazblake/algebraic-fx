@@ -8,13 +8,7 @@
 
 > **render**(`dom`, `vnodes`): `void`
 
-Defined in: [core/mithril-lite.ts:701](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/core/mithril-lite.ts#L701)
-
-Patch DOM tree under `root` using mithril-lite's virtual DOM diffing.
-
-- Supports keyed diffing (O(n log n)) with LIS algorithm
-- Supports SVG namespace transitions
-- Only minimal DOM updates performed
+Defined in: [core/mithril-lite.ts:688](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/mithril-lite.ts#L688)
 
 ## Parameters
 
@@ -25,8 +19,6 @@ Patch DOM tree under `root` using mithril-lite's virtual DOM diffing.
 ### vnodes
 
 `any`
-
-VNode or array of VNodes
 
 ## Returns
 

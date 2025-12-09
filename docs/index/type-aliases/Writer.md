@@ -8,7 +8,7 @@
 
 > **Writer**\<`W`, `A`\> = `object`
 
-Defined in: [adt/writer.ts:11](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/writer.ts#L11)
+Defined in: [adt/writer.ts:14](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/writer.ts#L14)
 
 Writer<W, A> accumulates a monoidal log W alongside a computed value A.
 
@@ -18,7 +18,7 @@ Writer<W, A> accumulates a monoidal log W alongside a computed value A.
 
 `W`
 
-Log type
+Log type (must form a monoid with empty and combine)
 
 ### A
 
@@ -28,19 +28,53 @@ Result value type
 
 ## Properties
 
+### \_combine()
+
+> **\_combine**: (`w1`, `w2`) => `W`
+
+Defined in: [adt/writer.ts:30](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/writer.ts#L30)
+
+Access the combine function for this Writer instance.
+
+#### Parameters
+
+##### w1
+
+`W`
+
+##### w2
+
+`W`
+
+#### Returns
+
+`W`
+
+***
+
+### \_empty
+
+> **\_empty**: `W`
+
+Defined in: [adt/writer.ts:33](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/writer.ts#L33)
+
+Access the empty value for this Writer instance.
+
+***
+
 ### \[WriterBrand\]
 
 > `readonly` **\[WriterBrand\]**: `true`
 
-Defined in: [adt/writer.ts:12](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/writer.ts#L12)
+Defined in: [adt/writer.ts:15](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/writer.ts#L15)
 
 ***
 
 ### ap()
 
-> **ap**: \<`B`\>(`fb`) => `Writer`\<`W`, `B`\>
+> **ap**: \<`B`\>(`wf`) => `Writer`\<`W`, `B`\>
 
-Defined in: [adt/writer.ts:24](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/writer.ts#L24)
+Defined in: [adt/writer.ts:27](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/writer.ts#L27)
 
 Applicative ap: apply logged function to logged value.
 
@@ -52,7 +86,7 @@ Applicative ap: apply logged function to logged value.
 
 #### Parameters
 
-##### fb
+##### wf
 
 `Writer`\<`W`, (`a`) => `B`\>
 
@@ -66,7 +100,7 @@ Applicative ap: apply logged function to logged value.
 
 > **chain**: \<`B`\>(`f`) => `Writer`\<`W`, `B`\>
 
-Defined in: [adt/writer.ts:21](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/writer.ts#L21)
+Defined in: [adt/writer.ts:24](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/writer.ts#L24)
 
 Monad chain: sequence computations, combining logs.
 
@@ -92,7 +126,7 @@ Monad chain: sequence computations, combining logs.
 
 > **map**: \<`B`\>(`f`) => `Writer`\<`W`, `B`\>
 
-Defined in: [adt/writer.ts:18](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/writer.ts#L18)
+Defined in: [adt/writer.ts:21](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/writer.ts#L21)
 
 Functor map: transform the result value only.
 
@@ -118,7 +152,7 @@ Functor map: transform the result value only.
 
 > **run**: () => \[`A`, `W`\]
 
-Defined in: [adt/writer.ts:15](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/writer.ts#L15)
+Defined in: [adt/writer.ts:18](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/writer.ts#L18)
 
 Execute computation: returns `[value, log]`.
 

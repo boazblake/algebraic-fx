@@ -8,7 +8,7 @@
 
 > **Maybe**: `object`
 
-Defined in: [adt/maybe.ts:28](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/maybe.ts#L28)
+Defined in: [adt/maybe.ts:28](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/maybe.ts#L28)
 
 Unified module-style export containing all Maybe functions.
 
@@ -274,7 +274,7 @@ Extract the value or compute the default lazily.
 
 ### isJust()
 
-> **isJust**: \<`A`\>(`ma`) => `ma is Maybe<A>`
+> **isJust**: \<`A`\>(`ma`) => `ma is Just<A>`
 
 Type guard: detect Just.
 
@@ -292,11 +292,11 @@ Type guard: detect Just.
 
 #### Returns
 
-`ma is Maybe<A>`
+`ma is Just<A>`
 
 ### isNothing()
 
-> **isNothing**: \<`A`\>(`ma`) => `ma is Maybe<never>`
+> **isNothing**: \<`A`\>(`ma`) => `ma is Nothing`
 
 Type guard: detect Nothing.
 
@@ -314,7 +314,7 @@ Type guard: detect Nothing.
 
 #### Returns
 
-`ma is Maybe<never>`
+`ma is Nothing`
 
 ### Just()
 

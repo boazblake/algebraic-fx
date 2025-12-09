@@ -8,7 +8,7 @@
 
 > **State**\<`S`, `A`\> = `object`
 
-Defined in: [adt/state.ts:25](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/state.ts#L25)
+Defined in: [adt/state.ts:25](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/state.ts#L25)
 
 The State monad represents a pure state transition:
 
@@ -44,7 +44,7 @@ Result value type
 
 > `readonly` **\[StateBrand\]**: `true`
 
-Defined in: [adt/state.ts:26](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/state.ts#L26)
+Defined in: [adt/state.ts:26](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/state.ts#L26)
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: [adt/state.ts:26](https://github.com/boazblake/algebraic-fx/blob/b03
 
 > **ap**: \<`B`\>(`fb`) => `State`\<`S`, `B`\>
 
-Defined in: [adt/state.ts:44](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/state.ts#L44)
+Defined in: [adt/state.ts:44](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/state.ts#L44)
 
 Applicative apply:
 Apply a stateful function to a stateful value.
@@ -79,7 +79,7 @@ Apply a stateful function to a stateful value.
 
 > **chain**: \<`B`\>(`f`) => `State`\<`S`, `B`\>
 
-Defined in: [adt/state.ts:38](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/state.ts#L38)
+Defined in: [adt/state.ts:38](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/state.ts#L38)
 
 Monad chain / flatMap:
 Feed the result of this state transition into the next stateful computation.
@@ -106,7 +106,7 @@ Feed the result of this state transition into the next stateful computation.
 
 > **map**: \<`B`\>(`f`) => `State`\<`S`, `B`\>
 
-Defined in: [adt/state.ts:32](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/state.ts#L32)
+Defined in: [adt/state.ts:32](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/state.ts#L32)
 
 Functor map: transform the result value, leaving state threading untouched.
 
@@ -132,7 +132,7 @@ Functor map: transform the result value, leaving state threading untouched.
 
 > **run**: (`s`) => \[`A`, `S`\]
 
-Defined in: [adt/state.ts:29](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/state.ts#L29)
+Defined in: [adt/state.ts:29](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/state.ts#L29)
 
 Execute the stateful computation starting from initial state `s`.
 

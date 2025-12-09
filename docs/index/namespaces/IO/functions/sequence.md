@@ -8,7 +8,7 @@
 
 > **sequence**\<`A`\>(`ios`): [`IO`](../../../type-aliases/IO.md)\<`A`[]\>
 
-Defined in: [adt/io.ts:100](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/io.ts#L100)
+Defined in: [adt/io.ts:100](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/io.ts#L100)
 
 Sequence an array of IO computations into a single IO that,
 when run, returns an array of all results.

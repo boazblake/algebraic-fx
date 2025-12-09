@@ -14,7 +14,6 @@
 - [State](namespaces/State/README.md)
 - [Stream](namespaces/Stream/README.md)
 - [Task](namespaces/Task/README.md)
-- [Writer](namespaces/Writer/README.md)
 
 ## Interfaces
 

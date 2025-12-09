@@ -22,6 +22,7 @@ Underlying async function returning `Either<E, A>`
 - [chain](functions/chain.md)
 - [delay](functions/delay.md)
 - [fold](functions/fold.md)
+- [fromAbortable](functions/fromAbortable.md)
 - [fromEither](functions/fromEither.md)
 - [getOrElse](functions/getOrElse.md)
 - [map](functions/map.md)

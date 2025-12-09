@@ -8,7 +8,7 @@
 
 > **tryCatchK**\<`E`, `A`\>(`f`, `onError`): [`Task`](../../../type-aliases/Task.md)\<`E`, `A`\>
 
-Defined in: [adt/task.ts:162](https://github.com/boazblake/algebraic-fx/blob/b036f4a8df41f3b3c19947d5c6ee4f36e81c2dfc/src/adt/task.ts#L162)
+Defined in: [adt/task.ts:172](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/task.ts#L172)
 
 tryCatch with custom error mapping.
 
