@@ -1,10 +1,5 @@
-import { m, render as mithrilRender } from "algebraic-fx"; // adjust path if needed
+import { render, type Renderer } from "algebraic-fx";
 
-/**
- * Renderer compatible with algebraic-fx's renderApp.
- */
-const render = (root: Element, vnode: any): void => {
-  mithrilRender(root as HTMLElement, vnode);
+export const renderer: Renderer = (root, vnode) => {
+  render(root as HTMLElement, vnode);
 };
-
-export { m, render };

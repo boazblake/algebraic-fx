@@ -1,17 +1,18 @@
-import { IO } from "algebraic-fx";
 import { renderApp } from "algebraic-fx";
-import { browserEnv } from "@core/env";
-import { render } from "@core/renderer";
-import { program } from "./main/index";
+import { env } from "./core/env";
+import { renderer } from "./core/renderer";
+import { init, update, view, type Model, type Msg } from "./app/program";
 
-const env = browserEnv();
+// algebraic-fx expects a Program-like object
+export const program = {
+  init,
+  update,
+  view,
+};
 
-const rootIO = IO(() => {
-  const el = document.getElementById("app");
-  if (!el) {
-    throw new Error("Root element #app not found");
-  }
-  return el;
-});
+const root = document.getElementById("app");
+if (!root) {
+  throw new Error("#app not found");
+}
 
-renderApp(render, env)(rootIO, program);
+renderApp(root, program, env, renderer);

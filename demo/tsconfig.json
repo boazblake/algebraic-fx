@@ -9,6 +9,7 @@
     "moduleResolution": "bundler",
     "strict": true,
     "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
     // Add these for perfect editor + build alignment
     "baseUrl": ".",
     "paths": {
