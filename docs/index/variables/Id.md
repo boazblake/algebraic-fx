@@ -8,7 +8,7 @@
 
 > **Id**: \{\<`A`\>(`a`): [`Id`](../type-aliases/Id.md)\<`A`\>; `ap`: (`fa`) => [`Id`](../type-aliases/Id.md)\<`B`\>; `chain`: (`id`) => [`Id`](../type-aliases/Id.md)\<`B`\>; `extract`: `A`; `map`: (`id`) => [`Id`](../type-aliases/Id.md)\<`B`\>; `of`: [`Id`](../type-aliases/Id.md)\<`A`\>; `run`: `A`; \}
 
-Defined in: [adt/id.ts:22](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/id.ts#L22)
+Defined in: [adt/id.ts:22](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/id.ts#L22)
 
 Identity constructor.
 

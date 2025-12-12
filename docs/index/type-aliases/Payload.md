@@ -8,9 +8,9 @@
 
 > **Payload**\<`T`, `M`\> = `object`
 
-Defined in: [core/types.ts:81](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L81)
+Defined in: [core/types.ts:100](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L100)
 
-Canonical message shape.
+Canonical tagged-message format for algebraic-fx programs.
 
 ## Type Parameters
 
@@ -18,21 +18,23 @@ Canonical message shape.
 
 `T` *extends* `string`
 
-string literal type tag, recommend namespacing: "Holdings.Add"
+A string literal tag (ex: "Holdings.Add").
 
 ### M
 
 `M` *extends* `object` = \{ \}
 
-payload record for this message, defaults to {}
+Message payload (default `{}`).
 
-Example:
+Messages follow a discriminated-union style:
 
-  type Msg =
-    | Payload<"Holdings.Add">
-    | Payload<"Holdings.SetTicker", { value: string }>;
+```ts
+type Msg =
+  | Payload<"Holdings.Add">
+  | Payload<"Holdings.SetTicker", { value: string }>;
 
-  dispatch({ type: "Holdings.SetTicker", msg: { value: "AAPL" } });
+dispatch({ type: "Holdings.SetTicker", msg: { value: "AAPL" } });
+```
 
 ## Properties
 
@@ -40,7 +42,7 @@ Example:
 
 > **msg**: `M`
 
-Defined in: [core/types.ts:83](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L83)
+Defined in: [core/types.ts:102](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L102)
 
 ***
 
@@ -48,4 +50,4 @@ Defined in: [core/types.ts:83](https://github.com/boazblake/algebraic-fx/blob/9d
 
 > **type**: `T`
 
-Defined in: [core/types.ts:82](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L82)
+Defined in: [core/types.ts:101](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L101)

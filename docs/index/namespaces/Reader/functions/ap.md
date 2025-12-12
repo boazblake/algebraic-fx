@@ -8,7 +8,7 @@
 
 > **ap**\<`E`, `A`, `B`\>(`fb`): (`fa`) => [`Reader`](../../../type-aliases/Reader.md)\<`E`, `B`\>
 
-Defined in: [adt/reader.ts:96](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/reader.ts#L96)
+Defined in: [adt/reader.ts:96](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L96)
 
 Point-free applicative apply.
 

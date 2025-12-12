@@ -8,7 +8,7 @@
 
 > **renderApp**\<`M`, `Msg`, `Env`\>(`root`, `program`, `env`, `renderer`): `void`
 
-Defined in: [core/render.ts:128](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/render.ts#L128)
+Defined in: [core/render.ts:128](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/render.ts#L128)
 
 Connect Program<M,Msg,Env> to a renderer and environment.
 

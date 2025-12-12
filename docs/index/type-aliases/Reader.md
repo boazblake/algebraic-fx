@@ -8,7 +8,7 @@
 
 > **Reader**\<`E`, `A`\> = `object`
 
-Defined in: [adt/reader.ts:24](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/reader.ts#L24)
+Defined in: [adt/reader.ts:24](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L24)
 
 The Reader monad (also known as the environment monad).
 
@@ -43,7 +43,7 @@ The produced value
 
 > `readonly` **\[ReaderBrand\]**: `true`
 
-Defined in: [adt/reader.ts:25](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/reader.ts#L25)
+Defined in: [adt/reader.ts:25](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L25)
 
 ***
 
@@ -51,7 +51,7 @@ Defined in: [adt/reader.ts:25](https://github.com/boazblake/algebraic-fx/blob/9d
 
 > **ap**: \<`B`\>(`fb`) => `Reader`\<`E`, `B`\>
 
-Defined in: [adt/reader.ts:44](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/reader.ts#L44)
+Defined in: [adt/reader.ts:44](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L44)
 
 Applicative apply:
 Apply an environment-dependent function to an environment-dependent value.
@@ -78,7 +78,7 @@ Apply an environment-dependent function to an environment-dependent value.
 
 > **chain**: \<`B`\>(`f`) => `Reader`\<`E`, `B`\>
 
-Defined in: [adt/reader.ts:38](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/reader.ts#L38)
+Defined in: [adt/reader.ts:38](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L38)
 
 Monad chain / flatMap:
 Feed the result of this Reader into another Reader-producing function,
@@ -106,7 +106,7 @@ using the same environment.
 
 > **map**: \<`B`\>(`f`) => `Reader`\<`E`, `B`\>
 
-Defined in: [adt/reader.ts:31](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/reader.ts#L31)
+Defined in: [adt/reader.ts:31](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L31)
 
 Functor map: transform the output value while leaving environment access untouched.
 
@@ -132,7 +132,7 @@ Functor map: transform the output value while leaving environment access untouch
 
 > **run**: (`env`) => `A`
 
-Defined in: [adt/reader.ts:28](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/reader.ts#L28)
+Defined in: [adt/reader.ts:28](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L28)
 
 Execute the computation using the provided environment.
 

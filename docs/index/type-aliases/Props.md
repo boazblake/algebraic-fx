@@ -8,15 +8,19 @@
 
 > **Props** = `Record`\<`string`, `any`\> & `object`
 
-Defined in: [core/types.ts:35](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L35)
+Defined in: [core/types.ts:38](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L38)
 
-Attributes and event handlers for VNode props.
+Virtual DOM property bag.
+
+These include HTML/SVG attributes, event listeners, and lifecycle hooks.
 
 ## Type Declaration
 
 ### oncreate()?
 
 > `optional` **oncreate**: (`el`) => `void`
+
+Called once when the element is created.
 
 #### Parameters
 
@@ -32,6 +36,8 @@ Attributes and event handlers for VNode props.
 
 > `optional` **onremove**: (`el`) => `void`
 
+Called before the element is removed from the DOM.
+
 #### Parameters
 
 ##### el
@@ -46,15 +52,21 @@ Attributes and event handlers for VNode props.
 
 > `optional` **onupdate**: (`el`, `oldProps`) => `void`
 
+Called on each patch whenever props change.
+
 #### Parameters
 
 ##### el
 
 `Element`
 
+the DOM element
+
 ##### oldProps
 
 `Props`
+
+previous props before the update
 
 #### Returns
 

@@ -8,7 +8,7 @@
 
 > **of**\<`S`, `A`\>(`a`): [`State`](../../../type-aliases/State.md)\<`S`, `A`\>
 
-Defined in: [adt/state.ts:79](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/state.ts#L79)
+Defined in: [adt/state.ts:79](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/state.ts#L79)
 
 Lift a pure value into State, leaving the state unchanged.
 

@@ -8,7 +8,7 @@
 
 > **zip**\<`A`, `B`\>(`sa`, `sb`): [`Stream`](../../../type-aliases/Stream.md)\<\[`A`, `B`\]\>
 
-Defined in: [adt/stream.ts:378](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/stream.ts#L378)
+Defined in: [adt/stream.ts:378](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/stream.ts#L378)
 
 Zip two streams pairwise.
 Emits only when both queues have available events.

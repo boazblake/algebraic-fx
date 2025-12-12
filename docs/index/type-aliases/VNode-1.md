@@ -8,9 +8,15 @@
 
 > **VNode** = `object`
 
-Defined in: [core/types.ts:50](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L50)
+Defined in: [core/types.ts:67](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L67)
 
-Virtual DOM node.
+The virtual DOM node shape recognized by the algebraic-fx renderer.
+
+- `tag`: HTML tag name or "#" for text nodes
+- `children`: optional list of child nodes
+- `props`: optional attributes, event handlers, lifecycle hooks
+- `key`: optional identity for keyed diffing
+- `dom`: real DOM element reference (populated by renderer)
 
 ## Properties
 
@@ -18,9 +24,7 @@ Virtual DOM node.
 
 > **children**: [`VChild`](VChild.md)[] \| `null`
 
-Defined in: [core/types.ts:53](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L53)
-
-child vnodes
+Defined in: [core/types.ts:70](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L70)
 
 ***
 
@@ -28,9 +32,7 @@ child vnodes
 
 > `optional` **dom**: `Node` \| `null`
 
-Defined in: [core/types.ts:55](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L55)
-
-real DOM node reference (set by renderer)
+Defined in: [core/types.ts:72](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L72)
 
 ***
 
@@ -38,9 +40,7 @@ real DOM node reference (set by renderer)
 
 > `optional` **key**: `string` \| `number`
 
-Defined in: [core/types.ts:54](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L54)
-
-stable identity for keyed diffing
+Defined in: [core/types.ts:71](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L71)
 
 ***
 
@@ -48,9 +48,7 @@ stable identity for keyed diffing
 
 > `optional` **props**: [`Props`](Props.md) \| `null`
 
-Defined in: [core/types.ts:52](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L52)
-
-attributes / props
+Defined in: [core/types.ts:69](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L69)
 
 ***
 
@@ -58,6 +56,4 @@ attributes / props
 
 > **tag**: `string`
 
-Defined in: [core/types.ts:51](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L51)
-
-tag name or "#" for text node
+Defined in: [core/types.ts:68](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L68)

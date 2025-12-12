@@ -8,7 +8,7 @@
 
 > **Stream**: \{\<`A`\>(`subscribe`): [`Stream`](../type-aliases/Stream.md)\<`A`\>; `combineLatest`: [`Stream`](../type-aliases/Stream.md)\<\[`A`, `B`\]\>; `concat`: [`Stream`](../type-aliases/Stream.md)\<`A`\>; `debounce`: (`s`) => [`Stream`](../type-aliases/Stream.md)\<`A`\>; `distinctUntilChanged`: (`s`) => [`Stream`](../type-aliases/Stream.md)\<`A`\>; `empty`: [`Stream`](../type-aliases/Stream.md)\<`A`\>; `fromArray`: [`Stream`](../type-aliases/Stream.md)\<`A`\>; `fromEvent`: [`Stream`](../type-aliases/Stream.md)\<`E`\>; `fromPromise`: [`Stream`](../type-aliases/Stream.md)\<`A`\>; `interval`: [`Stream`](../type-aliases/Stream.md)\<`number`\>; `merge`: [`Stream`](../type-aliases/Stream.md)\<`A`\>; `never`: [`Stream`](../type-aliases/Stream.md)\<`A`\>; `of`: [`Stream`](../type-aliases/Stream.md)\<`A`\>; `periodic`: [`Stream`](../type-aliases/Stream.md)\<`void`\>; `throttle`: (`s`) => [`Stream`](../type-aliases/Stream.md)\<`A`\>; `zip`: [`Stream`](../type-aliases/Stream.md)\<\[`A`, `B`\]\>; \}
 
-Defined in: [adt/stream.ts:41](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/stream.ts#L41)
+Defined in: [adt/stream.ts:41](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/stream.ts#L41)
 
 Stream constructor.
 

@@ -8,7 +8,7 @@
 
 > **WSDefaultError** = `object`
 
-Defined in: [helpers/ws-task.ts:13](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/helpers/ws-task.ts#L13)
+Defined in: [helpers/ws-task.ts:13](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/helpers/ws-task.ts#L13)
 
 WebSocket connection as a Task.
 
@@ -23,7 +23,7 @@ WebSocket connection as a Task.
 
 > `optional` **code**: `number`
 
-Defined in: [helpers/ws-task.ts:15](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/helpers/ws-task.ts#L15)
+Defined in: [helpers/ws-task.ts:15](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/helpers/ws-task.ts#L15)
 
 ***
 
@@ -31,4 +31,4 @@ Defined in: [helpers/ws-task.ts:15](https://github.com/boazblake/algebraic-fx/bl
 
 > **message**: `string`
 
-Defined in: [helpers/ws-task.ts:14](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/helpers/ws-task.ts#L14)
+Defined in: [helpers/ws-task.ts:14](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/helpers/ws-task.ts#L14)

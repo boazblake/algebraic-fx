@@ -20,6 +20,12 @@ Re-exports [Effect](../index/interfaces/Effect.md)
 
 ***
 
+### fx
+
+Re-exports [fx](../index/functions/fx.md)
+
+***
+
 ### ioEffect
 
 Re-exports [ioEffect](../index/functions/ioEffect.md)

@@ -8,7 +8,7 @@
 
 > **DefaultHttpError** = `object`
 
-Defined in: [helpers/http-task.ts:29](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/helpers/http-task.ts#L29)
+Defined in: [helpers/http-task.ts:29](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/helpers/http-task.ts#L29)
 
 Default error shape for HTTP failures.
 
@@ -18,7 +18,7 @@ Default error shape for HTTP failures.
 
 > **message**: `string`
 
-Defined in: [helpers/http-task.ts:31](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/helpers/http-task.ts#L31)
+Defined in: [helpers/http-task.ts:31](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/helpers/http-task.ts#L31)
 
 ***
 
@@ -26,4 +26,4 @@ Defined in: [helpers/http-task.ts:31](https://github.com/boazblake/algebraic-fx/
 
 > **status**: `number`
 
-Defined in: [helpers/http-task.ts:30](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/helpers/http-task.ts#L30)
+Defined in: [helpers/http-task.ts:30](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/helpers/http-task.ts#L30)

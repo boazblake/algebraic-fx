@@ -8,6 +8,6 @@
 
 > `const` **IOEffectTag**: *typeof* `IOEffectTag`
 
-Defined in: [core/types.ts:114](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L114)
+Defined in: [core/types.ts:184](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L184)
 
-Tagged IO wrapper for scheduling IO<void> as a runtime effect.
+Unique tag for an IOEffect.

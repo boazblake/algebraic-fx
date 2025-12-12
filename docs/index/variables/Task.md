@@ -8,7 +8,7 @@
 
 > **Task**: \{\<`E`, `A`\>(`run0`): [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `all`: [`Task`](../type-aliases/Task.md)\<`E`, `A`[]\>; `ap`: (`fa`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`\>; `bimap`: (`t`) => [`Task`](../type-aliases/Task.md)\<`E2`, `B`\>; `chain`: (`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`\>; `delay`: \<`E`, `A`\>(`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `fold`: (`t`) => `Promise`\<`B`\>; `fromAbortable`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `fromEither`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `getOrElse`: (`t`) => `Promise`\<`A`\>; `map`: (`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`\>; `mapError`: \<`A`\>(`t`) => [`Task`](../type-aliases/Task.md)\<`E2`, `A`\>; `of`: [`Task`](../type-aliases/Task.md)\<`never`, `A`\>; `race`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `reject`: [`Task`](../type-aliases/Task.md)\<`E`, `never`\>; `sequence`: [`Task`](../type-aliases/Task.md)\<`E`, `A`[]\>; `timeout`: \<`A`\>(`t`) => [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; `toPromise`: `Promise`\<`A`\>; `traverse`: (`arr`) => [`Task`](../type-aliases/Task.md)\<`E`, `B`[]\>; `tryCatch`: [`Task`](../type-aliases/Task.md)\<`unknown`, `A`\>; `tryCatchK`: [`Task`](../type-aliases/Task.md)\<`E`, `A`\>; \}
 
-Defined in: [adt/task.ts:24](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/task.ts#L24)
+Defined in: [adt/task.ts:24](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/task.ts#L24)
 
 Construct a Task given a function that accepts an optional AbortSignal.
 

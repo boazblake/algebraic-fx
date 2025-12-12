@@ -67,6 +67,7 @@
 
 ## Functions
 
+- [fx](functions/fx.md)
 - [httpTask](functions/httpTask.md)
 - [ioEffect](functions/ioEffect.md)
 - [m](functions/m.md)

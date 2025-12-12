@@ -8,7 +8,7 @@
 
 > **Either**\<`L`, `R`\> = `Left`\<`L`\> \| `Right`\<`R`\> & `object`
 
-Defined in: [adt/either.ts:40](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/either.ts#L40)
+Defined in: [adt/either.ts:40](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/either.ts#L40)
 
 Either<L, R> — Sum type representing success or failure.
 

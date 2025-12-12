@@ -6,20 +6,23 @@
 
 # Interface: Effect\<Env, Msg\>
 
-Defined in: [core/types.ts:107](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L107)
+Defined in: [core/types.ts:126](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L126)
 
-Effect<Env, Msg>
+Effects describe side-effects in algebraic-fx.
 
-The primary abstraction for side effects in algebraic-fx.
+They can:
+  - read from Env (browser APIs, storage, WebSocket, etc.)
+  - perform synchronous or async work
+  - optionally emit new Msg values via dispatch
+  - optionally return a cleanup function
 
-Effect responsibilities:
-  - read from Env (HTTP, storage, etc.)
-  - perform asynchronous work
-  - emit follow-up Msg values via dispatch
-
-The runtime calls:
+The runtime interpreter invokes:
 
   effect.run(env, dispatch)
+
+where:
+  - `env` is the environment given to `renderApp`
+  - `dispatch` sends follow-up messages into the Program
 
 ## Type Parameters
 
@@ -27,21 +30,17 @@ The runtime calls:
 
 `Env` = `unknown`
 
-environment type
-
 ### Msg
 
 `Msg` = `unknown`
-
-message union type for the Program
 
 ## Properties
 
 ### run()
 
-> **run**: (`env`, `dispatch`) => `void` \| `Promise`\<`void`\>
+> **run**: (`env`, `dispatch`) => `void` \| `Promise`\<`void`\> \| `Promise`\<() => `void`\> \| () => `void`
 
-Defined in: [core/types.ts:108](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L108)
+Defined in: [core/types.ts:127](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L127)
 
 #### Parameters
 
@@ -55,4 +54,4 @@ Defined in: [core/types.ts:108](https://github.com/boazblake/algebraic-fx/blob/9
 
 #### Returns
 
-`void` \| `Promise`\<`void`\>
+`void` \| `Promise`\<`void`\> \| `Promise`\<() => `void`\> \| () => `void`

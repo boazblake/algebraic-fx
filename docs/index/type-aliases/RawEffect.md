@@ -8,18 +8,19 @@
 
 > **RawEffect**\<`E`\> = [`IO`](IO.md)\<`void`\> \| [`Reader`](Reader.md)\<`E`, [`IO`](IO.md)\<`void`\>\> \| [`Effect`](../interfaces/Effect.md)\<`E`, `any`\> \| [`IOEffect`](IOEffect.md) \| [`ReaderEffect`](ReaderEffect.md)\<`E`\>
 
-Defined in: [core/types.ts:149](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L149)
+Defined in: [core/types.ts:234](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L234)
 
-RawEffect<E>
+Comprehensive union of all effect representations understood by the runtime.
 
-Normalized effect representation understood by the runtime:
-  - IO<void>
-  - Reader<E, IO<void>>
-  - Effect<Env, Msg>
-  - IOEffect
-  - ReaderEffect<E>
+These forms allow a wide range of effect expressions:
 
-Env is threaded by the runtime, Msg is program-specific.
+  - `IO<void>`                   — simple synchronous actions
+  - `Reader<E, IO<void>>`       — environment-dependent IO
+  - `Effect<Env, Msg>`          — full effects with `env` + `dispatch`
+  - `IOEffect`                  — tagged IO wrappers
+  - `ReaderEffect<E>`           — tagged Reader wrappers
+
+Env is threaded automatically by the runtime. Msg is program-specific.
 
 ## Type Parameters
 

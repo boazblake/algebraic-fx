@@ -51,7 +51,8 @@
     "lint:fix": "oxlint --fix . && eslint --fix . --ext .ts,.js",
     "format": "prettier --write .",
     "prepublishOnly": "npm run build",
-    "prepack": "npm run build",
+    "prepack": "npm run pack",
+    "prepare": "npm run bench; npm run docs;",
     "docs": "typedoc",
     "test": "npx vitest --watch",
     "bench": "npm run build && node benchmarks/runner.js"

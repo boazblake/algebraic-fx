@@ -8,7 +8,7 @@
 
 > **toPromise**\<`E`, `A`\>(`t`): `Promise`\<`A`\>
 
-Defined in: [adt/task.ts:365](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/task.ts#L365)
+Defined in: [adt/task.ts:365](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/task.ts#L365)
 
 Convert a Task into a Promise that throws on Left.
 

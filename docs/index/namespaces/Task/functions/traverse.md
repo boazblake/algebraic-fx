@@ -8,7 +8,7 @@
 
 > **traverse**\<`E`, `A`, `B`\>(`f`): (`arr`) => [`Task`](../../../type-aliases/Task.md)\<`E`, `B`[]\>
 
-Defined in: [adt/task.ts:315](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/task.ts#L315)
+Defined in: [adt/task.ts:315](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/task.ts#L315)
 
 Traverse an array by mapping each element to a Task and sequencing.
 

@@ -8,7 +8,7 @@
 
 > **traverse**\<`A`, `B`\>(`f`): (`arr`) => [`IO`](../../../type-aliases/IO.md)\<`B`[]\>
 
-Defined in: [adt/io.ts:106](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/io.ts#L106)
+Defined in: [adt/io.ts:106](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/io.ts#L106)
 
 Traverse an array using a function returning IO.
 Equivalent to: IO.sequence(arr.map(f))

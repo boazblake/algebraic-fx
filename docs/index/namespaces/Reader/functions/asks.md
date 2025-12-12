@@ -8,7 +8,7 @@
 
 > **asks**\<`E`, `A`\>(`f`): [`Reader`](../../../type-aliases/Reader.md)\<`E`, `A`\>
 
-Defined in: [adt/reader.ts:75](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/reader.ts#L75)
+Defined in: [adt/reader.ts:75](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L75)
 
 Extract a value from the environment using a projection function.
 

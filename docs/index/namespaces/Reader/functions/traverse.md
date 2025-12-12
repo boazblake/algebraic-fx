@@ -8,7 +8,7 @@
 
 > **traverse**\<`E`, `A`, `B`\>(`f`): (`arr`) => [`Reader`](../../../type-aliases/Reader.md)\<`E`, `B`[]\>
 
-Defined in: [adt/reader.ts:152](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/reader.ts#L152)
+Defined in: [adt/reader.ts:152](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L152)
 
 Traverse an array using a Reader-producing function.
 

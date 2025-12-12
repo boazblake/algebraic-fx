@@ -8,18 +8,26 @@
 
 > **Program**\<`M`, `Msg`, `Env`\> = `object`
 
-Defined in: [core/types.ts:176](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L176)
+Defined in: [core/types.ts:269](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L269)
 
-Pure functional application description.
+Pure program description for algebraic-fx.
 
-init:
-  IO<{ model; effects }>
+A Program consists of:
 
-update:
-  (msg, model, dispatch) => { model; effects }
+  - `init`: IO returning `{ model, effects }`
+  - `update`: pure state transition plus follow-up effects
+  - `view`: pure virtual DOM renderer
 
-view:
-  (model, dispatch) => vnode
+The runtime calls:
+
+  renderApp(root, program, env, renderer)
+
+which:
+  - executes `init`
+  - interprets returned effects
+  - renders the initial VNode tree
+  - listens for dispatched messages
+  - runs update loops and effects
 
 ## Type Parameters
 
@@ -39,7 +47,7 @@ message union type
 
 `Env`
 
-environment type used by Reader and Effect
+environment threaded through RawEffects
 
 ## Properties
 
@@ -47,7 +55,7 @@ environment type used by Reader and Effect
 
 > **init**: [`IO`](IO.md)\<\{ `effects`: [`RawEffect`](RawEffect.md)\<`Env`\>[]; `model`: `M`; \}\>
 
-Defined in: [core/types.ts:177](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L177)
+Defined in: [core/types.ts:270](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L270)
 
 ***
 
@@ -55,7 +63,7 @@ Defined in: [core/types.ts:177](https://github.com/boazblake/algebraic-fx/blob/9
 
 > **update**: (`msg`, `model`, `dispatch`) => `object`
 
-Defined in: [core/types.ts:178](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L178)
+Defined in: [core/types.ts:272](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L272)
 
 #### Parameters
 
@@ -89,7 +97,7 @@ Defined in: [core/types.ts:178](https://github.com/boazblake/algebraic-fx/blob/9
 
 > **view**: (`model`, `dispatch`) => [`VChild`](VChild.md) \| [`VChild`](VChild.md)[]
 
-Defined in: [core/types.ts:183](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L183)
+Defined in: [core/types.ts:278](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L278)
 
 #### Parameters
 

@@ -8,7 +8,7 @@
 
 > **combineLatest**\<`A`, `B`\>(`sa`, `sb`): [`Stream`](../../../type-aliases/Stream.md)\<\[`A`, `B`\]\>
 
-Defined in: [adt/stream.ts:337](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/stream.ts#L337)
+Defined in: [adt/stream.ts:337](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/stream.ts#L337)
 
 Combine latest values from two streams.
 Emits whenever either stream updates, but only after both have emitted at least once.

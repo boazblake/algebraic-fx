@@ -3,13 +3,16 @@
  *
  * Core type definitions for algebraic-fx programs, effects, and virtual DOM.
  *
- * Defines:
- *  - VNode / VChild / Props
- *  - Dispatch
- *  - Payload<T, M>
- *  - Effect<Env, Msg>
- *  - IOEffect / ReaderEffect / RawEffect<E>
- *  - Program<M, Msg, Env>
+ * This module defines the foundational building blocks for the
+ * algebraic-fx runtime:
+ *
+ *  - VNode / VChild / Props     — Virtual DOM representation
+ *  - Dispatch                   — Message dispatcher type
+ *  - Payload<T, M>              — Canonical message shape
+ *  - Effect<Env, Msg>           — Primary effect abstraction
+ *  - IOEffect / ReaderEffect    — Tagged effect wrappers
+ *  - RawEffect<E>               — Union of all valid effect forms
+ *  - Program<M, Msg, Env>       — Pure application description
  */
 
 import type { IO } from "../adt/io.js";
@@ -20,32 +23,46 @@ import type { Reader } from "../adt/reader.js";
  * ==========================================================================*/
 
 /**
- * Union of all possible VNode child types.
- *
- * Children may be:
- *   - VNode
- *   - string / number
- *   - boolean / null / undefined (ignored)
+ * A VNode child may be:
+ *   - A VNode
+ *   - A primitive value (string, number)
+ *   - A nullable value (ignored by the renderer)
  */
 export type VChild = VNode | string | number | boolean | null | undefined;
 
 /**
- * Attributes and event handlers for VNode props.
+ * Virtual DOM property bag.
+ *
+ * These include HTML/SVG attributes, event listeners, and lifecycle hooks.
  */
 export type Props = Record<string, any> & {
+  /**
+   * Called once when the element is created.
+   */
   oncreate?: (el: Element) => void;
+
+  /**
+   * Called on each patch whenever props change.
+   *
+   * @param el       the DOM element
+   * @param oldProps previous props before the update
+   */
   onupdate?: (el: Element, oldProps: Props) => void;
+
+  /**
+   * Called before the element is removed from the DOM.
+   */
   onremove?: (el: Element) => void;
 };
 
 /**
- * Virtual DOM node.
+ * The virtual DOM node shape recognized by the algebraic-fx renderer.
  *
- * @property tag      tag name or "#" for text node
- * @property props    attributes / props
- * @property children child vnodes
- * @property key      stable identity for keyed diffing
- * @property dom      real DOM node reference (set by renderer)
+ * - `tag`: HTML tag name or "#" for text nodes
+ * - `children`: optional list of child nodes
+ * - `props`: optional attributes, event handlers, lifecycle hooks
+ * - `key`: optional identity for keyed diffing
+ * - `dom`: real DOM element reference (populated by renderer)
  */
 export type VNode = {
   tag: string;
@@ -60,23 +77,25 @@ export type VNode = {
  * ==========================================================================*/
 
 /**
- * Dispatch function for sending messages into Program.update.
+ * Dispatch function type for sending messages into `Program.update`.
  */
 export type Dispatch<P> = (payload: P) => void;
 
 /**
- * Canonical message shape.
+ * Canonical tagged-message format for algebraic-fx programs.
  *
- * @typeParam T   string literal type tag, recommend namespacing: "Holdings.Add"
- * @typeParam M   payload record for this message, defaults to {}
+ * @typeParam T  A string literal tag (ex: "Holdings.Add").
+ * @typeParam M  Message payload (default `{}`).
  *
- * Example:
+ * Messages follow a discriminated-union style:
  *
- *   type Msg =
- *     | Payload<"Holdings.Add">
- *     | Payload<"Holdings.SetTicker", { value: string }>;
+ * ```ts
+ * type Msg =
+ *   | Payload<"Holdings.Add">
+ *   | Payload<"Holdings.SetTicker", { value: string }>;
  *
- *   dispatch({ type: "Holdings.SetTicker", msg: { value: "AAPL" } });
+ * dispatch({ type: "Holdings.SetTicker", msg: { value: "AAPL" } });
+ * ```
  */
 export type Payload<T extends string, M extends object = {}> = {
   type: T;
@@ -88,63 +107,129 @@ export type Payload<T extends string, M extends object = {}> = {
  * ==========================================================================*/
 
 /**
- * Effect<Env, Msg>
+ * Effects describe side-effects in algebraic-fx.
  *
- * The primary abstraction for side effects in algebraic-fx.
+ * They can:
+ *   - read from Env (browser APIs, storage, WebSocket, etc.)
+ *   - perform synchronous or async work
+ *   - optionally emit new Msg values via dispatch
+ *   - optionally return a cleanup function
  *
- * Effect responsibilities:
- *   - read from Env (HTTP, storage, etc.)
- *   - perform asynchronous work
- *   - emit follow-up Msg values via dispatch
- *
- * The runtime calls:
+ * The runtime interpreter invokes:
  *
  *   effect.run(env, dispatch)
  *
- * @typeParam Env environment type
- * @typeParam Msg message union type for the Program
+ * where:
+ *   - `env` is the environment given to `renderApp`
+ *   - `dispatch` sends follow-up messages into the Program
  */
 export interface Effect<Env = unknown, Msg = unknown> {
-  run: (env: Env, dispatch: Dispatch<Msg>) => void | Promise<void>;
+  run: (
+    env: Env,
+    dispatch: Dispatch<Msg>
+  ) => void | Promise<void> | (() => void) | Promise<() => void>;
 }
 
+/* ---------------------------------------------------------------------------
+ * fx: ergonomic Effect constructor
+ * ---------------------------------------------------------------------------*/
+
 /**
- * Tagged IO wrapper for scheduling IO<void> as a runtime effect.
+ * Effect construction helper.
+ *
+ * Produces a concrete `Effect<Env, Msg>` instance while preserving full
+ * type inference for:
+ *   - `Env` — program environment
+ *   - `Msg` — message union for the program
+ *   - optional cleanup return value
+ *
+ * This helper unifies effect creation across your application.
+ *
+ * ## Example
+ *
+ * ```ts
+ * import { fx } from "algebraic-effects";
+ *
+ * export const resizeEffect = fx<TVEnv, TVMsg>((env, dispatch) => {
+ *   const onResize = () => dispatch({
+ *     type: "RESIZE",
+ *     msg: {
+ *       width: env.window.innerWidth,
+ *       height: env.window.innerHeight,
+ *     }
+ *   });
+ *
+ *   env.window.addEventListener("resize", onResize);
+ *   onResize();
+ *
+ *   return () => env.window.removeEventListener("resize", onResize);
+ * });
+ * ```
+ */
+export const fx = <
+  Env,
+  Msg,
+  Ret extends void | (() => void) = void | (() => void),
+>(
+  run: (env: Env, dispatch: Dispatch<Msg>) => Ret
+): Effect<Env, Msg> => ({ run });
+
+/* ---------------------------------------------------------------------------
+ * IOEffect
+ * ---------------------------------------------------------------------------*/
+
+/**
+ * Unique tag for an IOEffect.
  */
 export const IOEffectTag = Symbol("IOEffect");
 
 /**
- * IOEffect wraps an IO<void>.
+ * Wraps `IO<void>` as a runtime effect.
+ *
+ * The interpreter extracts the underlying IO and executes it.
  */
 export type IOEffect = {
   _tag: typeof IOEffectTag;
   io: IO<void>;
 };
 
+/* ---------------------------------------------------------------------------
+ * ReaderEffect
+ * ---------------------------------------------------------------------------*/
+
 /**
- * Tagged Reader wrapper for scheduling Reader<Env,IO<void>> as an effect.
+ * Unique tag for a ReaderEffect.
  */
 export const ReaderEffectTag = Symbol("ReaderEffect");
 
 /**
- * ReaderEffect wraps Reader<Env, IO<void>>.
+ * Wraps `Reader<Env, IO<void>>` as a runtime effect.
+ *
+ * The interpreter:
+ *   1. Applies the Reader with the current environment.
+ *   2. Executes the resulting IO<void>.
  */
 export type ReaderEffect<E> = {
   _tag: typeof ReaderEffectTag;
   reader: Reader<E, IO<void>>;
 };
 
-/**
+/* ---------------------------------------------------------------------------
  * RawEffect<E>
+ * ---------------------------------------------------------------------------*/
+
+/**
+ * Comprehensive union of all effect representations understood by the runtime.
  *
- * Normalized effect representation understood by the runtime:
- *   - IO<void>
- *   - Reader<E, IO<void>>
- *   - Effect<Env, Msg>
- *   - IOEffect
- *   - ReaderEffect<E>
+ * These forms allow a wide range of effect expressions:
  *
- * Env is threaded by the runtime, Msg is program-specific.
+ *   - `IO<void>`                   — simple synchronous actions
+ *   - `Reader<E, IO<void>>`       — environment-dependent IO
+ *   - `Effect<Env, Msg>`          — full effects with `env` + `dispatch`
+ *   - `IOEffect`                  — tagged IO wrappers
+ *   - `ReaderEffect<E>`           — tagged Reader wrappers
+ *
+ * Env is threaded automatically by the runtime. Msg is program-specific.
  */
 export type RawEffect<E> =
   | IO<void>
@@ -158,27 +243,37 @@ export type RawEffect<E> =
  * ==========================================================================*/
 
 /**
- * Pure functional application description.
+ * Pure program description for algebraic-fx.
  *
- * init:
- *   IO<{ model; effects }>
+ * A Program consists of:
  *
- * update:
- *   (msg, model, dispatch) => { model; effects }
+ *   - `init`: IO returning `{ model, effects }`
+ *   - `update`: pure state transition plus follow-up effects
+ *   - `view`: pure virtual DOM renderer
  *
- * view:
- *   (model, dispatch) => vnode
+ * The runtime calls:
+ *
+ *   renderApp(root, program, env, renderer)
+ *
+ * which:
+ *   - executes `init`
+ *   - interprets returned effects
+ *   - renders the initial VNode tree
+ *   - listens for dispatched messages
+ *   - runs update loops and effects
  *
  * @typeParam M   model type
  * @typeParam Msg message union type
- * @typeParam Env environment type used by Reader and Effect
+ * @typeParam Env environment threaded through RawEffects
  */
 export type Program<M, Msg, Env> = {
   init: IO<{ model: M; effects: RawEffect<Env>[] }>;
+
   update: (
     msg: Msg,
     model: M,
     dispatch: Dispatch<Msg>
   ) => { model: M; effects: RawEffect<Env>[] };
+
   view: (model: M, dispatch: Dispatch<Msg>) => VChild | VChild[];
 };

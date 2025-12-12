@@ -8,6 +8,6 @@
 
 > `const` **ReaderEffectTag**: *typeof* `ReaderEffectTag`
 
-Defined in: [core/types.ts:127](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/core/types.ts#L127)
+Defined in: [core/types.ts:203](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L203)
 
-Tagged Reader wrapper for scheduling Reader<Env,IO<void>> as an effect.
+Unique tag for a ReaderEffect.

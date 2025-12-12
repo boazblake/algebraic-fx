@@ -8,7 +8,7 @@
 
 > **HttpEnv** = `object`
 
-Defined in: [helpers/http-task.ts:21](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/helpers/http-task.ts#L21)
+Defined in: [helpers/http-task.ts:21](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/helpers/http-task.ts#L21)
 
 Environment required by httpTask.
 
@@ -18,7 +18,7 @@ Environment required by httpTask.
 
 > `optional` **baseUrl**: `string`
 
-Defined in: [helpers/http-task.ts:23](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/helpers/http-task.ts#L23)
+Defined in: [helpers/http-task.ts:23](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/helpers/http-task.ts#L23)
 
 ***
 
@@ -26,4 +26,4 @@ Defined in: [helpers/http-task.ts:23](https://github.com/boazblake/algebraic-fx/
 
 > **fetch**: *typeof* `fetch`
 
-Defined in: [helpers/http-task.ts:22](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/helpers/http-task.ts#L22)
+Defined in: [helpers/http-task.ts:22](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/helpers/http-task.ts#L22)

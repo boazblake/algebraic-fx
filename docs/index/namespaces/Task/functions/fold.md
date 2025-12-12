@@ -8,7 +8,7 @@
 
 > **fold**\<`E`, `A`, `B`\>(`onError`, `onSuccess`): (`t`) => `Promise`\<`B`\>
 
-Defined in: [adt/task.ts:215](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/task.ts#L215)
+Defined in: [adt/task.ts:215](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/task.ts#L215)
 
 Consume a Task by converting its Either result into the final pure value.
 

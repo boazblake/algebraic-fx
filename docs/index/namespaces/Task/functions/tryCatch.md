@@ -8,7 +8,7 @@
 
 > **tryCatch**\<`A`\>(`f`): [`Task`](../../../type-aliases/Task.md)\<`unknown`, `A`\>
 
-Defined in: [adt/task.ts:166](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/task.ts#L166)
+Defined in: [adt/task.ts:166](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/task.ts#L166)
 
 Wrap a Promise-returning function into a Task that catches errors.
 

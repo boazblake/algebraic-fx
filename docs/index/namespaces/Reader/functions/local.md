@@ -8,7 +8,7 @@
 
 > **local**\<`E1`, `E2`, `A`\>(`f`): (`r`) => [`Reader`](../../../type-aliases/Reader.md)\<`E1`, `A`\>
 
-Defined in: [adt/reader.ts:134](https://github.com/boazblake/algebraic-fx/blob/9dcafc922caae8a966ba8d965603f0ba145dd83c/src/adt/reader.ts#L134)
+Defined in: [adt/reader.ts:134](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L134)
 
 Modify the environment for the duration of a Reader computation.
 
