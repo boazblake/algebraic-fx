@@ -1,265 +1,159 @@
-/**
- * Unique brand ensuring Validation values are nominally typed.
- * Prevents accidental mixing with plain objects of identical shape.
- */
-const ValidationBrand = Symbol("ValidationBrand");
+// src/adt/validation.ts
+import { fl } from "./fl.js";
 
-/**
- * Validation<E, A> represents a computation that may succeed (`Success<A>`)
- * or fail (`Failure<E[]>`). Unlike Either:
- *
- * - Validation supports *parallel* error accumulation via `ap`, `combine`,
- *   `traverse`, and `sequence`.
- * - `chain` behaves like Either and short-circuits.
- *
- * Typical use cases:
- * - form validation
- * - configuration validation
- * - batch data validation
- */
-export type Validation<E, A> =
-  | ({ _tag: "Failure"; errors: E[] } & { readonly [ValidationBrand]: true })
-  | ({ _tag: "Success"; value: A } & { readonly [ValidationBrand]: true });
+export type Failure<E> = {
+  readonly _tag: "Failure";
+  readonly left: E;
+};
 
-/**
- * Construct a failing Validation from an array of errors.
- *
- * @example
- * Failure(["invalid email"])
- */
-export const Failure = <E>(errors: E[]): Validation<E, never> => ({
+export type Success<A> = {
+  readonly _tag: "Success";
+  readonly right: A;
+};
+
+export type Validation<E, A> = Failure<E> | Success<A>;
+
+// -----------------------------------------------------------------------------
+// Constructors
+// -----------------------------------------------------------------------------
+
+export const failure = <E = unknown, A = never>(e: E): Validation<E, A> => ({
   _tag: "Failure",
-  errors,
-  [ValidationBrand]: true,
+  left: e,
 });
 
-/**
- * Construct a successful Validation containing a value.
- *
- * @example
- * Success(42)
- */
-export const Success = <A>(value: A): Validation<never, A> => ({
+export const success = <E = never, A = unknown>(a: A): Validation<E, A> => ({
   _tag: "Success",
-  value,
-  [ValidationBrand]: true,
+  right: a,
 });
 
-/**
- * Functor map over a successful Validation.
- * If the value is `Success(a)`, returns `Success(f(a))`.
- * If `Failure`, returns unchanged.
- */
-export const map = <E, A, B>(
-  f: (a: A) => B,
-  v: Validation<E, A>
-): Validation<E, B> => (v._tag === "Success" ? Success(f(v.value)) : v);
+export const of = <A>(a: A): Validation<never, A> => success(a);
 
-/**
- * Applicative apply for Validation.
- *
- * - If both function and value are failures, errors accumulate.
- * - If any side is Failure, that Failure is returned.
- * - If both are Success, applies the function to the value.
- *
- * @example
- * ap(Success(x => x + 1), Success(2))     // Success(3)
- * ap(Failure(["e1"]), Failure(["e2"]))    // Failure(["e1", "e2"])
- */
-export const ap = <E, A, B>(
-  vf: Validation<E, (a: A) => B>,
-  va: Validation<E, A>
-): Validation<E, B> => {
-  if (vf._tag === "Failure" && va._tag === "Failure")
-    return Failure([...vf.errors, ...va.errors]);
-  if (vf._tag === "Failure") return vf;
-  if (va._tag === "Failure") return va;
-  return Success(vf.value(va.value));
-};
+// -----------------------------------------------------------------------------
+// Type guards
+// -----------------------------------------------------------------------------
 
-/**
- * Monad chain for Validation.
- *
- * Important:
- * - `chain` *short-circuits* like Either, NOT accumulating errors.
- *   Use here only for sequential validation that should stop on the first error.
- */
-export const chain = <E, A, B>(
-  f: (a: A) => Validation<E, B>,
-  v: Validation<E, A>
-): Validation<E, B> => (v._tag === "Success" ? f(v.value) : v);
+export const isFailure = <E, A>(v: Validation<E, A>): v is Failure<E> =>
+  v._tag === "Failure";
 
-/**
- * Map over both Failure and Success branches.
- */
-export const bimap = <E, A, E2, B>(
-  onFailure: (errs: E[]) => E2[],
-  onSuccess: (a: A) => B,
-  v: Validation<E, A>
-): Validation<E2, B> =>
-  v._tag === "Failure"
-    ? Failure(onFailure(v.errors))
-    : Success(onSuccess(v.value));
+export const isSuccess = <E, A>(v: Validation<E, A>): v is Success<A> =>
+  v._tag === "Success";
 
-/**
- * Map only the error list.
- */
-export const mapErrors = <E, A, E2>(
-  f: (errs: E[]) => E2[],
-  v: Validation<E, A>
-): Validation<E2, A> => (v._tag === "Failure" ? Failure(f(v.errors)) : v);
+export const isValidation = (u: unknown): u is Validation<unknown, unknown> =>
+  (!!u && typeof u === "object" && (u as any)._tag === "Failure") ||
+  (u as any)._tag === "Success";
 
-/**
- * Lift a value into a successful Validation.
- */
-export const of = <A>(a: A): Validation<never, A> => Success(a);
+// -----------------------------------------------------------------------------
+// Core combinators
+// -----------------------------------------------------------------------------
 
-/**
- * Pattern match on Validation.
- *
- * @param onFail Called with accumulated errors
- * @param onSucc Called with the success value
- */
-export const fold = <E, A, B>(
-  onFail: (errs: E[]) => B,
-  onSucc: (a: A) => B,
-  v: Validation<E, A>
-): B => (v._tag === "Failure" ? onFail(v.errors) : onSucc(v.value));
+export const map =
+  <A, B>(f: (a: A) => B) =>
+  <E>(fa: Validation<E, A>): Validation<E, B> =>
+    isSuccess(fa) ? success<E, B>(f(fa.right)) : fa;
 
-/**
- * Extract the success value or fall back to a default.
- */
-export const getOrElse = <E, A>(defaultValue: A, v: Validation<E, A>): A =>
-  v._tag === "Success" ? v.value : defaultValue;
+export const mapFailure =
+  <E, F>(f: (e: E) => F) =>
+  <A>(fa: Validation<E, A>): Validation<F, A> =>
+    isFailure(fa) ? failure<F, A>(f(fa.left)) : fa;
 
-/**
- * Extract the success value or compute a fallback based on the errors.
- */
-export const getOrElseW = <E, A, B>(
-  onFailure: (errs: E[]) => B,
-  v: Validation<E, A>
-): A | B => (v._tag === "Success" ? v.value : onFailure(v.errors));
+export const bimap =
+  <E, F, A, B>(f: (e: E) => F, g: (a: A) => B) =>
+  (fa: Validation<E, A>): Validation<F, B> =>
+    isFailure(fa)
+      ? failure<F, B>(f(fa.left))
+      : success<F, B>(g((fa as any).right));
 
-/**
- * Type guard: check if Validation is Failure.
- */
-export const isFailure = <E, A>(
-  v: Validation<E, A>
-): v is Validation<E, never> => v._tag === "Failure";
+// Pattern matching
 
-/**
- * Type guard: check if Validation is Success.
- */
-export const isSuccess = <E, A>(
-  v: Validation<E, A>
-): v is Validation<never, A> => v._tag === "Success";
+export const match =
+  <E, A, R>(onFailure: (e: E) => R, onSuccess: (a: A) => R) =>
+  (fa: Validation<E, A>): R =>
+    isFailure(fa) ? onFailure(fa.left) : onSuccess((fa as any).right);
 
-/**
- * Create a failure from a single error.
- */
-export const fail = <E>(error: E): Validation<E, never> => Failure([error]);
+export const getOrElse =
+  <A>(onFailure: () => A) =>
+  <E>(fa: Validation<E, A>): A =>
+    isFailure(fa) ? onFailure() : fa.right;
 
-/**
- * Alternative operator:
- * - returns the first Success
- * - if both are Failure, errors accumulate
- */
-export const alt = <E, A>(
-  v1: Validation<E, A>,
-  v2: Validation<E, A>
-): Validation<E, A> => {
-  if (v1._tag === "Success") return v1;
-  if (v2._tag === "Success") return v2;
-  return Failure([...v1.errors, ...v2.errors]);
-};
+// Constructors from other shapes
 
-/**
- * Combine a list of Validations, accumulating ALL errors.
- *
- * - If any failures exist → return `Failure(all errors)`
- * - Otherwise → return `Success(array of all values)`
- */
-export const combine = <E, A>(
-  validations: Validation<E, A>[]
-): Validation<E, A[]> => {
-  const successes: A[] = [];
-  const errors: E[] = [];
-
-  for (const v of validations) {
-    if (v._tag === "Success") successes.push(v.value);
-    else errors.push(...v.errors);
-  }
-
-  return errors.length > 0 ? Failure(errors) : Success(successes);
-};
-
-/**
- * Traverse an array, applying a Validation-producing function `f`.
- *
- * - Accumulates ALL errors across the entire array.
- * - Equivalent to `Applicative` traversal.
- */
-export const traverse = <E, A, B>(
-  f: (a: A) => Validation<E, B>,
-  arr: A[]
-): Validation<E, B[]> => {
-  const results: B[] = [];
-  const errors: E[] = [];
-
-  for (const a of arr) {
-    const vb = f(a);
-    if (vb._tag === "Success") results.push(vb.value);
-    else errors.push(...vb.errors);
-  }
-
-  return errors.length > 0 ? Failure(errors) : Success(results);
-};
-
-/**
- * Sequence an array of Validations.
- *
- * Equivalent to: `traverse(x => x)`
- */
-export const sequence = <E, A>(arr: Validation<E, A>[]): Validation<E, A[]> =>
-  traverse((x) => x, arr);
-
-/**
- * Lift a predicate into Validation.
- *
- * - If predicate holds → Success(a)
- * - If predicate fails → Failure([onFalse(a)])
- */
 export const fromPredicate =
-  <E, A>(predicate: (a: A) => boolean, onFalse: (a: A) => E) =>
+  <A, E>(pred: (a: A) => boolean, onFalse: (a: A) => E) =>
   (a: A): Validation<E, A> =>
-    predicate(a) ? Success(a) : fail(onFalse(a));
+    pred(a) ? success<E, A>(a) : failure<E, A>(onFalse(a));
 
-/**
- * Namespace-style export object for ergonomic importing.
- *
- * @example
- * import { Validation } from "algebraic-fx/adt/validation";
- */
-export const Validation = {
-  Failure,
-  Success,
-  map,
-  ap,
-  chain,
-  bimap,
-  mapErrors,
-  of,
-  fold,
-  getOrElse,
-  getOrElseW,
-  isFailure,
-  isSuccess,
-  fail,
-  alt,
-  combine,
-  traverse,
-  sequence,
-  fromPredicate,
+export const fromNullable =
+  <A, E>(onNull: () => E) =>
+  (a: A | null | undefined): Validation<E, A> =>
+    a == null ? failure<E, A>(onNull()) : success<E, A>(a);
+
+// -----------------------------------------------------------------------------
+// Semigroup helpers for error accumulation
+// -----------------------------------------------------------------------------
+
+export interface Semigroup<A> {
+  concat: (x: A, y: A) => A;
+}
+
+export const semigroupString: Semigroup<string> = {
+  concat: (x, y) => x + y,
 };
 
-export default Validation;
+export const semigroupArray = <A>(): Semigroup<A[]> => ({
+  concat: (xs, ys) => xs.concat(ys),
+});
+
+// -----------------------------------------------------------------------------
+// Applicative instance factory
+// -----------------------------------------------------------------------------
+
+export const getValidationApplicative = <E>(S: Semigroup<E>) => {
+  const ap = <A, B>(
+    fab: Validation<E, (a: A) => B>,
+    fa: Validation<E, A>
+  ): Validation<E, B> => {
+    if (isFailure(fab) && isFailure(fa)) {
+      return failure<E, B>(S.concat(fab.left, fa.left));
+    }
+    if (isFailure(fab)) return fab;
+    if (isFailure(fa)) return fa;
+
+    const f = fab.right;
+
+    // Handle functions of any arity.
+    try {
+      return success<E, B>((f as any)(fa.right));
+    } catch {
+      // If f does not accept an argument, treat as constant function.
+      return success<E, B>((f as any)());
+    }
+  };
+
+  return {
+    of,
+    map,
+    ap,
+  };
+};
+
+// -----------------------------------------------------------------------------
+// Fantasy Land and fp ts style module dictionary
+// -----------------------------------------------------------------------------
+
+export const ValidationModule = {
+  URI: "Validation",
+  failure,
+  success,
+  of,
+  map,
+  mapFailure,
+  bimap,
+  fromPredicate,
+  fromNullable,
+  getOrElse,
+  getValidationApplicative,
+  semigroupString,
+  semigroupArray,
+  [fl.of]: of,
+};

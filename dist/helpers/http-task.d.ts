@@ -1,31 +1,16 @@
-/**
- * @module helpers/http-task
- *
- * Pure HTTP helper using Reader<HttpEnv, Task<E,A>>.
- *
- * This helper:
- *   - does not depend on Program or Effect
- *   - returns Task<E,A> for algebraic composition
- *   - respects AbortSignal provided by Task.run(signal?)
- *
- * Integrate with algebraic-fx by wrapping Task in an Effect<Env,Msg>.
- */
-import { Reader } from "../adt/reader.js";
-import { Task } from "../adt/task.js";
-/**
- * Environment required by httpTask.
- */
-export type HttpEnv = {
-    fetch: typeof fetch;
-    baseUrl?: string;
-};
-/**
- * Default error shape for HTTP failures.
- */
+import type { Reader as ReaderT } from "../adt/reader.js";
+import type { Task as TaskT } from "../adt/task.js";
+import type { Either } from "../adt/either.js";
 export type DefaultHttpError = {
-    status: number;
+    _tag: "DefaultHttpError";
+    status: number | null;
     message: string;
+    url: string;
+    cause?: unknown;
 };
-export declare function httpTask<A = unknown>(path: string, options?: RequestInit): Reader<HttpEnv, Task<DefaultHttpError, A>>;
-export declare function httpTask<E, A>(path: string, options: RequestInit | undefined, handleError: (e: DefaultHttpError | unknown) => E): Reader<HttpEnv, Task<E, A>>;
+export type HttpEnv = {
+    baseUrl: string;
+    fetch: typeof fetch;
+};
+export declare const httpTask: <E = never, A = never>(path: string, decode?: (data: unknown) => Either<E, A>, mapError?: (err: DefaultHttpError | E) => DefaultHttpError | E) => ReaderT<HttpEnv, TaskT<DefaultHttpError | E, A>>;
 //# sourceMappingURL=http-task.d.ts.map

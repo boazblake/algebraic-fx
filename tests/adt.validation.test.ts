@@ -1,177 +1,181 @@
+// tests/adt.validation.test.ts
 import { describe, it, expect } from "vitest";
 import {
   Validation,
-  Success,
-  Failure,
+  failure,
+  success,
+  of,
   map,
-  ap,
-  chain,
-  fold,
-  combine,
-  traverse,
-  sequence,
-  isSuccess,
-  isFailure,
-} from "../src/adt/validation.js";
+  mapFailure,
+  bimap,
+  match,
+  getOrElse,
+  fromPredicate,
+  fromNullable,
+  getValidationApplicative,
+  semigroupString,
+  semigroupArray,
+  ValidationModule,
+} from "@/adt/validation";
+import { fl } from "@/adt/fl";
 
-describe("Validation", () => {
-  it("constructs Success and Failure", () => {
-    const s = Success(42);
-    const f = Failure(["error"]);
+const eqValidation = <E, A>(
+  x: Validation<E, A>,
+  y: Validation<E, A>
+): boolean => {
+  if (x._tag !== y._tag) return false;
+  if (x._tag === "Failure" && y._tag === "Failure") {
+    return Object.is(x.left, (y as any).left);
+  }
+  if (x._tag === "Success" && y._tag === "Success") {
+    return Object.is((x as any).right, (y as any).right);
+  }
+  return false;
+};
 
-    expect(s._tag).toBe("Success");
-    expect((s as any).value).toBe(42);
+describe("Validation ADT", () => {
+  it("constructs Failure and Success", () => {
+    const f = failure<string, number>("err");
+    const s = success<string, number>(42);
+
     expect(f._tag).toBe("Failure");
-    expect((f as any).errors).toEqual(["error"]);
+    expect(f.left).toBe("err");
+    expect(s._tag).toBe("Success");
+    expect(s.right).toBe(42);
   });
 
-  it("map applies only on Success", () => {
-    const s = Success(1);
-    const f = Failure<string, number>(["err"]);
-
-    const s2 = map((x: number) => x + 1, s);
-    const f2 = map((x: number) => x + 1, f);
-
-    expect(isSuccess(s2)).toBe(true);
-    if (isSuccess(s2)) expect(s2.value).toBe(2);
-    expect(isFailure(f2)).toBe(true);
+  it("of wraps a value in Success", () => {
+    const v = of(10);
+    expect(v._tag).toBe("Success");
+    expect(v.right).toBe(10);
   });
 
-  it("ap accumulates errors", () => {
-    const vf = Success((x: number) => x * 2);
-    const va = Success(3);
-    const vf2 = Failure<string, (x: number) => number>(["err1"]);
-    const va2 = Failure<string, number>(["err2"]);
+  it("map transforms Success and leaves Failure", () => {
+    const f = failure<string, number>("err");
+    const s = success<string, number>(2);
 
-    const r1 = ap(vf, va);
-    const r2 = ap(vf2, va);
-    const r3 = ap(vf, va2);
-    const r4 = ap(vf2, va2);
+    const f2 = map<number, number>((n) => n * 2)<string>(f);
+    const s2 = map<number, number>((n) => n * 2)<string>(s);
 
-    expect(isSuccess(r1)).toBe(true);
-    if (isSuccess(r1)) expect(r1.value).toBe(6);
-
-    expect(isFailure(r2)).toBe(true);
-    if (isFailure(r2)) expect(r2.errors).toEqual(["err1"]);
-
-    expect(isFailure(r3)).toBe(true);
-    if (isFailure(r3)) expect(r3.errors).toEqual(["err2"]);
-
-    expect(isFailure(r4)).toBe(true);
-    if (isFailure(r4)) expect(r4.errors).toEqual(["err1", "err2"]);
+    expect(eqValidation(f, f2)).toBe(true);
+    expect(s2._tag).toBe("Success");
+    expect(s2.right).toBe(4);
   });
 
-  it("chain short-circuits on Failure", () => {
-    const f = (x: number) =>
-      x > 0 ? Success(x + 1) : Failure<string, number>(["negative"]);
+  it("mapFailure transforms Failure and leaves Success", () => {
+    const f = failure<string, number>("err");
+    const s = success<string, number>(2);
 
-    const r1 = chain(f, Success(1));
-    const r2 = chain(f, Success(-1));
-    const r3 = chain(f, Failure<string, number>(["initial"]));
+    const f2 = mapFailure<string, string>((e) => `prefix:${e}`)(f);
+    const s2 = mapFailure<string, string>((e) => `prefix:${e}`)(s);
 
-    expect(isSuccess(r1)).toBe(true);
-    if (isSuccess(r1)) expect(r1.value).toBe(2);
-
-    expect(isFailure(r2)).toBe(true);
-    if (isFailure(r2)) expect(r2.errors).toEqual(["negative"]);
-
-    expect(isFailure(r3)).toBe(true);
-    if (isFailure(r3)) expect(r3.errors).toEqual(["initial"]);
+    expect(f2._tag).toBe("Failure");
+    expect(f2.left).toBe("prefix:err");
+    expect(eqValidation(s, s2)).toBe(true);
   });
 
-  it("fold pattern matches", () => {
-    const s = Success(10);
-    const f = Failure<string, number>(["err"]);
+  it("bimap transforms both sides", () => {
+    const f = failure<string, number>("err");
+    const s = success<string, number>(2);
 
-    const r1 = fold(
-      () => 0,
-      (x) => x * 2,
-      s
-    );
-    const r2 = fold(
-      (errs) => errs.length,
-      (x) => x * 2,
-      f
-    );
+    const f2 = bimap<string, string, number, number>(
+      (e) => `x:${e}`,
+      (n) => n * 2
+    )(f);
+    const s2 = bimap<string, string, number, number>(
+      (e) => `x:${e}`,
+      (n) => n * 2
+    )(s);
 
-    expect(r1).toBe(20);
-    expect(r2).toBe(1);
+    expect(f2._tag).toBe("Failure");
+    expect(f2.left).toBe("x:err");
+    expect(s2._tag).toBe("Success");
+    expect(s2.right).toBe(4);
   });
 
-  it("combine accumulates all errors", () => {
-    const validations = [
-      Success(1),
-      Failure<string, number>(["err1"]),
-      Success(2),
-      Failure<string, number>(["err2", "err3"]),
-    ];
+  it("getOrElse returns default for Failure and value for Success", () => {
+    const f = failure<string, number>("err");
+    const s = success<string, number>(5);
 
-    const result = combine(validations);
+    const def = () => 99;
 
-    expect(isFailure(result)).toBe(true);
-    if (isFailure(result)) {
-      expect(result.errors).toEqual(["err1", "err2", "err3"]);
-    }
+    expect(getOrElse(def)<string>(f)).toBe(99);
+    expect(getOrElse(def)<string>(s)).toBe(5);
   });
 
-  it("traverse accumulates all errors", () => {
-    const f = (x: number) =>
-      x % 2 === 0 ? Success(x) : Failure<string, number>([`${x} is odd`]);
+  it("match performs pattern matching", () => {
+    const f = failure<string, number>("err");
+    const s = success<string, number>(7);
 
-    const arr = [2, 3, 4, 5];
-    const result = traverse(f, arr);
+    const r1 = match(
+      (e: string) => `E:${e}`,
+      (n: number) => `V:${n}`
+    )(f);
 
-    expect(isFailure(result)).toBe(true);
-    if (isFailure(result)) {
-      expect(result.errors).toEqual(["3 is odd", "5 is odd"]);
-    }
+    const r2 = match(
+      (e: string) => `E:${e}`,
+      (n: number) => `V:${n}`
+    )(s);
 
-    const arr2 = [2, 4, 6];
-    const result2 = traverse(f, arr2);
-
-    expect(isSuccess(result2)).toBe(true);
-    if (isSuccess(result2)) {
-      expect(result2.value).toEqual([2, 4, 6]);
-    }
+    expect(r1).toBe("E:err");
+    expect(r2).toBe("V:7");
   });
 
-  it("sequence accumulates all errors", () => {
-    const validations = [Success(1), Success(2), Success(3)];
+  it("fromPredicate builds Validation based on predicate", () => {
+    const pred = (n: number) => n > 0;
+    const mk = fromPredicate(pred, (n: number) => `non positive: ${n}`);
 
-    const result = sequence(validations);
+    const v1 = mk(1);
+    const v2 = mk(0);
 
-    expect(isSuccess(result)).toBe(true);
-    if (isSuccess(result)) {
-      expect(result.value).toEqual([1, 2, 3]);
-    }
-
-    const validations2 = [
-      Success(1),
-      Failure<string, number>(["err1"]),
-      Failure<string, number>(["err2"]),
-    ];
-
-    const result2 = sequence(validations2);
-
-    expect(isFailure(result2)).toBe(true);
-    if (isFailure(result2)) {
-      expect(result2.errors).toEqual(["err1", "err2"]);
-    }
+    expect(v1._tag).toBe("Success");
+    expect(v1.right).toBe(1);
+    expect(v2._tag).toBe("Failure");
+    expect(v2.left).toBe("non positive: 0");
   });
 
-  it("Validation.fromPredicate", () => {
-    const validate = Validation.fromPredicate(
-      (x: number) => x > 0,
-      (x) => `${x} must be positive`
-    );
+  it("fromNullable converts nullable to Validation", () => {
+    const mk = fromNullable<number, string>(() => "nullish");
 
-    const r1 = validate(5);
-    const r2 = validate(-3);
+    const v1 = mk(5);
+    const v2 = mk(null);
 
-    expect(isSuccess(r1)).toBe(true);
-    if (isSuccess(r1)) expect(r1.value).toBe(5);
+    expect(v1._tag).toBe("Success");
+    expect(v1.right).toBe(5);
+    expect(v2._tag).toBe("Failure");
+    expect(v2.left).toBe("nullish");
+  });
 
-    expect(isFailure(r2)).toBe(true);
-    if (isFailure(r2)) expect(r2.errors).toEqual(["-3 must be positive"]);
+  it("Applicative ap accumulates errors using semigroupString", () => {
+    const A = getValidationApplicative<string>(semigroupString);
+
+    const fab = failure<string, (n: number) => number>("e1");
+    const fa = failure<string, number>("e2");
+
+    const r = A.ap(fab, fa);
+
+    expect(r._tag).toBe("Failure");
+    expect(r.left).toBe("e1e2");
+  });
+
+  it("Applicative ap accumulates errors using semigroupArray", () => {
+    const S = semigroupArray<string>();
+    const A = getValidationApplicative<string[]>(S);
+
+    const fab = failure<string[], (n: number) => number>(["e1"]);
+    const fa = failure<string[], number>(["e2"]);
+
+    const r = A.ap(fab, fa);
+
+    expect(r._tag).toBe("Failure");
+    expect(r.left).toEqual(["e1", "e2"]);
+  });
+
+  it("ValidationModule exposes fp ts style dictionary and FL of", () => {
+    expect(ValidationModule.URI).toBe("Validation");
+    expect(typeof ValidationModule.of).toBe("function");
+    expect(typeof ValidationModule.map).toBe("function");
+    expect(typeof ValidationModule.getValidationApplicative).toBe("function");
+    expect(ValidationModule[fl.of]).toBe(of);
   });
 });

@@ -1,115 +1,129 @@
-import { describe, it, expect } from "vitest";
+// tests/adt.maybe.laws.test.ts
+import { describe, it } from "vitest";
 import fc from "fast-check";
-import MaybeModule, {
-  Just,
-  Nothing,
-  type Maybe as MaybeT,
-} from "../src/adt/maybe.ts";
+import {
+  just,
+  nothing,
+  MaybeModule,
+  MaybeModule as M,
+  isJust,
+  Maybe,
+} from "@/adt/maybe";
 
-const { map, chain, of, fromNullable, toNullable } = MaybeModule;
-
-// Arbitrary for Maybe<number>
-const arbMaybeNumber: fc.Arbitrary<MaybeT<number>> = fc.oneof(
-  fc.constant(Nothing),
-  fc.integer().map((n) => Just(n))
-);
-
-// Helper: equality on Maybe<number>
-const eqMaybeNumber = (a: MaybeT<number>, b: MaybeT<number>): boolean => {
-  if (a._tag === "Nothing" && b._tag === "Nothing") return true;
-  if (a._tag === "Just" && b._tag === "Just") return a.value === b.value;
+const eqMaybe = <A>(x: Maybe<A>, y: Maybe<A>): boolean => {
+  if (!isJust(x) && !isJust(y)) return true;
+  if (isJust(x) && isJust(y)) return x.value === y.value;
   return false;
 };
 
-describe("Maybe laws (fast-check)", () => {
-  // Functor identity: map(id, fa) = fa
+const arbMaybe = <A>(arbA: fc.Arbitrary<A>): fc.Arbitrary<Maybe<A>> =>
+  fc.oneof(
+    arbA.map((a) => just(a)),
+    fc.constant(nothing as Maybe<A>)
+  );
+
+describe("Maybe laws", () => {
+  // Functor laws
   it("Functor identity", () => {
     fc.assert(
-      fc.property(arbMaybeNumber, (fa) => {
-        const id = (x: number): number => x;
-        const lhs = map(id, fa);
-        const rhs = fa;
-        expect(eqMaybeNumber(lhs, rhs)).toBe(true);
+      fc.property(arbMaybe(fc.integer()), (ma) => {
+        const id = <A>(x: A): A => x;
+        const left = M.map(id)(ma);
+        const right = ma;
+        return eqMaybe(left, right);
       })
     );
   });
 
-  // Functor composition: map(f ∘ g) = map(f) ∘ map(g)
   it("Functor composition", () => {
     fc.assert(
-      fc.property(
-        arbMaybeNumber,
-        fc.func<number, number>(fc.integer()),
-        fc.func<number, number>(fc.integer()),
-        (fa, f, g) => {
-          const compose = (x: number): number => f(g(x));
-          const lhs = map(compose, fa);
-          const rhs = map(f, map(g, fa));
-          expect(eqMaybeNumber(lhs, rhs)).toBe(true);
-        }
-      )
-    );
-  });
+      fc.property(arbMaybe(fc.integer()), (ma) => {
+        const f = (n: number) => n + 1;
+        const g = (n: number) => n * 2;
 
-  // Monad left identity: chain(f, of(a)) = f(a)
-  it("Monad left identity", () => {
-    fc.assert(
-      fc.property(
-        fc.integer(),
-        fc.func<number, MaybeT<number>>(
-          arbMaybeNumber as fc.Arbitrary<MaybeT<number>>
-        ),
-        (a, f) => {
-          const lhs = chain(f, of(a));
-          const rhs = f(a);
-          expect(eqMaybeNumber(lhs, rhs)).toBe(true);
-        }
-      )
-    );
-  });
+        const left = M.map((x: number) => f(g(x)))(ma);
+        const right = M.map(f)(M.map(g)(ma));
 
-  // Monad right identity: chain(of, fa) = fa
-  it("Monad right identity", () => {
-    fc.assert(
-      fc.property(arbMaybeNumber, (fa) => {
-        const lhs = chain(of, fa);
-        const rhs = fa;
-        expect(eqMaybeNumber(lhs, rhs)).toBe(true);
+        return eqMaybe(left, right);
       })
     );
   });
 
-  // Monad associativity: chain(g, chain(f, fa)) = chain(a => chain(g, f(a)), fa)
-  it("Monad associativity", () => {
+  // Applicative laws
+  it("Applicative identity", () => {
     fc.assert(
-      fc.property(
-        arbMaybeNumber,
-        fc.func<number, MaybeT<number>>(
-          arbMaybeNumber as fc.Arbitrary<MaybeT<number>>
-        ),
-        fc.func<number, MaybeT<number>>(
-          arbMaybeNumber as fc.Arbitrary<MaybeT<number>>
-        ),
-        (fa, f, g) => {
-          const lhs = chain(g, chain(f, fa));
-          const rhs = chain((a: number) => chain(g, f(a)), fa);
-          expect(eqMaybeNumber(lhs, rhs)).toBe(true);
-        }
-      )
+      fc.property(arbMaybe(fc.integer()), (ma) => {
+        const id = <A>(x: A): A => x;
+        const u = M.of(id as (x: number) => number);
+        const left = M.ap(u)(ma);
+        const right = ma;
+
+        return eqMaybe(left, right);
+      })
     );
   });
 
-  // fromNullable/toNullable round-trip (partial)
-  it("fromNullable/toNullable round-trip", () => {
+  it("Applicative homomorphism", () => {
     fc.assert(
-      fc.property(fc.option(fc.integer(), { nil: null }), (n) => {
-        const m = fromNullable(n);
-        const back = toNullable(m);
-        if (n == null) {
-          expect(back).toBeNull();
-        } else {
-          expect(back).toBe(n);
-        }
+      fc.property(fc.integer(), (x) => {
+        const f = (n: number) => n + 1;
+
+        const left = M.ap(M.of(f))(M.of(x));
+        const right = M.of(f(x));
+
+        return eqMaybe(left, right);
+      })
+    );
+  });
+
+  it("Applicative interchange", () => {
+    fc.assert(
+      fc.property(fc.integer(), (y) => {
+        const f = (n: number) => n + 1;
+        const u = M.of(f);
+
+        const left = M.ap(u)(M.of(y));
+        const right = M.ap(M.of((g: (n: number) => number) => g(y)))(u);
+
+        return eqMaybe(left, right);
+      })
+    );
+  });
+
+  // Monad laws
+  it("Monad left identity", () => {
+    fc.assert(
+      fc.property(fc.integer(), (a) => {
+        const f = (n: number) => M.of(n + 1);
+        const left = M.chain(f)(M.of(a));
+        const right = f(a);
+
+        return eqMaybe(left, right);
+      })
+    );
+  });
+
+  it("Monad right identity", () => {
+    fc.assert(
+      fc.property(arbMaybe(fc.integer()), (ma) => {
+        const left = M.chain(M.of)(ma);
+        const right = ma;
+
+        return eqMaybe(left, right);
+      })
+    );
+  });
+
+  it("Monad associativity", () => {
+    fc.assert(
+      fc.property(arbMaybe(fc.integer()), (ma) => {
+        const f = (n: number) => M.of(n + 1);
+        const g = (n: number) => M.of(n * 2);
+
+        const left = M.chain(g)(M.chain(f)(ma));
+        const right = M.chain((x: number) => M.chain(g)(f(x)))(ma);
+
+        return eqMaybe(left, right);
       })
     );
   });

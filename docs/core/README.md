@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../README.md)
+[**algebraic-fx v0.0.2**](../README.md)
 
 ***
 
@@ -11,36 +11,6 @@
 ### Dispatch
 
 Re-exports [Dispatch](../index/type-aliases/Dispatch.md)
-
-***
-
-### Effect
-
-Re-exports [Effect](../index/interfaces/Effect.md)
-
-***
-
-### fx
-
-Re-exports [fx](../index/functions/fx.md)
-
-***
-
-### ioEffect
-
-Re-exports [ioEffect](../index/functions/ioEffect.md)
-
-***
-
-### IOEffect
-
-Re-exports [IOEffect](../index/type-aliases/IOEffect.md)
-
-***
-
-### IOEffectTag
-
-Re-exports [IOEffectTag](../index/variables/IOEffectTag.md)
 
 ***
 
@@ -68,30 +38,6 @@ Re-exports [Props](../index/type-aliases/Props.md)
 
 ***
 
-### RawEffect
-
-Re-exports [RawEffect](../index/type-aliases/RawEffect.md)
-
-***
-
-### readerEffect
-
-Re-exports [readerEffect](../index/functions/readerEffect.md)
-
-***
-
-### ReaderEffect
-
-Re-exports [ReaderEffect](../index/type-aliases/ReaderEffect.md)
-
-***
-
-### ReaderEffectTag
-
-Re-exports [ReaderEffectTag](../index/variables/ReaderEffectTag.md)
-
-***
-
 ### render
 
 Re-exports [render](../index/functions/render.md)
@@ -113,12 +59,6 @@ Re-exports [Renderer](../index/type-aliases/Renderer.md)
 ### renderToString
 
 Re-exports [renderToString](../index/functions/renderToString.md)
-
-***
-
-### runEffects
-
-Re-exports [runEffects](../index/functions/runEffects.md)
 
 ***
 

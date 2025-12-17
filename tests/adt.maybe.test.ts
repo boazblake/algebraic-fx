@@ -1,181 +1,160 @@
+// tests/adt.maybe.test.ts
 import { describe, it, expect } from "vitest";
 import {
-  Just,
-  Nothing,
-  Maybe,
-  map,
-  ap,
-  chain,
+  MaybeModule,
+  just,
+  nothing,
   of,
-  fold,
-  getOrElse,
-  getOrElseW,
-  alt,
+  map,
+  chain,
+  ap,
   fromNullable,
   toNullable,
   toUndefined,
+  fromPredicate,
+  withDefault,
+  match,
+  maybe,
   isJust,
   isNothing,
-  filter,
-  traverse,
-  sequence,
-  type Just as JustT,
-  type Nothing as NothingT,
-} from "../src/adt/maybe.js";
+  isMaybe,
+} from "@/adt/maybe";
+import { fl } from "@/adt/fl";
 
-describe("Maybe", () => {
+const eqMaybe = <A>(
+  x: ReturnType<typeof just> | typeof nothing,
+  y: ReturnType<typeof just> | typeof nothing
+): boolean => {
+  if (isNothing(x) && isNothing(y)) return true;
+  if (isJust(x) && isJust(y)) return x.value === y.value;
+  return false;
+};
+
+describe("Maybe ADT", () => {
   it("constructs Just and Nothing", () => {
-    const j = Just(42);
-    const n = Nothing as Maybe<number>;
+    const j = just(1);
+    expect(isJust(j)).toBe(true);
+    expect(j.value).toBe(1);
 
-    expect(j._tag).toBe("Just");
-    expect((j as any).value).toBe(42);
-    expect(n._tag).toBe("Nothing");
+    expect(isNothing(nothing)).toBe(true);
   });
 
-  it("map applies only on Just", () => {
-    const j = Just(1);
-    const n = Nothing as Maybe<number>;
-
-    const j2 = map((x: number) => x + 1, j);
-    const n2 = map((x: number) => x + 1, n);
-
-    expect(j2._tag).toBe("Just");
-    expect((j2 as any).value).toBe(2);
-    expect(n2._tag).toBe("Nothing");
+  it("of wraps a value in Just", () => {
+    const j = of("x");
+    expect(isJust(j)).toBe(true);
+    expect((j as any).value).toBe("x");
   });
 
-  it("ap applies function when both are Just", () => {
-    const f = Just((x: number) => x * 2);
-    const v = Just(3);
-    const n = Nothing as Maybe<number>;
+  it("map transforms Just and leaves Nothing", () => {
+    const j = just(2);
+    const n = nothing;
 
-    const r1 = ap(f, v);
-    const r2 = ap(f, n);
-    const r3 = ap(Nothing as Maybe<(x: number) => number>, v);
+    const j2 = map((x: number) => x * 2)(j);
+    const n2 = map((x: number) => x * 2)(n);
 
-    expect(r1._tag).toBe("Just");
-    expect((r1 as any).value).toBe(6);
-    expect(r2._tag).toBe("Nothing");
-    expect(r3._tag).toBe("Nothing");
+    expect(isJust(j2)).toBe(true);
+    expect((j2 as any).value).toBe(4);
+    expect(isNothing(n2)).toBe(true);
   });
 
-  it("chain behaves like flatMap", () => {
-    const f = (x: number): Maybe<number> =>
-      x > 0 ? Just(x + 1) : (Nothing as Maybe<number>);
+  it("chain sequences computations", () => {
+    const safeRecip = (n: number) => (n === 0 ? nothing : just(1 / n));
 
-    expect(chain(f, Just(1))._tag).toBe("Just");
-    expect(chain(f, Just(-1))._tag).toBe("Nothing");
-    expect(chain(f, Nothing as Maybe<number>)._tag).toBe("Nothing");
+    const j = chain(safeRecip)(just(2));
+    const n = chain(safeRecip)(just(0));
+
+    expect(isJust(j)).toBe(true);
+    expect((j as any).value).toBe(0.5);
+    expect(isNothing(n)).toBe(true);
   });
 
-  it("of lifts to Just", () => {
-    const m = of("a");
-    expect(m._tag).toBe("Just");
-    expect((m as any).value).toBe("a");
+  it("ap applies function in Maybe to value in Maybe", () => {
+    const mf = just((n: number) => n + 1);
+    const j = ap<number, number>(mf)(just(1));
+    const n1 = ap<number, number>(mf)(nothing);
+    const n2 = ap<number, number>(nothing as any)(just(1));
+
+    expect(isJust(j)).toBe(true);
+    expect((j as any).value).toBe(2);
+    expect(isNothing(n1)).toBe(true);
+    expect(isNothing(n2)).toBe(true);
   });
 
-  it("fold pattern matches correctly", () => {
-    const j = Just(10);
-    const n = Nothing as Maybe<number>;
+  it("fromNullable and toNullable interop", () => {
+    const j = fromNullable(3);
+    const n = fromNullable<number | null>(null);
 
-    const r1 = fold(
-      () => 0,
-      (x) => x * 2,
-      j
-    );
-    const r2 = fold(
-      () => 0,
-      (x) => x * 2,
-      n
-    );
-
-    expect(r1).toBe(20);
-    expect(r2).toBe(0);
+    expect(isJust(j)).toBe(true);
+    expect(toNullable(j)).toBe(3);
+    expect(isNothing(n)).toBe(true);
+    expect(toNullable(n)).toBeNull();
   });
 
-  it("getOrElse and getOrElseW", () => {
-    const j = Just("ok");
-    const n = Nothing as Maybe<string>;
+  it("toUndefined returns undefined for Nothing", () => {
+    const j = just("x");
+    const n = nothing;
 
-    expect(getOrElse("fallback", j)).toBe("ok");
-    expect(getOrElse("fallback", n)).toBe("fallback");
-
-    expect(getOrElseW(() => "lazy", j)).toBe("ok");
-    expect(getOrElseW(() => "lazy", n)).toBe("lazy");
+    expect(toUndefined(j)).toBe("x");
+    expect(toUndefined(n)).toBeUndefined();
   });
 
-  it("alt returns first Just", () => {
-    const j = Just(1);
-    const n = Nothing as Maybe<number>;
+  it("fromPredicate builds Maybe based on predicate", () => {
+    const positive = fromPredicate((n: number) => n > 0);
 
-    expect(alt(j, n)._tag).toBe("Just");
-    expect((alt(j, n) as any).value).toBe(1);
-
-    expect(alt(n, j)._tag).toBe("Just");
-    expect((alt(n, j) as any).value).toBe(1);
-
-    expect(alt(n, n)._tag).toBe("Nothing");
+    expect(isJust(positive(1))).toBe(true);
+    expect(isNothing(positive(0))).toBe(true);
   });
 
-  it("fromNullable and toNullable/toUndefined", () => {
-    const a = fromNullable<number | null>(null);
-    const b = fromNullable(5);
+  it("withDefault returns default for Nothing", () => {
+    const d = withDefault(42);
 
-    expect(a._tag).toBe("Nothing");
-    expect(b._tag).toBe("Just");
-    expect(toNullable(b)).toBe(5);
-    expect(toNullable(a)).toBeNull();
-    expect(toUndefined(a)).toBeUndefined();
+    expect(d(just(1))).toBe(1);
+    expect(d(nothing as any)).toBe(42);
   });
 
-  it("isJust / isNothing narrow correctly", () => {
-    const j = Just(1);
-    const n = Nothing as Maybe<number>;
+  it("match and maybe perform pattern matching", () => {
+    const onNothing = () => "none";
+    const onJust = (n: number) => `just:${n}`;
 
-    if (isJust(j)) {
-      const _x: JustT<number> = j;
-      expect(_x.value).toBe(1);
-    } else {
-      throw new Error("should be Just");
-    }
+    const r1 = match(onNothing, onJust)(just(5));
+    const r2 = match(onNothing, onJust)(nothing as any);
 
-    if (isNothing(n)) {
-      const _n: NothingT = n;
-      expect(_n._tag).toBe("Nothing");
-    } else {
-      throw new Error("should be Nothing");
-    }
+    expect(r1).toBe("just:5");
+    expect(r2).toBe("none");
+
+    const r3 = maybe("none", onJust)(just(7));
+    const r4 = maybe("none", onJust)(nothing as any);
+
+    expect(r3).toBe("just:7");
+    expect(r4).toBe("none");
   });
 
-  it("filter", () => {
-    const j = Just(2);
-    const r1 = filter((x) => x % 2 === 0, j);
-    const r2 = filter((x) => x % 2 !== 0, j);
-    const r3 = filter((x) => x % 2 === 0, Nothing as Maybe<number>);
-
-    expect(r1._tag).toBe("Just");
-    expect(r2._tag).toBe("Nothing");
-    expect(r3._tag).toBe("Nothing");
+  it("isMaybe detects Maybe values", () => {
+    expect(isMaybe(just(1))).toBe(true);
+    expect(isMaybe(nothing)).toBe(true);
+    expect(isMaybe(1)).toBe(false);
+    expect(isMaybe({})).toBe(false);
   });
 
-  it("traverse and sequence", () => {
-    const arr = [1, 2, 3];
-    const t1 = traverse((x) => Just(x + 1), arr);
-    const t2 = traverse(
-      (x) => (x > 2 ? (Nothing as Maybe<number>) : Just(x)),
-      arr
-    );
+  it("exposes Fantasy-Land methods on the value", () => {
+    const j = just(2);
+    const j2 = j[fl.map]((n: number) => n + 3);
+    const j3 = j2[fl.chain]((n: number) => (n > 4 ? just(n * 2) : nothing));
 
-    expect(t1._tag).toBe("Just");
-    expect((t1 as any).value).toEqual([2, 3, 4]);
-    expect(t2._tag).toBe("Nothing");
+    expect(eqMaybe(j2 as any, just(5))).toBe(true);
+    expect(eqMaybe(j3 as any, just(10))).toBe(true);
 
-    const s1 = sequence([Just(1), Just(2)]);
-    const s2 = sequence([Just(1), Nothing as Maybe<number>]);
+    const j4 = j;
+    expect(eqMaybe(j4 as any, just(9))).toBe(false);
+  });
 
-    expect(s1._tag).toBe("Just");
-    expect((s1 as any).value).toEqual([1, 2]);
-    expect(s2._tag).toBe("Nothing");
+  it("MaybeModule exposes fp-ts style dictionary", () => {
+    const m1 = MaybeModule.of(1);
+    const m2 = MaybeModule.map((n: number) => n + 1)(m1);
+    const m3 = MaybeModule.chain((n: number) => of(n * 2))(m2);
+
+    expect(isJust(m3)).toBe(true);
+    expect((m3 as any).value).toBe(4);
+    expect(MaybeModule.URI).toBe("Maybe");
   });
 });

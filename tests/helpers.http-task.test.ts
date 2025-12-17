@@ -4,7 +4,8 @@ import {
   type HttpEnv,
   type DefaultHttpError,
 } from "../src/helpers/http-task.js";
-import { Either } from "../src/adt/either.js";
+
+import { isLeft, isRight } from "../src/adt/either.js";
 
 describe("httpTask helper", () => {
   const mkEnv = (
@@ -22,7 +23,6 @@ describe("httpTask helper", () => {
 
   it("builds correct URL with baseUrl and path", async () => {
     const fetchSpy = vi.fn().mockResolvedValue(jsonResponse(200, { ok: true }));
-
     const env = mkEnv(fetchSpy);
 
     const reader = httpTask<{ ok: boolean }>("/status");
@@ -32,7 +32,9 @@ describe("httpTask helper", () => {
 
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     expect(fetchSpy.mock.calls[0][0]).toBe("https://api.test/status");
-    expect(Either.isRight(result)).toBe(true);
+
+    expect(isRight(result)).toBe(true);
+    expect((result as any).right).toEqual({ ok: true });
   });
 
   it("propagates non-2xx as DefaultHttpError", async () => {
@@ -48,11 +50,12 @@ describe("httpTask helper", () => {
     const task = reader.run(env);
 
     const result = await task.run();
-    expect(Either.isLeft(result)).toBe(true);
+
+    expect(isLeft(result)).toBe(true);
 
     const err = (result as any).left as DefaultHttpError;
     expect(err.status).toBe(500);
-    expect(err.message).toBe("Server error");
+    expect(err.message).toBe("HTTP 500 Server error");
   });
 
   it("maps JSON parse errors", async () => {
@@ -68,11 +71,12 @@ describe("httpTask helper", () => {
     const task = reader.run(env);
 
     const result = await task.run();
-    expect(Either.isLeft(result)).toBe(true);
+
+    expect(isLeft(result)).toBe(true);
 
     const err = (result as any).left as DefaultHttpError;
     expect(err.status).toBe(200);
-    expect(err.message).toBe("Invalid JSON");
+    expect(err.message).toBe("Failed to parse JSON response");
   });
 
   it("uses custom error mapper when provided", async () => {
@@ -84,6 +88,7 @@ describe("httpTask helper", () => {
     );
 
     const env = mkEnv(fetchSpy);
+
     type CustomError = { code: string; status: number };
 
     const reader = httpTask<CustomError, { foo: string }>(
@@ -98,7 +103,8 @@ describe("httpTask helper", () => {
     const task = reader.run(env);
     const result = await task.run();
 
-    expect(Either.isLeft(result)).toBe(true);
+    expect(isLeft(result)).toBe(true);
+
     const err = (result as any).left as CustomError;
     expect(err.code).toBe("NOT_FOUND");
     expect(err.status).toBe(404);
@@ -112,10 +118,11 @@ describe("httpTask helper", () => {
     const task = reader.run(env);
 
     const result = await task.run();
-    expect(Either.isLeft(result)).toBe(true);
+
+    expect(isLeft(result)).toBe(true);
 
     const err = (result as any).left as DefaultHttpError;
-    expect(err.status).toBe(0);
+    expect(err.status).toBe(null);
     expect(err.message).toBe("boom");
   });
 });

@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../../README.md)
+[**algebraic-fx v0.0.2**](../../../../README.md)
 
 ***
 
@@ -6,20 +6,16 @@
 
 # Function: ask()
 
-> **ask**\<`E`\>(): [`Reader`](../../../type-aliases/Reader.md)\<`E`, `E`\>
+> **ask**\<`R`\>(): [`Reader`](../interfaces/Reader.md)\<`R`, `R`\>
 
-Defined in: [adt/reader.ts:70](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L70)
-
-Retrieve the entire environment.
-
-Equivalent to `(env) => env`.
+Defined in: [adt/reader.ts:83](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/reader.ts#L83)
 
 ## Type Parameters
 
-### E
+### R
 
-`E`
+`R`
 
 ## Returns
 
-[`Reader`](../../../type-aliases/Reader.md)\<`E`, `E`\>
+[`Reader`](../interfaces/Reader.md)\<`R`, `R`\>

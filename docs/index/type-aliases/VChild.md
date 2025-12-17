@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../README.md)
+[**algebraic-fx v0.0.2**](../../README.md)
 
 ***
 
@@ -8,9 +8,4 @@
 
 > **VChild** = [`VNode`](VNode-1.md) \| `string` \| `number` \| `boolean` \| `null` \| `undefined`
 
-Defined in: [core/types.ts:31](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L31)
-
-A VNode child may be:
-  - A VNode
-  - A primitive value (string, number)
-  - A nullable value (ignored by the renderer)
+Defined in: [core/types.ts:15](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L15)

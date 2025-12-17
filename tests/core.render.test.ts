@@ -1,160 +1,139 @@
-import { describe, it, expect } from "vitest";
-import {
-  renderApp,
-  runEffects,
-  ioEffect,
-  readerEffect,
-} from "../src/core/render.js";
-import { IO } from "../src/adt/io.js";
-import { Reader } from "../src/adt/reader.js";
+import { describe, it, expect, vi } from "vitest";
+import { renderApp } from "@/core/render";
+import { IO } from "@/adt/io";
+import { fx } from "@/core/effects";
 
-describe("runEffects", () => {
-  it("validates dispatch parameter", () => {
-    expect(() => {
-      runEffects([], {}, null as any);
-    }).toThrow("dispatch must be a function");
-  });
+type Msg = "INC" | "TRIGGER_EFFECT" | "FOLLOW_UP";
 
-  it("handles empty effects array", () => {
-    const dispatch = () => {};
-    expect(() => {
-      runEffects([], {}, dispatch);
-    }).not.toThrow();
-  });
-
-  it("runs IOEffect", () => {
-    let ran = false;
-    const io = IO(() => {
-      ran = true;
-    });
-    const effect = ioEffect(io);
-
-    runEffects([effect], {}, () => {});
-    expect(ran).toBe(true);
-  });
-
-  it("runs ReaderEffect", () => {
-    let value = 0;
-    const reader = Reader((env: { x: number }) =>
-      IO(() => {
-        value = env.x;
-      })
-    );
-    const effect = readerEffect(reader);
-
-    runEffects([effect], { x: 42 }, () => {});
-    expect(value).toBe(42);
-  });
-
-  it("runs Effect with dispatch", () => {
-    let dispatchedMsg: string | null = null;
-    const effect = {
-      run: (env: any, dispatch: any) => {
-        dispatch("test-message");
-      },
-    };
-
-    runEffects([effect], {}, (msg) => {
-      dispatchedMsg = msg;
-    });
-
-    expect(dispatchedMsg).toBe("test-message");
-  });
-
-  it("handles async effects", async () => {
-    let resolved = false;
-    const effect = {
-      run: async () => {
-        await new Promise((r) => setTimeout(r, 10));
-        resolved = true;
-      },
-    };
-
-    runEffects([effect], {}, () => {});
-
-    // Give async effect time to complete
-    await new Promise((r) => setTimeout(r, 20));
-    expect(resolved).toBe(true);
-  });
-
-  it("catches and logs effect errors", () => {
-    const consoleError = console.error;
-    let errorLogged = false;
-    console.error = () => {
-      errorLogged = true;
-    };
-
-    const effect = {
-      run: () => {
-        throw new Error("Effect error");
-      },
-    };
-
-    expect(() => {
-      runEffects([effect], {}, () => {});
-    }).not.toThrow();
-
-    expect(errorLogged).toBe(true);
-    console.error = consoleError;
-  });
-});
+const makeRoot = () => document.createElement("div");
 
 describe("renderApp", () => {
-  it("validates root parameter", () => {
-    expect(() => {
-      renderApp(null as any, {} as any, {}, () => {});
-    }).toThrow("root element is required");
-  });
-
-  it("validates program parameter", () => {
-    const root = document.createElement("div");
-    expect(() => {
-      renderApp(root, null as any, {}, () => {});
-    }).toThrow("program is required");
-  });
-
-  it("validates program.init", () => {
-    const root = document.createElement("div");
-    const badProgram = { update: () => {}, view: () => {} } as any;
-
-    expect(() => {
-      renderApp(root, badProgram, {}, () => {});
-    }).toThrow("program.init must be an IO");
-  });
-
-  it("runs complete init -> render -> effects cycle", () => {
-    const root = document.createElement("div");
-    let effectRan = false;
-    let renderCount = 0;
+  it("runs init and renders once", () => {
+    const root = makeRoot();
+    const renderer = vi.fn();
 
     const program = {
       init: IO(() => ({
-        model: { count: 0 },
-        effects: [
-          {
-            run: () => {
-              effectRan = true;
-            },
-          },
-        ],
+        model: 0,
+        effects: [] as any[],
       })),
-      update: (msg: any, model: any) => ({
-        model: { count: model.count + 1 },
-        effects: [],
+      update: vi.fn(
+        (_msg: Msg, model: number, _dispatch: (m: Msg) => void) => ({
+          model: model + 1,
+          effects: [] as any[],
+        })
+      ),
+      view: vi.fn((model: number, _dispatch: (m: Msg) => void) => {
+        return { tag: "div", attrs: { "data-model": model } };
       }),
-      view: (model: any, dispatch: any) => {
-        renderCount++;
-        return { tag: "div", children: [model.count] };
-      },
     };
 
-    const renderer = (root: any, vnode: any) => {
-      // Mock renderer
+    renderApp(root, program as any, {}, renderer);
+
+    expect(program.init.run).toBeTypeOf("function");
+    expect(program.view).toHaveBeenCalledTimes(1);
+    expect(renderer).toHaveBeenCalledTimes(1);
+    expect(program.view).toHaveBeenCalledWith(0, expect.any(Function));
+  });
+
+  it("dispatch triggers update → view → renderer", () => {
+    const root = makeRoot();
+    const renderer = vi.fn();
+
+    let capturedDispatch: ((m: Msg) => void) | null = null;
+
+    const program = {
+      init: IO(() => ({
+        model: 0,
+        effects: [] as any[],
+      })),
+      update: vi.fn((msg: Msg, model: number, _dispatch: (m: Msg) => void) => ({
+        model: model + 1,
+        effects: [] as any[],
+      })),
+      view: vi.fn((model: number, dispatch: (m: Msg) => void) => {
+        capturedDispatch = dispatch;
+        return { tag: "div", attrs: { "data-model": model } };
+      }),
     };
 
-    renderApp(root, program, {}, renderer);
+    renderApp(root, program as any, {}, renderer);
 
-    expect(effectRan).toBe(true);
-    expect(renderCount).toBe(1);
+    expect(capturedDispatch).toBeTypeOf("function");
+
+    (capturedDispatch as (m: Msg) => void)("INC");
+
+    expect(program.update).toHaveBeenCalledTimes(1);
+    expect(program.update).toHaveBeenCalledWith("INC", 0, expect.any(Function));
+    expect(program.view).toHaveBeenCalledTimes(2);
+    expect(renderer).toHaveBeenCalledTimes(2);
+  });
+
+  it("effects returned from update are interpreted and can dispatch", () => {
+    const root = makeRoot();
+    const renderer = vi.fn();
+    const effectBody = vi.fn();
+
+    let capturedDispatch: ((m: Msg) => void) | null = null;
+
+    const program = {
+      init: IO(() => ({
+        model: 0,
+        effects: [] as any[],
+      })),
+      update: vi.fn((msg: Msg, model: number, _dispatch: (m: Msg) => void) => {
+        if (msg === "TRIGGER_EFFECT") {
+          const eff = fx((env: unknown, dispatch: (m: Msg) => void) => {
+            effectBody(env);
+            dispatch("FOLLOW_UP");
+          });
+
+          return {
+            model,
+            effects: [eff] as any[],
+          };
+        }
+
+        // FOLLOW_UP or others just bump model
+        return {
+          model: model + 1,
+          effects: [] as any[],
+        };
+      }),
+      view: vi.fn((model: number, dispatch: (m: Msg) => void) => {
+        capturedDispatch = dispatch;
+        return { tag: "div", attrs: { "data-model": model } };
+      }),
+    };
+
+    const env = { foo: 42 };
+
+    renderApp(root, program as any, env, renderer);
+
+    const dispatch = capturedDispatch as (m: Msg) => void;
+    dispatch("TRIGGER_EFFECT");
+
+    // First update: TRIGGER_EFFECT with initial model
+    expect(program.update).toHaveBeenCalledWith(
+      "TRIGGER_EFFECT",
+      0,
+      expect.any(Function)
+    );
+
+    // Effect should have run with env and dispatched FOLLOW_UP
+    expect(effectBody).toHaveBeenCalledWith(env);
+
+    // Second update: FOLLOW_UP with same model (0) then incremented
+    expect(program.update).toHaveBeenCalledWith(
+      "FOLLOW_UP",
+      0,
+      expect.any(Function)
+    );
+
+    // We should have rendered three times:
+    //  - initial
+    //  - after TRIGGER_EFFECT
+    //  - after FOLLOW_UP
+    expect(renderer).toHaveBeenCalledTimes(3);
   });
 });

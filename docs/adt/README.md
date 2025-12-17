@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../README.md)
+[**algebraic-fx v0.0.2**](../README.md)
 
 ***
 
@@ -10,58 +10,64 @@
 
 ### Either
 
-Re-exports [Either](../index/variables/Either.md)
+Re-exports [Either](../index/namespaces/Either/README.md)
 
 ***
 
-### Id
+### fl
 
-Re-exports [Id](../index/variables/Id.md)
+Re-exports [fl](../index/variables/fl.md)
 
 ***
 
 ### IO
 
-Re-exports [IO](../index/variables/IO.md)
+Re-exports [IO](../index/namespaces/IO/README.md)
 
 ***
 
 ### Maybe
 
-Re-exports [Maybe](../index/variables/Maybe.md)
+Re-exports [Maybe](../index/namespaces/Maybe/README.md)
+
+***
+
+### Monoid
+
+Re-exports [Monoid](../index/namespaces/Monoid/README.md)
 
 ***
 
 ### Reader
 
-Re-exports [Reader](../index/variables/Reader.md)
+Re-exports [Reader](../index/namespaces/Reader/README.md)
 
 ***
 
 ### State
 
-Re-exports [State](../index/variables/State.md)
-
-***
-
-### Stream
-
-Re-exports [Stream](../index/variables/Stream.md)
+Re-exports [State](../index/namespaces/State/README.md)
 
 ***
 
 ### Task
 
-Re-exports [Task](../index/variables/Task.md)
+Re-exports [Task](../index/namespaces/Task/README.md)
 
 ***
 
 ### Validation
 
-Re-exports [Validation](../index/variables/Validation.md)
+Re-exports [Validation](../index/namespaces/Validation/README.md)
 
 ***
 
 ### Writer
 
-Re-exports [Writer](../index/variables/Writer.md)
+Re-exports [Writer](../index/namespaces/Writer/README.md)
+
+***
+
+### WriterTask
+
+Re-exports [WriterTask](../index/namespaces/WriterTask/README.md)

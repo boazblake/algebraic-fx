@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../../README.md)
+[**algebraic-fx v0.0.2**](../../../../README.md)
 
 ***
 
@@ -6,17 +6,15 @@
 
 # Function: asks()
 
-> **asks**\<`E`, `A`\>(`f`): [`Reader`](../../../type-aliases/Reader.md)\<`E`, `A`\>
+> **asks**\<`R`, `A`\>(`f`): [`Reader`](../interfaces/Reader.md)\<`R`, `A`\>
 
-Defined in: [adt/reader.ts:75](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L75)
-
-Extract a value from the environment using a projection function.
+Defined in: [adt/reader.ts:85](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/reader.ts#L85)
 
 ## Type Parameters
 
-### E
+### R
 
-`E`
+`R`
 
 ### A
 
@@ -26,8 +24,8 @@ Extract a value from the environment using a projection function.
 
 ### f
 
-(`env`) => `A`
+(`r`) => `A`
 
 ## Returns
 
-[`Reader`](../../../type-aliases/Reader.md)\<`E`, `A`\>
+[`Reader`](../interfaces/Reader.md)\<`R`, `A`\>

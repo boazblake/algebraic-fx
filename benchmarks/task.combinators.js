@@ -1,14 +1,13 @@
 // benchmarks/task.combinators.js
 import { runBench, printResults } from "./util.js";
-import Task from "../dist/adt/task.js";
-import { Right } from "../dist/adt/either.js";
+import { TaskModule as Task } from "../dist/adt/task.js";
 
 const pureTask = Task.of(1);
 
-const chainedTask = pureTask
-  .map((x) => x + 1)
-  .chain((x) => Task.of(x * 2))
-  .map((x) => x - 1);
+// Use module-level combinators in small steps
+const step1 = Task.map((x) => x + 1)(pureTask);
+const step2 = Task.chain((x) => Task.of(x * 2))(step1);
+const chainedTask = Task.map((x) => x - 1)(step2);
 
 const promiseChain = () =>
   Promise.resolve(1)

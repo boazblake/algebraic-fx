@@ -1,191 +1,89 @@
-/**
- * Unique brand ensuring Validation values are nominally typed.
- * Prevents accidental mixing with plain objects of identical shape.
- */
-const ValidationBrand = Symbol("ValidationBrand");
-/**
- * Construct a failing Validation from an array of errors.
- *
- * @example
- * Failure(["invalid email"])
- */
-export const Failure = (errors) => ({
+// src/adt/validation.ts
+import { fl } from "./fl.js";
+// -----------------------------------------------------------------------------
+// Constructors
+// -----------------------------------------------------------------------------
+export const failure = (e) => ({
     _tag: "Failure",
-    errors,
-    [ValidationBrand]: true,
+    left: e,
 });
-/**
- * Construct a successful Validation containing a value.
- *
- * @example
- * Success(42)
- */
-export const Success = (value) => ({
+export const success = (a) => ({
     _tag: "Success",
-    value,
-    [ValidationBrand]: true,
+    right: a,
 });
-/**
- * Functor map over a successful Validation.
- * If the value is `Success(a)`, returns `Success(f(a))`.
- * If `Failure`, returns unchanged.
- */
-export const map = (f, v) => (v._tag === "Success" ? Success(f(v.value)) : v);
-/**
- * Applicative apply for Validation.
- *
- * - If both function and value are failures, errors accumulate.
- * - If any side is Failure, that Failure is returned.
- * - If both are Success, applies the function to the value.
- *
- * @example
- * ap(Success(x => x + 1), Success(2))     // Success(3)
- * ap(Failure(["e1"]), Failure(["e2"]))    // Failure(["e1", "e2"])
- */
-export const ap = (vf, va) => {
-    if (vf._tag === "Failure" && va._tag === "Failure")
-        return Failure([...vf.errors, ...va.errors]);
-    if (vf._tag === "Failure")
-        return vf;
-    if (va._tag === "Failure")
-        return va;
-    return Success(vf.value(va.value));
-};
-/**
- * Monad chain for Validation.
- *
- * Important:
- * - `chain` *short-circuits* like Either, NOT accumulating errors.
- *   Use here only for sequential validation that should stop on the first error.
- */
-export const chain = (f, v) => (v._tag === "Success" ? f(v.value) : v);
-/**
- * Map over both Failure and Success branches.
- */
-export const bimap = (onFailure, onSuccess, v) => v._tag === "Failure"
-    ? Failure(onFailure(v.errors))
-    : Success(onSuccess(v.value));
-/**
- * Map only the error list.
- */
-export const mapErrors = (f, v) => (v._tag === "Failure" ? Failure(f(v.errors)) : v);
-/**
- * Lift a value into a successful Validation.
- */
-export const of = (a) => Success(a);
-/**
- * Pattern match on Validation.
- *
- * @param onFail Called with accumulated errors
- * @param onSucc Called with the success value
- */
-export const fold = (onFail, onSucc, v) => (v._tag === "Failure" ? onFail(v.errors) : onSucc(v.value));
-/**
- * Extract the success value or fall back to a default.
- */
-export const getOrElse = (defaultValue, v) => v._tag === "Success" ? v.value : defaultValue;
-/**
- * Extract the success value or compute a fallback based on the errors.
- */
-export const getOrElseW = (onFailure, v) => (v._tag === "Success" ? v.value : onFailure(v.errors));
-/**
- * Type guard: check if Validation is Failure.
- */
+export const of = (a) => success(a);
+// -----------------------------------------------------------------------------
+// Type guards
+// -----------------------------------------------------------------------------
 export const isFailure = (v) => v._tag === "Failure";
-/**
- * Type guard: check if Validation is Success.
- */
 export const isSuccess = (v) => v._tag === "Success";
-/**
- * Create a failure from a single error.
- */
-export const fail = (error) => Failure([error]);
-/**
- * Alternative operator:
- * - returns the first Success
- * - if both are Failure, errors accumulate
- */
-export const alt = (v1, v2) => {
-    if (v1._tag === "Success")
-        return v1;
-    if (v2._tag === "Success")
-        return v2;
-    return Failure([...v1.errors, ...v2.errors]);
+export const isValidation = (u) => (!!u && typeof u === "object" && u._tag === "Failure") ||
+    u._tag === "Success";
+// -----------------------------------------------------------------------------
+// Core combinators
+// -----------------------------------------------------------------------------
+export const map = (f) => (fa) => isSuccess(fa) ? success(f(fa.right)) : fa;
+export const mapFailure = (f) => (fa) => isFailure(fa) ? failure(f(fa.left)) : fa;
+export const bimap = (f, g) => (fa) => isFailure(fa)
+    ? failure(f(fa.left))
+    : success(g(fa.right));
+// Pattern matching
+export const match = (onFailure, onSuccess) => (fa) => isFailure(fa) ? onFailure(fa.left) : onSuccess(fa.right);
+export const getOrElse = (onFailure) => (fa) => isFailure(fa) ? onFailure() : fa.right;
+// Constructors from other shapes
+export const fromPredicate = (pred, onFalse) => (a) => pred(a) ? success(a) : failure(onFalse(a));
+export const fromNullable = (onNull) => (a) => a == null ? failure(onNull()) : success(a);
+export const semigroupString = {
+    concat: (x, y) => x + y,
 };
-/**
- * Combine a list of Validations, accumulating ALL errors.
- *
- * - If any failures exist → return `Failure(all errors)`
- * - Otherwise → return `Success(array of all values)`
- */
-export const combine = (validations) => {
-    const successes = [];
-    const errors = [];
-    for (const v of validations) {
-        if (v._tag === "Success")
-            successes.push(v.value);
-        else
-            errors.push(...v.errors);
-    }
-    return errors.length > 0 ? Failure(errors) : Success(successes);
+export const semigroupArray = () => ({
+    concat: (xs, ys) => xs.concat(ys),
+});
+// -----------------------------------------------------------------------------
+// Applicative instance factory
+// -----------------------------------------------------------------------------
+export const getValidationApplicative = (S) => {
+    const ap = (fab, fa) => {
+        if (isFailure(fab) && isFailure(fa)) {
+            return failure(S.concat(fab.left, fa.left));
+        }
+        if (isFailure(fab))
+            return fab;
+        if (isFailure(fa))
+            return fa;
+        const f = fab.right;
+        // Handle functions of any arity.
+        try {
+            return success(f(fa.right));
+        }
+        catch {
+            // If f does not accept an argument, treat as constant function.
+            return success(f());
+        }
+    };
+    return {
+        of,
+        map,
+        ap,
+    };
 };
-/**
- * Traverse an array, applying a Validation-producing function `f`.
- *
- * - Accumulates ALL errors across the entire array.
- * - Equivalent to `Applicative` traversal.
- */
-export const traverse = (f, arr) => {
-    const results = [];
-    const errors = [];
-    for (const a of arr) {
-        const vb = f(a);
-        if (vb._tag === "Success")
-            results.push(vb.value);
-        else
-            errors.push(...vb.errors);
-    }
-    return errors.length > 0 ? Failure(errors) : Success(results);
-};
-/**
- * Sequence an array of Validations.
- *
- * Equivalent to: `traverse(x => x)`
- */
-export const sequence = (arr) => traverse((x) => x, arr);
-/**
- * Lift a predicate into Validation.
- *
- * - If predicate holds → Success(a)
- * - If predicate fails → Failure([onFalse(a)])
- */
-export const fromPredicate = (predicate, onFalse) => (a) => predicate(a) ? Success(a) : fail(onFalse(a));
-/**
- * Namespace-style export object for ergonomic importing.
- *
- * @example
- * import { Validation } from "algebraic-fx/adt/validation";
- */
-export const Validation = {
-    Failure,
-    Success,
-    map,
-    ap,
-    chain,
-    bimap,
-    mapErrors,
+// -----------------------------------------------------------------------------
+// Fantasy Land and fp ts style module dictionary
+// -----------------------------------------------------------------------------
+export const ValidationModule = {
+    URI: "Validation",
+    failure,
+    success,
     of,
-    fold,
-    getOrElse,
-    getOrElseW,
-    isFailure,
-    isSuccess,
-    fail,
-    alt,
-    combine,
-    traverse,
-    sequence,
+    map,
+    mapFailure,
+    bimap,
     fromPredicate,
+    fromNullable,
+    getOrElse,
+    getValidationApplicative,
+    semigroupString,
+    semigroupArray,
+    [fl.of]: of,
 };
-export default Validation;
 //# sourceMappingURL=validation.js.map

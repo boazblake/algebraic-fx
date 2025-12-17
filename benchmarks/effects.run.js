@@ -2,28 +2,36 @@
 import { runBench, printResults } from "./util.js";
 import { IO } from "../dist/adt/io.js";
 import { Reader } from "../dist/adt/reader.js";
-import { runEffects, ioEffect, readerEffect } from "../dist/core/render.js";
+import { runEffects } from "../dist/core/effects.js";
+import { fx } from "../dist/core/effects.js";
 
-const mkIOEffects = (n) =>
-  Array.from({ length: n }).map(() => ioEffect(IO(() => {})));
+// ---------------------------------------------
+// Helpers
+// ---------------------------------------------
+
+const mkIOEffects = (n) => Array.from({ length: n }, () => IO(() => {}));
 
 const mkReaderEffects = (n) =>
-  Array.from({ length: n }).map(() =>
-    readerEffect(
-      Reader((env) =>
-        IO(() => {
-          void env.x;
-        })
-      )
+  Array.from({ length: n }, () =>
+    Reader((env) =>
+      IO(() => {
+        // touch env so it is not optimized away
+        void env.x;
+      })
     )
   );
 
 const mkCustomEffects = (n) =>
-  Array.from({ length: n }).map(() => ({
-    run: (_env, dispatch) => {
+  Array.from({ length: n }, () =>
+    fx((_env, dispatch) => {
       dispatch({ type: "Ping" });
-    },
-  }));
+      return undefined;
+    })
+  );
+
+// ---------------------------------------------
+// Main
+// ---------------------------------------------
 
 const main = () => {
   const env = { x: 1 };
@@ -35,13 +43,13 @@ const main = () => {
 
   const results = [
     runBench("runEffects IO x1000", 500, () => {
-      runEffects(ioFx, env, dispatch);
+      runEffects(env, dispatch, ioFx);
     }),
     runBench("runEffects Reader x1000", 500, () => {
-      runEffects(readerFx, env, dispatch);
+      runEffects(env, dispatch, readerFx);
     }),
     runBench("runEffects custom x1000", 500, () => {
-      runEffects(customFx, env, dispatch);
+      runEffects(env, dispatch, customFx);
     }),
   ];
 

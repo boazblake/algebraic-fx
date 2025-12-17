@@ -1,159 +1,96 @@
-/**
- * Unique brand to nominally type Either values, preventing structural collisions.
- */
-declare const EitherBrand: unique symbol;
-/**
- * Left value of Either.
- *
- * Represents failure or alternate branch.
- *
- * @typeParam L Error or alternate type
- */
-export type Left<L> = {
-    _tag: "Left";
-    left: L;
-    readonly [EitherBrand]: true;
+import { fl } from "./fl.js";
+export type Left<E> = {
+    readonly _tag: "Left";
+    readonly left: E;
 };
-/**
- * Right value of Either.
- *
- * Represents success branch.
- *
- * @typeParam R Success type
- */
-export type Right<R> = {
-    _tag: "Right";
-    right: R;
-    readonly [EitherBrand]: true;
+export type Right<A> = {
+    readonly _tag: "Right";
+    readonly right: A;
 };
+export type Either<E, A> = Left<E> | Right<A>;
+export declare const isLeft: <E, A>(fa: Either<E, A>) => fa is Left<E>;
+export declare const isRight: <E, A>(fa: Either<E, A>) => fa is Right<A>;
+export declare const left: <E = never, A = never>(e: E) => Either<E, A>;
+export declare const right: <E = never, A = never>(a: A) => Either<E, A>;
 /**
- * Either<L, R> — Sum type representing success or failure.
- *
- * Common use cases:
- * - Error handling without exceptions
- * - Parsing
- * - Validation pipelines
- *
- * Semantics:
- * - Left = error / failure
- * - Right = success
- */
-export type Either<L, R> = (Left<L> | Right<R>) & {
-    readonly [EitherBrand]: true;
-};
-/**
- * Construct a Left value (failure).
- */
-export declare const Left: <L>(l: L) => Either<L, never>;
-/**
- * Construct a Right value (success).
- */
-export declare const Right: <R>(r: R) => Either<never, R>;
-/**
- * Functor map: transform the Right value, preserve Left as-is.
- */
-export declare const map: <L, A, B>(f: (a: A) => B, e: Either<L, A>) => Either<L, B>;
-/**
- * Applicative apply: apply a Right-wrapped function to a Right-wrapped value.
- */
-export declare const ap: <L, A, B>(ef: Either<L, (a: A) => B>, ea: Either<L, A>) => Either<L, B>;
-/**
- * Monad chain: bind the Right value to the next computation, short-circuiting on Left.
- */
-export declare const chain: <L, A, B>(f: (a: A) => Either<L, B>, e: Either<L, A>) => Either<L, B>;
-/**
- * Bifunctor map over Left OR Right.
- */
-export declare const bimap: <L, A, L2, B>(onLeft: (l: L) => L2, onRight: (a: A) => B, e: Either<L, A>) => Either<L2, B>;
-/**
- * Map only the Left (error) side.
- */
-export declare const mapLeft: <L, A, L2>(f: (l: L) => L2, e: Either<L, A>) => Either<L2, A>;
-/**
- * Pattern match for Either.
- */
-export declare const fold: <L, A, B>(onLeft: (l: L) => B, onRight: (a: A) => B, e: Either<L, A>) => B;
-/**
- * Lift a value into Right (pure).
+ * Applicative "of" injects a value in the Right side.
  */
 export declare const of: <A>(a: A) => Either<never, A>;
 /**
- * Extract the Right or fallback to a default.
+ * Functor map.
  */
-export declare const getOrElse: <L, A>(defaultValue: A, e: Either<L, A>) => A;
+export declare const map: <E, A, B>(fa: Either<E, A>, f: (a: A) => B) => Either<E, B>;
 /**
- * Extract Right or compute fallback.
+ * Map over the Left side.
  */
-export declare const getOrElseW: <L, A, B>(onLeft: (l: L) => B, e: Either<L, A>) => A | B;
+export declare const mapLeft: <E, A, F>(fa: Either<E, A>, f: (e: E) => F) => Either<F, A>;
 /**
- * Alternative: return the first Right encountered.
+ * Bimap over both sides.
  */
-export declare const alt: <L, A>(e1: Either<L, A>, e2: Either<L, A>) => Either<L, A>;
+export declare const bimap: <E, A, F, B>(fa: Either<E, A>, f: (e: E) => F, g: (a: A) => B) => Either<F, B>;
 /**
- * Type guard: check if e is Left.
+ * Apply. If either side is Left, it short circuits.
  */
-export declare const isLeft: <L, A>(e: Either<L, A>) => e is Left<L>;
+export declare const ap: <E, A, B>(fab: Either<E, (a: A) => B>, fa: Either<E, A>) => Either<E, B>;
 /**
- * Type guard: check if e is Right.
+ * Monad chain.
  */
-export declare const isRight: <L, A>(e: Either<L, A>) => e is Right<A>;
+export declare const chain: <E, A, B>(fa: Either<E, A>, f: (a: A) => Either<E, B>) => Either<E, B>;
 /**
- * Convert nullable to Either.
- *
- * @example
- * fromNullable("missing")(null)    // Left("missing")
- * fromNullable("missing")(42)      // Right(42)
+ * Swap Left and Right.
  */
-export declare const fromNullable: <L>(onNull: L) => <A>(a: A | null | undefined) => Either<L, NonNullable<A>>;
+export declare const swap: <E, A>(fa: Either<E, A>) => Either<A, E>;
 /**
- * Try/catch wrapper for synchronous code.
+ * Pattern match.
  */
-export declare const tryCatch: <A>(f: () => A) => Either<unknown, A>;
+export declare const match: <E, A, B>(onLeft: (e: E) => B, onRight: (a: A) => B) => (fa: Either<E, A>) => B;
 /**
- * Try/catch wrapper with custom error mapping.
+ * Same as match but flipped argument order, aligns with maybe().
  */
-export declare const tryCatchK: <E, A>(f: () => A, onError: (e: unknown) => E) => Either<E, A>;
+export declare const either: <E, A, B>(onLeft: (e: E) => B, onRight: (a: A) => B) => (fa: Either<E, A>) => B;
 /**
- * Swap Left and Right positions.
+ * Extract with default for Left.
  */
-export declare const swap: <L, A>(e: Either<L, A>) => Either<A, L>;
+export declare const getOrElse: <E, A>(onLeft: (e: E) => A) => (fa: Either<E, A>) => A;
 /**
- * Keep Right only if predicate succeeds; otherwise convert to Left.
+ * Build Either from nullable value.
  */
-export declare const filterOrElse: <L, A>(predicate: (a: A) => boolean, onFalse: (a: A) => L, e: Either<L, A>) => Either<L, A>;
+export declare const fromNullable: <E>(onNull: () => E) => <A>(a: A | null | undefined) => Either<E, A>;
 /**
- * Traverse an array, short-circuiting on Left.
+ * Build Either from predicate.
  */
-export declare const traverse: <L, A, B>(f: (a: A) => Either<L, B>, arr: A[]) => Either<L, B[]>;
+export declare const fromPredicate: <E, A>(predicate: (a: A) => boolean, onFalse: (a: A) => E) => (a: A) => Either<E, A>;
 /**
- * Sequence an array of Eithers into Either of array.
+ * Effectful construction with error capture.
  */
-export declare const sequence: <L, A>(arr: Either<L, A>[]) => Either<L, A[]>;
+export declare const tryCatch: <E, A>(thunk: () => A, onThrow: (u: unknown) => E) => Either<E, A>;
 /**
- * Unified namespace export.
+ * Narrow type guard for Either values.
  */
-export declare const Either: {
-    Left: <L>(l: L) => Either<L, never>;
-    Right: <R>(r: R) => Either<never, R>;
-    map: <L, A, B>(f: (a: A) => B, e: Either<L, A>) => Either<L, B>;
-    ap: <L, A, B>(ef: Either<L, (a: A) => B>, ea: Either<L, A>) => Either<L, B>;
-    chain: <L, A, B>(f: (a: A) => Either<L, B>, e: Either<L, A>) => Either<L, B>;
-    bimap: <L, A, L2, B>(onLeft: (l: L) => L2, onRight: (a: A) => B, e: Either<L, A>) => Either<L2, B>;
-    mapLeft: <L, A, L2>(f: (l: L) => L2, e: Either<L, A>) => Either<L2, A>;
-    fold: <L, A, B>(onLeft: (l: L) => B, onRight: (a: A) => B, e: Either<L, A>) => B;
+export declare const isEither: (u: unknown) => u is Either<unknown, unknown>;
+/**
+ * fp ts style module dictionary.
+ */
+export declare const EitherModule: {
+    [fl.of]: <A>(a: A) => Either<never, A>;
+    URI: string;
+    left: <E = never, A = never>(e: E) => Either<E, A>;
+    right: <E = never, A = never>(a: A) => Either<E, A>;
     of: <A>(a: A) => Either<never, A>;
-    getOrElse: <L, A>(defaultValue: A, e: Either<L, A>) => A;
-    getOrElseW: <L, A, B>(onLeft: (l: L) => B, e: Either<L, A>) => A | B;
-    alt: <L, A>(e1: Either<L, A>, e2: Either<L, A>) => Either<L, A>;
-    isLeft: <L, A>(e: Either<L, A>) => e is Left<L>;
-    isRight: <L, A>(e: Either<L, A>) => e is Right<A>;
-    fromNullable: <L>(onNull: L) => <A>(a: A | null | undefined) => Either<L, NonNullable<A>>;
-    tryCatch: <A>(f: () => A) => Either<unknown, A>;
-    tryCatchK: <E, A>(f: () => A, onError: (e: unknown) => E) => Either<E, A>;
-    swap: <L, A>(e: Either<L, A>) => Either<A, L>;
-    filterOrElse: <L, A>(predicate: (a: A) => boolean, onFalse: (a: A) => L, e: Either<L, A>) => Either<L, A>;
-    traverse: <L, A, B>(f: (a: A) => Either<L, B>, arr: A[]) => Either<L, B[]>;
-    sequence: <L, A>(arr: Either<L, A>[]) => Either<L, A[]>;
+    isLeft: <E, A>(fa: Either<E, A>) => fa is Left<E>;
+    isRight: <E, A>(fa: Either<E, A>) => fa is Right<A>;
+    map: <E, A, B>(fa: Either<E, A>, f: (a: A) => B) => Either<E, B>;
+    mapLeft: <E, A, F>(fa: Either<E, A>, f: (e: E) => F) => Either<F, A>;
+    bimap: <E, A, F, B>(fa: Either<E, A>, f: (e: E) => F, g: (a: A) => B) => Either<F, B>;
+    ap: <E, A, B>(fab: Either<E, (a: A) => B>, fa: Either<E, A>) => Either<E, B>;
+    chain: <E, A, B>(fa: Either<E, A>, f: (a: A) => Either<E, B>) => Either<E, B>;
+    swap: <E, A>(fa: Either<E, A>) => Either<A, E>;
+    match: <E, A, B>(onLeft: (e: E) => B, onRight: (a: A) => B) => (fa: Either<E, A>) => B;
+    either: <E, A, B>(onLeft: (e: E) => B, onRight: (a: A) => B) => (fa: Either<E, A>) => B;
+    getOrElse: <E, A>(onLeft: (e: E) => A) => (fa: Either<E, A>) => A;
+    fromNullable: <E>(onNull: () => E) => <A>(a: A | null | undefined) => Either<E, A>;
+    fromPredicate: <E, A>(predicate: (a: A) => boolean, onFalse: (a: A) => E) => (a: A) => Either<E, A>;
+    tryCatch: <E, A>(thunk: () => A, onThrow: (u: unknown) => E) => Either<E, A>;
+    isEither: (u: unknown) => u is Either<unknown, unknown>;
 };
-export default Either;
 //# sourceMappingURL=either.d.ts.map

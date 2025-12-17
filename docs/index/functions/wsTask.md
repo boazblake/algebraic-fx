@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../README.md)
+[**algebraic-fx v0.0.2**](../../README.md)
 
 ***
 
@@ -6,17 +6,15 @@
 
 # Function: wsTask()
 
-> **wsTask**\<`E`\>(`url`, `protocols?`, `onError?`): [`Task`](../type-aliases/Task.md)\<`E`, `WebSocket`\>
+> **wsTask**\<`E`\>(`url`, `env`, `onError?`): [`Task`](../namespaces/Task/interfaces/Task.md)\<`E`, `WebSocket`\>
 
-Defined in: [helpers/ws-task.ts:36](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/helpers/ws-task.ts#L36)
-
-Create a Task that opens a WebSocket connection.
+Defined in: [helpers/ws-task.ts:10](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/helpers/ws-task.ts#L10)
 
 ## Type Parameters
 
 ### E
 
-`E` = [`WSDefaultError`](../type-aliases/WSDefaultError.md)
+`E`
 
 ## Parameters
 
@@ -24,29 +22,14 @@ Create a Task that opens a WebSocket connection.
 
 `string`
 
-WebSocket URL
+### env
 
-### protocols?
-
-Optional subprotocols
-
-`string` | `string`[]
+[`WebSocketEnv`](../type-aliases/WebSocketEnv.md)
 
 ### onError?
 
 (`err`) => `E`
 
-Optional error mapper
-
 ## Returns
 
-[`Task`](../type-aliases/Task.md)\<`E`, `WebSocket`\>
-
-Task<E, WebSocket>
-
-## Example
-
-```ts
-const connect = wsTask("wss://example.com/ws");
-connect.run().then(ea => ea.fold(console.error, ws => ws.send("hello")));
-```
+[`Task`](../namespaces/Task/interfaces/Task.md)\<`E`, `WebSocket`\>

@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../README.md)
+[**algebraic-fx v0.0.2**](../../README.md)
 
 ***
 
@@ -8,19 +8,13 @@
 
 > **Props** = `Record`\<`string`, `any`\> & `object`
 
-Defined in: [core/types.ts:38](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L38)
-
-Virtual DOM property bag.
-
-These include HTML/SVG attributes, event listeners, and lifecycle hooks.
+Defined in: [core/types.ts:17](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L17)
 
 ## Type Declaration
 
 ### oncreate()?
 
 > `optional` **oncreate**: (`el`) => `void`
-
-Called once when the element is created.
 
 #### Parameters
 
@@ -36,8 +30,6 @@ Called once when the element is created.
 
 > `optional` **onremove**: (`el`) => `void`
 
-Called before the element is removed from the DOM.
-
 #### Parameters
 
 ##### el
@@ -52,21 +44,15 @@ Called before the element is removed from the DOM.
 
 > `optional` **onupdate**: (`el`, `oldProps`) => `void`
 
-Called on each patch whenever props change.
-
 #### Parameters
 
 ##### el
 
 `Element`
 
-the DOM element
-
 ##### oldProps
 
 `Props`
-
-previous props before the update
 
 #### Returns
 

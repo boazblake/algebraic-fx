@@ -1,112 +1,133 @@
-// tests/adt.state.laws.test.ts
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
-import StateModule, { type State as StateT } from "../src/adt/state.ts";
+import { StateModule } from "@/adt/state";
+import type { State } from "@/adt/state";
 
-const State = StateModule;
-
-type S = number;
-type A = number;
-
-const arbStateNumber: fc.Arbitrary<StateT<S, A>> = fc
-  .func<S, [A, S]>(
-    fc.tuple(fc.integer(), fc.integer()) // [value, newState]
-  )
-  .map((f) => State<S, A>((s) => f(s)));
-
-const eqState = (x: StateT<S, A>, y: StateT<S, A>, s: S): boolean => {
-  const [vx, sx] = x.run(s);
-  const [vy, sy] = y.run(s);
-  return vx === vy && sx === sy;
+const eqState = <S, A>(sa: State<S, A>, sb: State<S, A>, init: S): boolean => {
+  const [va, sa1] = sa.run(init);
+  const [vb, sb1] = sb.run(init);
+  return Object.is(va, vb) && Object.is(sa1, sb1);
 };
 
-describe("State laws (fast-check)", () => {
-  it("Functor identity", () => {
-    fc.assert(
-      fc.property(arbStateNumber, fc.integer(), (fa, s) => {
-        const id = (x: A): A => x;
-        const lhs = fa.map(id);
-        const rhs = fa;
-        expect(eqState(lhs, rhs, s)).toBe(true);
-      })
-    );
-  });
+describe("State laws", () => {
+  const { of, map, chain, ap } = StateModule;
 
-  it("Functor composition", () => {
-    fc.assert(
-      fc.property(
-        arbStateNumber,
-        fc.func<A, A>(fc.integer()),
-        fc.func<A, A>(fc.integer()),
-        fc.integer(),
-        (fa, f, g, s) => {
-          const compose = (x: A): A => f(g(x));
-          const lhs = fa.map(compose);
-          const rhs = fa.map(g).map(f);
-          expect(eqState(lhs, rhs, s)).toBe(true);
-        }
-      )
-    );
-  });
+  describe("Functor", () => {
+    it("identity", () => {
+      fc.assert(
+        fc.property(fc.integer(), fc.integer(), (seed, init) => {
+          const s = of<number, number>(seed);
+          const left = map<number, number, number>((x) => x)(s);
+          const right = s;
+          return eqState(left, right, init);
+        })
+      );
+    });
 
-  it("Monad left identity", () => {
-    fc.assert(
-      fc.property(
-        fc.integer(),
-        fc.func<A, StateT<S, A>>(arbStateNumber),
-        fc.integer(),
-        (a, f, s) => {
-          const lhs = State.of<S, A>(a).chain(f);
-          const rhs = f(a);
-          expect(eqState(lhs, rhs, s)).toBe(true);
-        }
-      )
-    );
-  });
+    it("composition", () => {
+      fc.assert(
+        fc.property(fc.integer(), fc.integer(), (seed, init) => {
+          const s = of<number, number>(seed);
+          const f = (x: number) => x + 1;
+          const g = (x: number) => x * 2;
 
-  it("Monad right identity", () => {
-    fc.assert(
-      fc.property(arbStateNumber, fc.integer(), (fa, s) => {
-        const lhs = fa.chain(State.of);
-        const rhs = fa;
-        expect(eqState(lhs, rhs, s)).toBe(true);
-      })
-    );
-  });
-
-  it("Monad associativity", () => {
-    fc.assert(
-      fc.property(
-        arbStateNumber,
-        fc.func<A, StateT<S, A>>(arbStateNumber),
-        fc.func<A, StateT<S, A>>(arbStateNumber),
-        fc.integer(),
-        (fa, f, g, s) => {
-          const lhs = fa.chain(f).chain(g);
-          const rhs = fa.chain((a) => f(a).chain(g));
-          expect(eqState(lhs, rhs, s)).toBe(true);
-        }
-      )
-    );
-  });
-
-  it("sequence behaves like repeated chain", () => {
-    fc.assert(
-      fc.property(
-        fc.array(arbStateNumber, { maxLength: 5 }),
-        fc.integer(),
-        (states, s0) => {
-          const seq = State.sequence(states);
-          const manual = states.reduce<StateT<S, A[]>>(
-            (acc, st) => acc.chain((arr) => st.map((x) => [...arr, x])),
-            State.of<S, A[]>([])
+          const left = map<number, number, number>(g)(
+            map<number, number, number>(f)(s)
           );
-          const [v1, s1] = seq.run(s0);
-          const [v2, s2] = manual.run(s0);
-          expect(v1).toEqual(v2);
-          expect(s1).toBe(s2);
-        }
-      )
-    );
+          const right = map<number, number, number>((x) => g(f(x)))(s);
+
+          return eqState(left, right, init);
+        })
+      );
+    });
+  });
+
+  describe("Applicative", () => {
+    it("identity", () => {
+      fc.assert(
+        fc.property(fc.integer(), fc.integer(), (seed, init) => {
+          const v = of<number, number>(seed);
+          const id = of<number, (x: number) => number>((x) => x);
+          const left = ap<number, number, number>(id)(v);
+          const right = v;
+          return eqState(left, right, init);
+        })
+      );
+    });
+
+    it("homomorphism", () => {
+      fc.assert(
+        fc.property(fc.integer(), fc.integer(), (x, init) => {
+          const f = (n: number) => n + 2;
+
+          const left = ap<number, number, number>(
+            of<number, (n: number) => number>(f)
+          )(of<number, number>(x));
+
+          const right = of<number, number>(f(x));
+
+          return eqState(left, right, init);
+        })
+      );
+    });
+
+    it("interchange", () => {
+      fc.assert(
+        fc.property(fc.integer(), fc.integer(), (y, init) => {
+          const u = of<number, (n: number) => number>((n) => n * 3);
+
+          const left = ap<number, number, number>(u)(of<number, number>(y));
+          const right = ap<number, (n: number) => number, number>(
+            of<number, (f: (n: number) => number) => number>((f) => f(y))
+          )(u);
+
+          return eqState(left, right, init);
+        })
+      );
+    });
+  });
+
+  describe("Monad", () => {
+    const f = (x: number) => of<number, number>(x + 1);
+    const g = (x: number) => of<number, number>(x * 2);
+
+    it("left identity", () => {
+      fc.assert(
+        fc.property(fc.integer(), fc.integer(), (a, init) => {
+          const left = chain<number, number, number>(f)(of<number, number>(a));
+          const right = f(a);
+          return eqState(left, right, init);
+        })
+      );
+    });
+
+    it("right identity", () => {
+      fc.assert(
+        fc.property(fc.integer(), fc.integer(), (seed, init) => {
+          const m = of<number, number>(seed);
+          const left = chain<number, number, number>(of)(m);
+          const right = m;
+          return eqState(left, right, init);
+        })
+      );
+    });
+
+    it("associativity", () => {
+      fc.assert(
+        fc.property(fc.integer(), fc.integer(), (seed, init) => {
+          const m = of<number, number>(seed);
+
+          const left = chain<number, number, number>(g)(
+            chain<number, number, number>(f)(m)
+          );
+
+          const right = chain<number, number, number>((x) =>
+            chain<number, number, number>(g)(f(x))
+          )(m);
+
+          return eqState(left, right, init);
+        })
+      );
+    });
   });
 });

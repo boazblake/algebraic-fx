@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../README.md)
+[**algebraic-fx v0.0.2**](../README.md)
 
 ***
 
@@ -26,9 +26,9 @@ Re-exports [httpTask](../index/functions/httpTask.md)
 
 ***
 
-### WSDefaultError
+### WebSocketEnv
 
-Re-exports [WSDefaultError](../index/type-aliases/WSDefaultError.md)
+Re-exports [WebSocketEnv](../index/type-aliases/WebSocketEnv.md)
 
 ***
 

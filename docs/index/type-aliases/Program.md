@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../README.md)
+[**algebraic-fx v0.0.2**](../../README.md)
 
 ***
 
@@ -8,26 +8,13 @@
 
 > **Program**\<`M`, `Msg`, `Env`\> = `object`
 
-Defined in: [core/types.ts:269](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L269)
+Defined in: [core/types.ts:53](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L53)
 
-Pure program description for algebraic-fx.
+Program<M, Msg, Env>
 
-A Program consists of:
-
-  - `init`: IO returning `{ model, effects }`
-  - `update`: pure state transition plus follow-up effects
-  - `view`: pure virtual DOM renderer
-
-The runtime calls:
-
-  renderApp(root, program, env, renderer)
-
-which:
-  - executes `init`
-  - interprets returned effects
-  - renders the initial VNode tree
-  - listens for dispatched messages
-  - runs update loops and effects
+ - init: IO<{ model, effects }>
+ - update: pure state transition plus follow up effects
+ - view: pure virtual DOM renderer
 
 ## Type Parameters
 
@@ -35,27 +22,21 @@ which:
 
 `M`
 
-model type
-
 ### Msg
 
 `Msg`
-
-message union type
 
 ### Env
 
 `Env`
 
-environment threaded through RawEffects
-
 ## Properties
 
 ### init
 
-> **init**: [`IO`](IO.md)\<\{ `effects`: [`RawEffect`](RawEffect.md)\<`Env`\>[]; `model`: `M`; \}\>
+> **init**: [`IO`](../namespaces/IO/interfaces/IO.md)\<\{ `effects`: `RawEffect`\<`Env`, `Msg`\>[]; `model`: `M`; \}\>
 
-Defined in: [core/types.ts:270](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L270)
+Defined in: [core/types.ts:54](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L54)
 
 ***
 
@@ -63,7 +44,7 @@ Defined in: [core/types.ts:270](https://github.com/boazblake/algebraic-fx/blob/1
 
 > **update**: (`msg`, `model`, `dispatch`) => `object`
 
-Defined in: [core/types.ts:272](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L272)
+Defined in: [core/types.ts:56](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L56)
 
 #### Parameters
 
@@ -85,7 +66,7 @@ Defined in: [core/types.ts:272](https://github.com/boazblake/algebraic-fx/blob/1
 
 ##### effects
 
-> **effects**: [`RawEffect`](RawEffect.md)\<`Env`\>[]
+> **effects**: `RawEffect`\<`Env`, `Msg`\>[]
 
 ##### model
 
@@ -97,7 +78,7 @@ Defined in: [core/types.ts:272](https://github.com/boazblake/algebraic-fx/blob/1
 
 > **view**: (`model`, `dispatch`) => [`VChild`](VChild.md) \| [`VChild`](VChild.md)[]
 
-Defined in: [core/types.ts:278](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L278)
+Defined in: [core/types.ts:62](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L62)
 
 #### Parameters
 

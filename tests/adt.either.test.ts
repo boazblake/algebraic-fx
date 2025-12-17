@@ -1,251 +1,223 @@
+// tests/adt.either.test.ts
 import { describe, it, expect } from "vitest";
+import fc from "fast-check";
+import { fl } from "@/adt/fl";
 import {
-  Left,
-  Right,
   Either,
+  left,
+  right,
+  of,
   map,
   ap,
   chain,
-  bimap,
   mapLeft,
-  fold,
-  of,
+  bimap,
+  match,
+  either,
   getOrElse,
-  getOrElseW,
-  alt,
-  isLeft,
-  isRight,
   fromNullable,
+  fromPredicate,
   tryCatch,
-  tryCatchK,
-  swap,
-  filterOrElse,
-  traverse,
-  sequence,
-  type Left as LeftT,
-  type Right as RightT,
-} from "../src/adt/either.js";
+  isEither,
+  EitherModule,
+} from "@/adt/either";
 
-describe("Either", () => {
+const eqEither = <E, A>(x: Either<E, A>, y: Either<E, A>): boolean => {
+  if (x._tag !== y._tag) return false;
+  if (x._tag === "Left" && y._tag === "Left") return Object.is(x.left, y.left);
+  if (x._tag === "Right" && y._tag === "Right")
+    return Object.is(x.right, y.right);
+  return false;
+};
+
+describe("Either ADT", () => {
   it("constructs Left and Right", () => {
-    const l = Left("err");
-    const r = Right(42);
+    const e1 = left<string, number>("err");
+    const e2 = right<string, number>(42);
 
-    expect(l._tag).toBe("Left");
-    expect((l as any).left).toBe("err");
-    expect(r._tag).toBe("Right");
-    expect((r as any).right).toBe(42);
+    expect(e1._tag).toBe("Left");
+    expect(e1.left).toBe("err");
+    expect(e2._tag).toBe("Right");
+    expect(e2.right).toBe(42);
   });
 
-  it("map maps Right only", () => {
-    const e1 = map((x: number) => x + 1, Right(1) as Either<string, number>);
-    const e2 = map((x: number) => x + 1, Left("err") as Either<string, number>);
-
-    expect(isRight(e1)).toBe(true);
-    if (isRight(e1)) {
-      expect((e1 as any).right).toBe(2);
-    }
-    expect(isLeft(e2)).toBe(true);
-  });
-
-  it("ap applies function and value when both Right", () => {
-    const ef = Right((x: number) => x * 2) as Either<
-      string,
-      (x: number) => number
-    >;
-    const ev = Right(3) as Either<string, number>;
-    const el = Left("err") as Either<string, number>;
-
-    const r1 = ap(ef, ev);
-    const r2 = ap(ef, el);
-    const r3 = ap(Left("fail") as Either<string, (x: number) => number>, ev);
-
-    expect(isRight(r1)).toBe(true);
-    if (isRight(r1)) {
-      expect(r1.right).toBe(6);
-    }
-    expect(isLeft(r2)).toBe(true);
-    expect(isLeft(r3)).toBe(true);
-  });
-
-  it("chain sequences Right, short-circuits Left", () => {
-    const f = (x: number): Either<string, number> =>
-      x > 0 ? Right(x + 1) : Left("neg");
-
-    const r1 = chain(f, Right(1) as Either<string, number>);
-    const r2 = chain(f, Right(-1) as Either<string, number>);
-    const r3 = chain(f, Left("err") as Either<string, number>);
-
-    expect(isRight(r1)).toBe(true);
-    if (isRight(r1)) expect(r1.right).toBe(2);
-    expect(isLeft(r2)).toBe(true);
-    expect(isLeft(r3)).toBe(true);
-  });
-
-  it("bimap and mapLeft", () => {
-    const e: Either<string, number> = Left("err");
-
-    const b = bimap(
-      (s) => `prefix:${s}`,
-      (x) => x * 2,
-      e
-    );
-    expect(isLeft(b)).toBe(true);
-    if (isLeft(b)) expect(b.left).toBe("prefix:err");
-
-    const m = mapLeft((s: string) => s.toUpperCase(), e);
-    expect(isLeft(m)).toBe(true);
-    if (isLeft(m)) expect(m.left).toBe("ERR");
-  });
-
-  it("fold pattern matches", () => {
-    const e1: Either<string, number> = Right(5);
-    const e2: Either<string, number> = Left("fail");
-
-    const r1 = fold(
-      () => 0,
-      (x) => x * 2,
-      e1
-    );
-    const r2 = fold(
-      () => 0,
-      (x) => x * 2,
-      e2
-    );
-
-    expect(r1).toBe(10);
-    expect(r2).toBe(0);
-  });
-
-  it("of, getOrElse, getOrElseW", () => {
+  it("of wraps a value in Right", () => {
     const e = of(10);
-    const l = Left("err") as Either<string, number>;
-
-    expect(isRight(e)).toBe(true);
-    expect(getOrElse(0, e)).toBe(10);
-    expect(getOrElse(0, l)).toBe(0);
-
-    expect(getOrElseW((s: string) => s.length, l)).toBe("err".length);
+    expect(e._tag).toBe("Right");
+    expect((e as any).right).toBe(10);
   });
 
-  it("alt", () => {
-    const e1 = Left("x") as Either<string, number>;
-    const e2 = Right(1) as Either<string, number>;
-    const e3 = Right(2) as Either<string, number>;
+  it("map transforms Right and leaves Left", () => {
+    const r = right<string, number>(2);
+    const l = left<string, number>("oops");
 
-    const r1 = alt(e2, e3); // e2
-    const r2 = alt(e1, e2); // e2
-    const r3 = alt(e1, e1); // Left
+    const r2 = map(r, (n) => n + 1);
+    const l2 = map(l, (n) => n + 1);
 
-    expect(isRight(r1)).toBe(true);
-    if (isRight(r1)) expect(r1.right).toBe(1);
-
-    expect(isRight(r2)).toBe(true);
-    expect(isLeft(r3)).toBe(true);
+    expect(eqEither(r2, right(3))).toBe(true);
+    expect(eqEither(l2, l)).toBe(true);
   });
 
-  it("isLeft / isRight narrow correctly", () => {
-    const e1: Either<string, number> = Right(1);
-    const e2: Either<string, number> = Left("err");
+  it("chain sequences computations", () => {
+    const f = (n: number): Either<string, number> =>
+      n > 0 ? right(n * 2) : left("neg");
 
-    if (isRight(e1)) {
-      const r: RightT<number> = e1;
-      expect(r.right).toBe(1);
-    } else {
-      throw new Error("expected Right");
-    }
+    const r = right<string, number>(2);
+    const l = left<string, number>("oops");
 
-    if (isLeft(e2)) {
-      const l: LeftT<string> = e2;
-      expect(l.left).toBe("err");
-    } else {
-      throw new Error("expected Left");
-    }
+    const r2 = chain(r, f);
+    const l2 = chain(l, f);
+
+    expect(eqEither(r2, right(4))).toBe(true);
+    expect(eqEither(l2, l)).toBe(true);
   });
 
-  it("fromNullable", () => {
-    const f = fromNullable("missing");
-    const e1 = f(null);
-    const e2 = f(10);
+  it("ap applies function in Right to value in Right", () => {
+    const fab = right<string, (n: number) => number>((n) => n + 1);
+    const fa = right<string, number>(2);
+    const fl = left<string, number>("err");
 
-    expect(isLeft(e1)).toBe(true);
-    expect(isRight(e2)).toBe(true);
+    const r = ap(fab, fa);
+    const r2 = ap(fab, fl);
+
+    expect(eqEither(r, right(3))).toBe(true);
+    expect(eqEither(r2, fl)).toBe(true);
   });
 
-  it("tryCatch and tryCatchK", () => {
-    const ok = tryCatch(() => 1);
-    const fail = tryCatch(() => {
-      throw new Error("boom");
-    });
+  it("mapLeft and bimap transform Left and Right appropriately", () => {
+    const l = left<number, string>(1);
+    const r = right<number, string>("ok");
 
-    expect(isRight(ok)).toBe(true);
-    expect(isLeft(fail)).toBe(true);
+    const l2 = mapLeft(l, (n) => n + 1);
+    const r2 = mapLeft(r, (n) => n + 1);
 
-    const ok2 = tryCatchK(
-      () => 2,
-      () => "bad"
+    expect(eqEither(l2, left(2))).toBe(true);
+    expect(eqEither(r2, r)).toBe(true);
+
+    const l3 = bimap(
+      l,
+      (n) => n * 2,
+      (s) => s + "!"
     );
-    const fail2 = tryCatchK(
-      () => {
-        throw new Error("boom");
-      },
-      () => "mapped"
+    const r3 = bimap(
+      r,
+      (n) => n * 2,
+      (s) => s + "!"
     );
 
-    expect(isRight(ok2)).toBe(true);
-    expect(isLeft(fail2)).toBe(true);
-    if (isLeft(fail2)) expect(fail2.left).toBe("mapped");
+    expect(eqEither(l3, left(2))).toBe(true);
+    expect(eqEither(r3, right("ok!"))).toBe(true);
   });
 
-  it("swap", () => {
-    const e1 = swap(Left("err") as Either<string, number>);
-    const e2 = swap(Right(1) as Either<string, number>);
+  it("fromNullable and getOrElse interop", () => {
+    const fromN = fromNullable(() => "null");
 
-    expect(isRight(e1)).toBe(true);
-    expect(isLeft(e2)).toBe(true);
+    const e1 = fromN<number | null>(1);
+    const e2 = fromN<number | null>(null);
+
+    const g1 = getOrElse<string, number>(() => 0)(e1);
+    const g2 = getOrElse<string, number>(() => 0)(e2 as any);
+
+    expect(g1).toBe(1);
+    expect(g2).toBe(0);
   });
 
-  it("filterOrElse", () => {
-    const e1 = Right(2) as Either<string, number>;
-    const e2 = Right(3) as Either<string, number>;
-
-    const r1 = filterOrElse(
-      (x) => x % 2 === 0,
-      () => "odd",
-      e1
-    );
-    const r2 = filterOrElse(
-      (x) => x % 2 === 0,
-      () => "odd",
-      e2
+  it("fromPredicate builds Either based on predicate", () => {
+    const fromPositive = fromPredicate(
+      (n: number) => n > 0,
+      (n) => `non positive: ${n}`
     );
 
-    expect(isRight(r1)).toBe(true);
-    expect(isLeft(r2)).toBe(true);
+    const e1 = fromPositive(3);
+    const e2 = fromPositive(-1);
+
+    expect(eqEither(e1, right(3))).toBe(true);
+    expect(eqEither(e2, left("non positive: -1"))).toBe(true);
   });
 
-  it("traverse and sequence", () => {
-    const arr = [1, 2, 3];
-    const t1 = traverse((x) => Right(x + 1) as Either<string, number>, arr);
-    const t2 = traverse(
-      (x) => (x > 2 ? Left("big") : Right(x)) as Either<string, number>,
-      arr
+  it("match and either perform pattern matching", () => {
+    const l = left<string, number>("err");
+    const r = right<string, number>(10);
+
+    const toString = match(
+      (e) => `L:${e}`,
+      (n) => `R:${n}`
     );
 
-    expect(isRight(t1)).toBe(true);
-    if (isRight(t1)) expect(t1.right).toEqual([2, 3, 4]);
-    expect(isLeft(t2)).toBe(true);
+    expect(toString(l)).toBe("L:err");
+    expect(toString(r)).toBe("R:10");
 
-    const s1 = sequence([
-      Right(1) as Either<string, number>,
-      Right(2) as Either<string, number>,
-    ]);
-    const s2 = sequence([
-      Right(1) as Either<string, number>,
-      Left("bad") as Either<string, number>,
-    ]);
+    const toString2 = either(
+      (e) => `L:${e}`,
+      (n) => `R:${n}`
+    );
 
-    expect(isRight(s1)).toBe(true);
-    expect(isLeft(s2)).toBe(true);
+    expect(toString2(l)).toBe("L:err");
+    expect(toString2(r)).toBe("R:10");
+  });
+
+  it("tryCatch converts exceptions into Left", () => {
+    const ok = tryCatch(
+      () => JSON.parse('{"x":1}'),
+      (e) => (e as Error).message
+    );
+    const bad = tryCatch(
+      () => JSON.parse("{"),
+      (e) => (e as Error).name
+    );
+
+    expect(ok._tag).toBe("Right");
+    expect((ok as any).right).toEqual({ x: 1 });
+    expect(bad._tag).toBe("Left");
+    expect(String((bad as any).left)).toContain("SyntaxError");
+  });
+
+  it("isEither detects Either values", () => {
+    expect(isEither(right(1))).toBe(true);
+    expect(isEither(left("x"))).toBe(true);
+    expect(isEither(1)).toBe(false);
+    expect(isEither({ _tag: "Right" })).toBe(false);
+  });
+
+  it("exposes Fantasy Land methods on the value", () => {
+    const e = right<string, number>(4);
+
+    const e1 = (e as any)[fl.map]((n: number) => n + 1) as Either<
+      string,
+      number
+    >;
+    expect(eqEither(e1, right(5))).toBe(true);
+
+    const fab = right<string, (n: number) => number>((n) => n * 2);
+    const e2 = (fab as any)[fl.ap](right<string, number>(3)) as Either<
+      string,
+      number
+    >;
+    expect(eqEither(e2, right(6))).toBe(true);
+
+    const e3 = (e as any)[fl.chain]((n: number) =>
+      n > 0 ? right<string, number>(n * 3) : left<string, number>("neg")
+    ) as Either<string, number>;
+    expect(eqEither(e3, right(12))).toBe(true);
+
+    const l = left<string, number>("err");
+    const e4 = (l as any)[fl.bimap](
+      (s: string) => s + "!",
+      (n: number) => n + 1
+    ) as Either<string, number>;
+    expect(eqEither(e4, left("err!"))).toBe(true);
+  });
+
+  it("EitherModule exposes fp ts style dictionary", () => {
+    expect(EitherModule.URI).toBe("Either");
+    expect(typeof EitherModule.of).toBe("function");
+    expect(typeof EitherModule.map).toBe("function");
+    expect(typeof EitherModule.ap).toBe("function");
+    expect(typeof EitherModule.chain).toBe("function");
+    expect(typeof (EitherModule as any)[fl.of]).toBe("function");
+
+    const e = EitherModule.of(2);
+    const e2 = EitherModule.map(e, (n: number) => n + 1);
+    expect(eqEither(e2 as any, right(3))).toBe(true);
   });
 });

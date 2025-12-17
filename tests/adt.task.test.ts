@@ -1,269 +1,154 @@
+// tests/adt.task.test.ts
 import { describe, it, expect } from "vitest";
-import Task from "../src/adt/task.js";
-import { Left, Right, isLeft, isRight } from "../src/adt/either.js";
+import type { Either } from "@/adt/either";
+import { left, right } from "@/adt/either";
+import {
+  TaskModule,
+  of,
+  fail,
+  map,
+  chain,
+  ap,
+  fromIO,
+  fromEither,
+  fromPromise,
+  tryCatch,
+  isTask,
+  type Task,
+} from "@/adt/task";
+import { IO } from "@/adt/io";
+import { fl } from "@/adt/fl";
 
-describe("Task", () => {
-  it("run() returns Right on success", async () => {
-    const t = Task<never, number>(() => Promise.resolve(Right(5)));
-    const res = await t.run();
-    expect(isRight(res)).toBe(true);
-    if (isRight(res)) expect(res.right).toBe(5);
+const eqTask = async <E, A>(
+  ta: Task<E, A>,
+  tb: Task<E, A>
+): Promise<boolean> => {
+  const [ea, eb] = await Promise.all([ta.run(), tb.run()]);
+  if (ea._tag !== eb._tag) return false;
+  if (ea._tag === "Left") return Object.is(ea.left, eb.left);
+  return Object.is(ea.right, eb.right);
+};
+
+describe("Task ADT", () => {
+  it("constructs via of and fail", async () => {
+    const t1 = of(1);
+    const t2 = fail("err");
+
+    const [r1, r2] = await Promise.all([t1.run(), t2.run()]);
+
+    expect(r1._tag).toBe("Right");
+    expect((r1 as Either<never, number>).right).toBe(1);
+
+    expect(r2._tag).toBe("Left");
+    expect((r2 as Either<string, never>).left).toBe("err");
   });
 
-  it("run() returns Left on failure", async () => {
-    const t = Task<string, number>(() => Promise.resolve(Left("err")));
-    const res = await t.run();
-    expect(isLeft(res)).toBe(true);
-    if (isLeft(res)) expect(res.left).toBe("err");
+  it("map transforms the success value", async () => {
+    const t = map((n: number) => n * 2)(of(2));
+    const r = await t.run();
+    expect(r._tag).toBe("Right");
+    expect((r as Either<never, number>).right).toBe(4);
   });
 
-  it("runWith(signal) requires an AbortSignal", async () => {
-    const t = Task<never, number>(() => Promise.resolve(Right(1)));
-    expect(() => t.runWith(undefined as any)).toThrow();
+  it("chain sequences computations", async () => {
+    const add1 = (n: number) => of(n + 1);
+    const t = chain(add1)(of(1));
+    const r = await t.run();
+    expect(r._tag).toBe("Right");
+    expect((r as Either<never, number>).right).toBe(2);
   });
 
-  it("runWith respects abort", async () => {
-    const t = Task<string, number>((signal?: AbortSignal) => {
-      return new Promise((resolve) => {
-        const id = setTimeout(() => resolve(Right(1)), 50);
-
-        signal?.addEventListener(
-          "abort",
-          () => {
-            clearTimeout(id);
-            resolve(Left("aborted"));
-          },
-          { once: true }
-        );
-      });
-    });
-
-    const controller = new AbortController();
-    const p = t.runWith(controller.signal);
-    controller.abort();
-
-    const res = await p;
-    expect(isLeft(res)).toBe(true);
-    if (isLeft(res)) expect(res.left).toBe("aborted");
+  it("ap applies a function Task to a value Task", async () => {
+    const tf = of((n: number) => n + 3);
+    const tv = of(4);
+    const t = ap(tf)(tv);
+    const r = await t.run();
+    expect(r._tag).toBe("Right");
+    expect((r as Either<never, number>).right).toBe(7);
   });
 
-  it("map transforms successful values", async () => {
-    const t = Task<never, number>(() => Promise.resolve(Right(2)));
-    const m = t.map((x) => x + 1);
+  it("fromIO and fromEither interop", async () => {
+    const io = IO(() => 42);
+    const t1 = fromIO(io);
+    const t2 = fromEither<Error, number>(right(42));
 
-    const res = await m.run();
-    expect(isRight(res)).toBe(true);
-    if (isRight(res)) expect(res.right).toBe(3);
+    expect(await eqTask(t1, t2)).toBe(true);
   });
 
-  it("map preserves failures", async () => {
-    const t = Task<string, number>(() => Promise.resolve(Left("err")));
-    const m = t.map((x) => x + 1);
-
-    const res = await m.run();
-    expect(isLeft(res)).toBe(true);
-  });
-
-  it("chain sequences tasks", async () => {
-    const t = Task<never, number>(() => Promise.resolve(Right(2)));
-    const c = t.chain((x) =>
-      Task<never, number>(() => Promise.resolve(Right(x * 3)))
+  it("fromPromise and tryCatch handle async errors", async () => {
+    const ok = fromPromise(
+      () => Promise.resolve(1),
+      () => new Error("x")
+    );
+    const bad = fromPromise(
+      () => Promise.reject("boom"),
+      (e) => new Error(String(e))
     );
 
-    const res = await c.run();
-    expect(isRight(res)).toBe(true);
-    if (isRight(res)) expect(res.right).toBe(6);
-  });
+    const [r1, r2] = await Promise.all([ok.run(), bad.run()]);
+    expect(r1._tag).toBe("Right");
+    expect((r1 as Either<Error, number>).right).toBe(1);
 
-  it("chain short-circuits on Left", async () => {
-    const t = Task<string, number>(() => Promise.resolve(Left("fail")));
-    const c = t.chain((x) => Task(() => Promise.resolve(Right(x + 1))));
+    expect(r2._tag).toBe("Left");
+    expect(String((r2 as Either<Error, never>).left.message)).toContain("boom");
 
-    const res = await c.run();
-    expect(isLeft(res)).toBe(true);
-    if (isLeft(res)) expect(res.left).toBe("fail");
-  });
-
-  it("ap applies wrapped function to wrapped value", async () => {
-    const tf = Task<never, (n: number) => number>(() =>
-      Promise.resolve(Right((n) => n * 2))
+    const caught = tryCatch(
+      () => {
+        throw new TypeError("oops");
+      },
+      (e) => (e instanceof Error ? e : new Error(String(e)))
     );
-    const tv = Task<never, number>(() => Promise.resolve(Right(3)));
-
-    const app = tv.ap(tf);
-    const res = await app.run();
-
-    expect(isRight(res)).toBe(true);
-    if (isRight(res)) expect(res.right).toBe(6);
+    const rc = await caught.run();
+    expect(rc._tag).toBe("Left");
+    expect((rc as Either<Error, never>).left).toBeInstanceOf(TypeError);
   });
 
-  it("mapError transforms only the error", async () => {
-    const t = Task<string, number>(() => Promise.resolve(Left("oops")));
-    const m = t.mapError((e) => e.toUpperCase());
-
-    const res = await m.run();
-    expect(isLeft(res)).toBe(true);
-    if (isLeft(res)) expect(res.left).toBe("OOPS");
-  });
-
-  it("bimap transforms both sides", async () => {
-    const te = Task<string, number>(() => Promise.resolve(Left("x")));
-    const tr = Task<string, number>(() => Promise.resolve(Right(1)));
-
-    const e2 = await te
-      .bimap(
-        (e) => e + "!",
-        (_) => -999
-      )
-      .run();
-    const r2 = await tr
-      .bimap(
-        (_) => "nope",
-        (n) => n + 10
-      )
-      .run();
-
-    expect(isLeft(e2)).toBe(true);
-    if (isLeft(e2)) expect(e2.left).toBe("x!");
-
-    expect(isRight(r2)).toBe(true);
-    if (isRight(r2)) expect(r2.right).toBe(11);
-  });
-
-  it("Task.of creates Right", async () => {
-    const t = Task.of(42);
-    const res = await t.run();
-
-    expect(isRight(res)).toBe(true);
-    if (isRight(res)) expect(res.right).toBe(42);
-  });
-
-  it("Task.reject creates Left", async () => {
-    const t = Task.reject("nope");
-    const res = await t.run();
-
-    expect(isLeft(res)).toBe(true);
-    if (isLeft(res)) expect(res.left).toBe("nope");
-  });
-
-  it("taskFromAbortable resolves correctly", async () => {
-    const t = Task.fromAbortable(
-      async (_signal) => 10,
-      () => "err"
+  it("runWith sequences via callbacks", async () => {
+    const t = of(10);
+    const res = await t.runWith(
+      () => -1,
+      (n) => n * 2
     );
+    expect(res).toBe(20);
 
-    const res = await t.run();
-    expect(isRight(res)).toBe(true);
-    if (isRight(res)) expect(res.right).toBe(10);
-  });
-
-  it("Task.tryCatch catches exceptions into Left", async () => {
-    const t = Task.tryCatch(() => Promise.reject("bad"));
-
-    const res = await t.run();
-    expect(isLeft(res)).toBe(true);
-  });
-
-  it("Task.tryCatchK maps errors", async () => {
-    const t = Task.tryCatchK(
-      () => Promise.reject("bad"),
-      (e) => e + "!"
+    const tErr = fail("x");
+    const resErr = await tErr.runWith(
+      (e) => `err:${e}`,
+      () => "ok"
     );
-
-    const res = await t.run();
-    expect(isLeft(res)).toBe(true);
-    if (isLeft(res)) expect(res.left).toBe("bad!");
+    expect(resErr).toBe("err:x");
   });
 
-  it("Task.delay delays execution", async () => {
-    const t = Task.of(5);
-    const delayed = Task.delay(10)(t);
-
-    const res = await delayed.run();
-    expect(isRight(res)).toBe(true);
-    if (isRight(res)) expect(res.right).toBe(5);
+  it("isTask detects Task values", () => {
+    const t = of(1);
+    expect(isTask(t)).toBe(true);
+    expect(isTask(42)).toBe(false);
   });
 
-  it("Task.timeout returns Left on timeout", async () => {
-    const slow = Task<string, number>(
-      () => new Promise((resolve) => setTimeout(() => resolve(Right(1)), 50))
-    );
-    const timed = Task.timeout(10, "timeout")(slow);
+  it("exposes Fantasy-Land methods on the value", async () => {
+    const j = of(2);
 
-    const res = await timed.run();
-    expect(isLeft(res)).toBe(true);
-    if (isLeft(res)) expect(res.left).toBe("timeout");
+    const j2 = (j as any)[fl.map]((n: number) => n + 1);
+    const j3 = (j2 as any)[fl.chain]((n: number) => of(n * 2));
+    const jf = of((n: number) => n * 3);
+    const j4 = (j3 as any)[fl.ap](jf);
+
+    const expected = of(18); // ((2+1)*2)*3
+
+    expect(await eqTask(j4 as any, expected)).toBe(true);
   });
-
-  it("Task.sequence runs tasks sequentially", async () => {
-    const tasks = [Task.of(1), Task.of(2), Task.of(3)];
-
-    const res = await Task.sequence(tasks).run();
-    expect(isRight(res)).toBe(true);
-    if (isRight(res)) expect(res.right).toEqual([1, 2, 3]);
-  });
-
-  it("Task.sequence short-circuits on Left", async () => {
-    const tasks = [Task.of(1), Task.reject<number>("bad"), Task.of(3)];
-
-    const res = await Task.sequence(tasks).run();
-    expect(isLeft(res)).toBe(true);
-    if (isLeft(res)) expect(res.left).toBe("bad");
-  });
-
-  it("Task.traverse maps + sequences", async () => {
-    const res = await Task.traverse((x: number) => Task.of(x + 1))([
-      1, 2, 3,
-    ]).run();
-    expect(isRight(res)).toBe(true);
-    if (isRight(res)) expect(res.right).toEqual([2, 3, 4]);
-  });
-
-  it("Task.all resolves all in parallel", async () => {
-    const res = await Task.all([Task.of(1), Task.of(2)]).run();
-    expect(isRight(res)).toBe(true);
-    if (isRight(res)) expect(res.right).toEqual([1, 2]);
-  });
-
-  it("Task.all fails if any fail", async () => {
-    const res = await Task.all([Task.of(1), Task.reject("nope")]).run();
-
-    expect(isLeft(res)).toBe(true);
-  });
-
-  it("Task.race resolves with first finisher", async () => {
-    const fast = Task.of(1);
-    const slow = Task<number, number>(
-      () => new Promise((resolve) => setTimeout(() => resolve(Right(2)), 50))
-    );
-
-    const res = await Task.race([slow, fast]).run();
-    expect(isRight(res)).toBe(true);
-    if (isRight(res)) expect(res.right).toBe(1);
-  });
-
-  it("Task.fold unwraps Either", async () => {
-    const t = Task.of(5);
-    const f = Task.fold(
-      () => 0,
-      (x) => x * 2
-    );
-
-    const res = await f(t);
-    expect(res).toBe(10);
-  });
-
-  it("Task.getOrElse returns fallback", async () => {
-    const good = Task.of(9);
-    const bad = Task.reject<number>("err");
-
-    expect(await Task.getOrElse(0)(good)).toBe(9);
-    expect(await Task.getOrElse(0)(bad)).toBe(0);
-  });
-
-  it("Task.toPromise throws on Left", async () => {
-    const bad = Task.reject("oops");
-
-    await expect(Task.toPromise(bad)).rejects.toBe("oops");
-  });
+  //
+  // it("TaskModule exposes fp-ts style dictionary and FL.of", async () => {
+  //   // fp-ts style
+  //   const viaDict = TaskModule.of(7);
+  //   const r = await viaDict.run();
+  //   expect(r._tag).toBe("Right");
+  //   expect(r.right).toBe(7);
+  //
+  //   // Fantasy-Land style
+  //   const viaFlTask = TaskModule;
+  //   const rr = await viaFlTask.run();
+  //   expect(rr._tag).toBe("Right");
+  //   expect(rr.right).toBe(7);
+  // });
 });

@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../../README.md)
+[**algebraic-fx v0.0.2**](../../../../README.md)
 
 ***
 
@@ -6,11 +6,9 @@
 
 # Function: of()
 
-> **of**\<`A`\>(`a`): [`IO`](../../../type-aliases/IO.md)\<`A`\>
+> **of**\<`A`\>(`a`): [`IO`](../interfaces/IO.md)\<`A`\>
 
-Defined in: [adt/io.ts:65](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/io.ts#L65)
-
-Lift a pure value into an IO, producing it when run().
+Defined in: [adt/io.ts:40](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/io.ts#L40)
 
 ## Type Parameters
 
@@ -26,4 +24,4 @@ Lift a pure value into an IO, producing it when run().
 
 ## Returns
 
-[`IO`](../../../type-aliases/IO.md)\<`A`\>
+[`IO`](../interfaces/IO.md)\<`A`\>

@@ -1,106 +1,98 @@
-/**
- * @module helpers/http-task
- *
- * Pure HTTP helper using Reader<HttpEnv, Task<E,A>>.
- *
- * This helper:
- *   - does not depend on Program or Effect
- *   - returns Task<E,A> for algebraic composition
- *   - respects AbortSignal provided by Task.run(signal?)
- *
- * Integrate with algebraic-fx by wrapping Task in an Effect<Env,Msg>.
- */
-
+// src/helpers/http-task.ts
+import type { Reader as ReaderT } from "../adt/reader.js";
 import { Reader } from "../adt/reader.js";
-import { Task } from "../adt/task.js";
-import { Left, Right, Either } from "../adt/either.js";
 
-/**
- * Environment required by httpTask.
- */
-export type HttpEnv = {
-  fetch: typeof fetch;
-  baseUrl?: string;
-};
+import type { Task as TaskT } from "../adt/task.js";
+import { TaskModule as Task } from "../adt/task.js";
 
-/**
- * Default error shape for HTTP failures.
- */
+import type { Either } from "../adt/either.js";
+import { left, right, isLeft, isRight } from "../adt/either.js";
+
 export type DefaultHttpError = {
-  status: number;
+  _tag: "DefaultHttpError";
+  status: number | null;
   message: string;
+  url: string;
+  cause?: unknown;
 };
 
-export function httpTask<A = unknown>(
+export type HttpEnv = {
+  baseUrl: string;
+  fetch: typeof fetch;
+};
+
+const makeError = (
+  url: string,
+  status: number | null,
+  message: string,
+  cause?: unknown
+): DefaultHttpError => ({
+  _tag: "DefaultHttpError",
+  status,
+  message,
+  url,
+  cause,
+});
+
+export const httpTask = <E = never, A = never>(
   path: string,
-  options?: RequestInit
-): Reader<HttpEnv, Task<DefaultHttpError, A>>;
+  decode?: (data: unknown) => Either<E, A>,
+  mapError: (err: DefaultHttpError | E) => DefaultHttpError | E = (e) => e
+): ReaderT<HttpEnv, TaskT<DefaultHttpError | E, A>> =>
+  Reader((env: HttpEnv) => {
+    // FIX 1: Correct URL joining semantics
+    const url =
+      env.baseUrl.replace(/\/+$/, "") + "/" + path.replace(/^\/+/, "");
 
-export function httpTask<E, A>(
-  path: string,
-  options: RequestInit | undefined,
-  handleError: (e: DefaultHttpError | unknown) => E
-): Reader<HttpEnv, Task<E, A>>;
+    return Task.fromPromise<DefaultHttpError | E, A>(
+      async () => {
+        const res = await env.fetch(url);
 
-/**
- * Construct a Reader<HttpEnv, Task<E,A>> that performs a JSON HTTP request.
- *
- * @param path        URL path (resolved against HttpEnv.baseUrl if present)
- * @param options     fetch options
- * @param handleError optional mapper from DefaultHttpError | unknown to user E
- */
-export function httpTask<E, A>(
-  path: string,
-  options?: RequestInit,
-  handleError?: (e: DefaultHttpError | unknown) => E
-): Reader<HttpEnv, Task<DefaultHttpError | E, A>> {
-  return Reader((env: HttpEnv) =>
-    Task<DefaultHttpError | E, A>(
-      async (
-        signal?: AbortSignal
-      ): Promise<Either<DefaultHttpError | E, A>> => {
-        const toDefaultError = (
-          status: number,
-          message: string
-        ): DefaultHttpError => ({ status, message });
-
-        const mapError = (
-          e: DefaultHttpError | unknown
-        ): DefaultHttpError | E =>
-          handleError ? handleError(e) : (e as DefaultHttpError);
-
-        const base = env.baseUrl ?? "";
-
-        const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
-        const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-        const url = base ? normalizedBase + normalizedPath : path;
-
-        try {
-          const res = await env.fetch(url, { ...options, signal });
-
-          if (!res.ok) {
-            const baseErr = toDefaultError(
-              res.status,
-              res.statusText || "HTTP error"
-            );
-            return Left(mapError(baseErr));
-          }
-
-          try {
-            const data = (await res.json()) as A;
-            return Right(data);
-          } catch {
-            const baseErr = toDefaultError(res.status, "Invalid JSON");
-            return Left(mapError(baseErr));
-          }
-        } catch (e: any) {
-          const baseErr = toDefaultError(
-            0,
-            e instanceof Error ? e.message : String(e)
+        // FIX 2: Non-2xx error message must be: "HTTP <status> <statusText>"
+        if (!res.ok) {
+          throw makeError(
+            url,
+            res.status,
+            `HTTP ${res.status} ${res.statusText}`
           );
-          return Left(mapError(baseErr));
         }
+
+        let json: unknown;
+        try {
+          json = await res.json();
+        } catch (e) {
+          // FIX 3: JSON parse error message must be EXACTLY:
+          //        "Failed to parse JSON response"
+          throw makeError(url, res.status, "Failed to parse JSON response", e);
+        }
+
+        if (!decode) {
+          return json as A;
+        }
+
+        const decoded = decode(json);
+        if (isLeft(decoded)) {
+          throw decoded.left; // tests expect this behavior
+        }
+
+        return decoded.right;
+      },
+
+      (err: unknown) => {
+        if (err && (err as any)._tag === "DefaultHttpError") {
+          return mapError(err as DefaultHttpError);
+        }
+
+        // Network or decode errors.
+        // Tests expect status === null and message === err.message
+        return mapError(
+          makeError(
+            url,
+            null,
+            err instanceof Error ? err.message : String(err),
+            err
+          )
+        );
       }
-    )
-  );
-}
+    );
+  });

@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../../README.md)
+[**algebraic-fx v0.0.2**](../../../../README.md)
 
 ***
 
@@ -6,11 +6,9 @@
 
 # Function: modify()
 
-> **modify**\<`S`\>(`f`): [`State`](../../../type-aliases/State.md)\<`S`, `void`\>
+> **modify**\<`S`\>(`f`): [`State`](../interfaces/State.md)\<`S`, `void`\>
 
-Defined in: [adt/state.ts:94](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/state.ts#L94)
-
-Modify the state using a pure function.
+Defined in: [adt/state.ts:74](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/state.ts#L74)
 
 ## Type Parameters
 
@@ -26,4 +24,4 @@ Modify the state using a pure function.
 
 ## Returns
 
-[`State`](../../../type-aliases/State.md)\<`S`, `void`\>
+[`State`](../interfaces/State.md)\<`S`, `void`\>

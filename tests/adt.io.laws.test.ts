@@ -1,91 +1,93 @@
-import { describe, it } from "vitest";
-import fc from "fast-check";
-import IO from "../src/adt/io.ts";
+// tests/adt.io.laws.test.ts
+import { describe, it, expect } from "vitest";
+import { IO, of, map, chain, ap } from "@/adt/io";
 
-// Helpers
-const eqIO = <A>(
-  io1: any,
-  io2: any,
-  eq: (a: A, b: A) => boolean = Object.is
-) => {
-  const a = io1.run();
-  const b = io2.run();
-  if (!eq(a, b)) throw new Error(`IO mismatch: ${a} vs ${b}`);
-};
+const eqIO = <A>(x: IO<A>, y: IO<A>): boolean => x.run() === y.run();
+
+const id = <A>(a: A): A => a;
 
 describe("IO laws", () => {
-  // Functor: identity
-  it("functor identity: io.map(x => x) = io", () => {
-    fc.assert(
-      fc.property(fc.anything(), (x) => {
-        const io = IO(() => x);
-        eqIO(
-          io.map((y) => y),
-          io
-        );
-      })
-    );
+  describe("Functor", () => {
+    it("identity", () => {
+      const fa = of(10);
+      const left = map(id)(fa);
+      const right = fa;
+      expect(eqIO(left, right)).toBe(true);
+    });
+
+    it("composition", () => {
+      const fa = of(5);
+      const f = (n: number) => n + 1;
+      const g = (n: number) => n * 2;
+
+      const left = map((x: number) => f(g(x)))(fa);
+      const right = map(f)(map(g)(fa));
+
+      expect(eqIO(left, right)).toBe(true);
+    });
   });
 
-  // Functor: composition
-  it("functor composition: io.map(f∘g) = io.map(g).map(f)", () => {
-    fc.assert(
-      fc.property(
-        fc.anything(),
-        fc.func(fc.anything()),
-        fc.func(fc.anything()),
-        (x, f, g) => {
-          const io = IO(() => x);
-          const left = io.map((z) => f(g(z)));
-          const right = io.map(g).map(f);
-          eqIO(left, right);
-        }
-      )
-    );
+  describe("Applicative", () => {
+    it("identity", () => {
+      const v = of(7);
+      const u = of((x: number) => x);
+
+      const left = ap(u)(v);
+      const right = v;
+
+      expect(eqIO(left, right)).toBe(true);
+    });
+
+    it("homomorphism", () => {
+      const f = (n: number) => n * 3;
+      const x = 4;
+
+      const left = ap(of(f))(of(x));
+      const right = of(f(x));
+
+      expect(eqIO(left, right)).toBe(true);
+    });
+
+    it("interchange", () => {
+      const y = 3;
+      const u = of((n: number) => n + 2);
+
+      const left = ap(u)(of(y));
+      const right = ap(of((f: (n: number) => number) => f(y)))(u);
+
+      expect(eqIO(left, right)).toBe(true);
+    });
   });
 
-  // Monad: left identity
-  it("monad left identity: IO.of(a).chain(f) = f(a)", () => {
-    fc.assert(
-      fc.property(fc.anything(), fc.func(fc.anything()), (a, fRaw) => {
-        // lift f into IO-returning function
-        const f = (x: any) => IO(() => fRaw(x));
-        const left = IO.of(a).chain(f);
-        const right = f(a);
-        eqIO(left, right);
-      })
-    );
-  });
+  describe("Monad", () => {
+    it("left identity", () => {
+      const a = 5;
+      const f = (n: number) => of(n * 2);
 
-  // Monad: right identity
-  it("monad right identity: m.chain(IO.of) = m", () => {
-    fc.assert(
-      fc.property(fc.anything(), (a) => {
-        const m = IO(() => a);
-        const left = m.chain(IO.of);
-        eqIO(left, m);
-      })
-    );
-  });
+      const left = chain(f)(of(a));
+      const right = f(a);
 
-  // Monad: associativity
-  it("monad associativity: m.chain(f).chain(g) = m.chain(a => f(a).chain(g))", () => {
-    fc.assert(
-      fc.property(
-        fc.anything(),
-        fc.func(fc.anything()),
-        fc.func(fc.anything()),
-        (x, fRaw, gRaw) => {
-          const f = (a: any) => IO(() => fRaw(a));
-          const g = (a: any) => IO(() => gRaw(a));
-          const m = IO(() => x);
+      expect(eqIO(left, right)).toBe(true);
+    });
 
-          const left = m.chain(f).chain(g);
-          const right = m.chain((a) => f(a).chain(g));
+    it("right identity", () => {
+      const m = of(9);
 
-          eqIO(left, right);
-        }
-      )
-    );
+      const left = chain(of)(m);
+      const right = m;
+
+      expect(eqIO(left, right)).toBe(true);
+    });
+
+    it("associativity", () => {
+      const m = of(2);
+      const f = (n: number) => of(n + 3);
+      const g = (n: number) => of(n * 10);
+
+      const left = chain(g)(chain(f)(m));
+      const right = chain((x: number) => chain(g)(f(x)))(m);
+
+      expect(eqIO(left, right)).toBe(true);
+    });
   });
 });

@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../README.md)
+[**algebraic-fx v0.0.2**](../../../README.md)
 
 ***
 
@@ -6,11 +6,13 @@
 
 # State
 
-Construct a new State computation.
+## Interfaces
 
-## Param
+- [State](interfaces/State.md)
 
-A pure function `(state: S) => [result, newState]`
+## Variables
+
+- [StateModule](variables/StateModule.md)
 
 ## Functions
 
@@ -19,11 +21,8 @@ A pure function `(state: S) => [result, newState]`
 - [evalState](functions/evalState.md)
 - [execState](functions/execState.md)
 - [get](functions/get.md)
-- [gets](functions/gets.md)
+- [isState](functions/isState.md)
 - [map](functions/map.md)
 - [modify](functions/modify.md)
 - [of](functions/of.md)
 - [put](functions/put.md)
-- [run](functions/run.md)
-- [sequence](functions/sequence.md)
-- [traverse](functions/traverse.md)

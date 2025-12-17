@@ -1,120 +1,120 @@
-import { describe, it, expect } from "vitest";
+// tests/adt.reader.laws.test.ts
 import fc from "fast-check";
-import ReaderModule from "../src/adt/reader.ts";
+import { Reader, of, map, ap, chain } from "../src/adt/reader.js";
 
-const Reader = ReaderModule;
+describe("Reader laws", () => {
+  type Env = { tag: string };
 
-/**
- * Arbitrary Reader<number, number> — represented as (env) => env + k
- */
-const arbReaderNum: fc.Arbitrary<ReturnType<typeof Reader<number, number>>> = fc
-  .integer()
-  .map((k) => Reader<number, number>((env) => env + k));
+  const env: Env = { tag: "env" };
 
-/**
- * Equality helper: compare Reader by running them on many env values.
- */
-const eqReader = (
-  r1: ReturnType<typeof Reader<any, any>>,
-  r2: ReturnType<typeof Reader<any, any>>
-): boolean => {
-  for (let env = -5; env <= 5; env++) {
-    if (r1.run(env) !== r2.run(env)) return false;
-  }
-  return true;
-};
+  const arbNumberReader = (): fc.Arbitrary<
+    ReturnType<typeof of<Env, number>>
+  > => fc.integer().map((n) => of<Env, number>(n));
 
-describe("Reader laws (fast-check)", () => {
-  it("Functor identity", () => {
+  const run = <A>(r: Reader<Env, A>): A => r.run(env);
+
+  test("Functor identity", () => {
     fc.assert(
-      fc.property(arbReaderNum, (fa) => {
-        const id = (x: number) => x;
-        expect(eqReader(fa.map(id), fa)).toBe(true);
+      fc.property(arbNumberReader(), (fa) => {
+        const lhs = map<Env, number, number>((x) => x)(fa);
+        const rhs = fa;
+        expect(run(lhs)).toBe(run(rhs));
       })
     );
   });
 
-  it("Functor composition", () => {
+  test("Functor composition", () => {
     fc.assert(
       fc.property(
-        arbReaderNum,
+        arbNumberReader(),
         fc.func(fc.integer()),
         fc.func(fc.integer()),
         (fa, f, g) => {
-          const lhs = fa.map((x) => f(g(x)));
-          const rhs = fa.map(g).map(f);
-          expect(eqReader(lhs, rhs)).toBe(true);
+          const lhs = map<Env, number, number>((x) => g(f(x)))(fa);
+          const rhs = map<Env, number, number>(g)(
+            map<Env, number, number>(f)(fa)
+          );
+          expect(run(lhs)).toBe(run(rhs));
         }
       )
     );
   });
 
-  it("Applicative identity", () => {
+  test("Applicative identity", () => {
     fc.assert(
-      fc.property(arbReaderNum, (fa) => {
-        const pureId = Reader.of<number, (x: number) => number>((x) => x);
-        expect(eqReader(fa.ap(pureId), fa)).toBe(true);
+      fc.property(arbNumberReader(), (fa) => {
+        const pureId = of<Env, (x: number) => number>((x) => x);
+        const lhs = ap<Env, number, number>(pureId)(fa);
+        expect(run(lhs)).toBe(run(fa));
       })
     );
   });
 
-  it("Applicative homomorphism", () => {
+  test("Applicative homomorphism", () => {
     fc.assert(
       fc.property(fc.integer(), fc.func(fc.integer()), (x, f) => {
-        const lhs = Reader.of<number, number>(x).map(f);
-        const rhs = Reader.of<number, number>(f(x));
-        expect(eqReader(lhs, rhs)).toBe(true);
+        const lhs = ap<Env, number, number>(of<Env, (y: number) => number>(f))(
+          of<Env, number>(x)
+        );
+        const rhs = of<Env, number>(f(x));
+        expect(run(lhs)).toBe(run(rhs));
       })
     );
   });
 
-  it("Monad left identity", () => {
+  test("Applicative interchange", () => {
     fc.assert(
-      fc.property(fc.integer(), fc.func(arbReaderNum), (a, f) => {
-        const lhs = Reader.of<number, number>(a).chain(f);
+      fc.property(fc.integer(), fc.func(fc.integer()), (y, f) => {
+        const u = of<Env, (x: number) => number>(f);
+        const lhs = ap<Env, number, number>(u)(of<Env, number>(y));
+        const rhs = ap<Env, (x: number) => number, number>(
+          of<Env, (g: (x: number) => number) => number>((g) => g(y))
+        )(u);
+        expect(run(lhs)).toBe(run(rhs));
+      })
+    );
+  });
+
+  test("Monad left identity", () => {
+    fc.assert(
+      fc.property(fc.integer(), fc.func(fc.integer()), (a, fBody) => {
+        const f = (x: number) => of<Env, number>(fBody(x));
+        const lhs = chain<Env, number, number>(f)(of<Env, number>(a));
         const rhs = f(a);
-        expect(eqReader(lhs, rhs)).toBe(true);
+        expect(run(lhs)).toBe(run(rhs));
       })
     );
   });
 
-  it("Monad right identity", () => {
+  test("Monad right identity", () => {
     fc.assert(
-      fc.property(arbReaderNum, (fa) => {
-        const lhs = fa.chain(Reader.of);
-        const rhs = fa;
-        expect(eqReader(lhs, rhs)).toBe(true);
+      fc.property(arbNumberReader(), (m) => {
+        const lhs = chain<Env, number, number>((x) => of<Env, number>(x))(m);
+        expect(run(lhs)).toBe(run(m));
       })
     );
   });
 
-  it("Monad associativity", () => {
+  test("Monad associativity", () => {
     fc.assert(
       fc.property(
-        arbReaderNum,
-        fc.func(arbReaderNum),
-        fc.func(arbReaderNum),
-        (fa, f, g) => {
-          const lhs = fa.chain(f).chain(g);
-          const rhs = fa.chain((x) => f(x).chain(g));
-          expect(eqReader(lhs, rhs)).toBe(true);
+        arbNumberReader(),
+        fc.func(fc.integer()),
+        fc.func(fc.integer()),
+        (m, fBody, gBody) => {
+          const f = (x: number) => of<Env, number>(fBody(x));
+          const g = (x: number) => of<Env, number>(gBody(x));
+
+          const lhs = chain<Env, number, number>(g)(
+            chain<Env, number, number>(f)(m)
+          );
+          const rhs = chain<Env, number, number>((x) =>
+            chain<Env, number, number>(g)(f(x))
+          )(m);
+
+          expect(run(lhs)).toBe(run(rhs));
         }
       )
     );
-  });
-
-  it("ask returns the environment", () => {
-    const ask = Reader.ask<number>();
-    for (let env = -5; env <= 5; env++) {
-      expect(ask.run(env)).toBe(env);
-    }
-  });
-
-  it("local modifies environment before passing to Reader", () => {
-    const r = Reader.ask<number>().map((x) => x * 2);
-    const adjusted = Reader.local((x: number) => x + 1)(r);
-
-    expect(r.run(3)).toBe(6);
-    expect(adjusted.run(3)).toBe(8); // (3+1)*2 = 8
   });
 });

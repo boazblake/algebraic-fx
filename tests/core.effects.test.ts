@@ -1,93 +1,58 @@
 import { describe, it, expect, vi } from "vitest";
-import { runEffects, ioEffect, readerEffect } from "../src/core/render.js";
-import {
-  type Effect,
-  type RawEffect,
-  type IOEffect,
-  type ReaderEffect,
-  type Dispatch,
-  type Payload,
-} from "../src/core/types.js";
-import { IO } from "../src/adt/io.js";
-import { Reader } from "../src/adt/reader.js";
-
-type Env = { value: number };
-
-type Msg =
-  | Payload<"Test.Log", { value: number }>
-  | Payload<"Test.Inc", { value: number }>;
+import { runEffects, fx, interpretRawEffect } from "@/core/effects";
+import { IO } from "@/adt/io";
+import { Reader } from "@/adt/reader";
+import { TaskModule } from "@/adt/task";
 
 describe("Effect runtime", () => {
-  it("runs IOEffect", () => {
-    const log = vi.fn();
+  it("runs IO", () => {
+    const fn = vi.fn();
+    const eff = IO(() => fn());
+    runEffects({}, () => {}, [eff]);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
 
-    const io = IO<void>(() => {
-      log("ran");
+  it("runs Reader<IO>", () => {
+    const fn = vi.fn();
+    const eff = Reader((env: { x: number }) => IO(() => fn(env.x)));
+    runEffects({ x: 10 }, () => {}, [eff]);
+    expect(fn).toHaveBeenCalledWith(10);
+  });
+
+  it("runs custom Effect and collects cleanup", () => {
+    const runFn = vi.fn();
+    const cleanupFn = vi.fn();
+
+    const eff = fx((env, dispatch) => {
+      runFn(env.x);
+      return cleanupFn;
     });
 
-    const effects: RawEffect<Env>[] = [ioEffect(io)];
+    const dispose = runEffects({ x: 5 }, () => {}, [eff]);
+    expect(runFn).toHaveBeenCalledWith(5);
 
-    const env: Env = { value: 42 };
-    const dispatch: Dispatch<Msg> = () => {};
-
-    runEffects<Env, Msg>(effects, env, dispatch);
-
-    expect(log).toHaveBeenCalledTimes(1);
-    expect(log).toHaveBeenCalledWith("ran");
+    dispose();
+    expect(cleanupFn).toHaveBeenCalledTimes(1);
   });
 
-  it("runs ReaderEffect", () => {
-    const log = vi.fn();
+  it("runs Task and dispatches Right value", async () => {
+    const dispatch = vi.fn();
 
-    const reader = Reader<Env, IO<void>>((env) =>
-      IO(() => {
-        log(env.value);
-      })
-    );
+    // Task.of returns a Task<E,A>
+    const t = TaskModule.of<never, number>(5);
 
-    const effects: RawEffect<Env>[] = [readerEffect(reader)];
+    runEffects({}, dispatch, [t]);
 
-    const env: Env = { value: 99 };
-    const dispatch: Dispatch<Msg> = () => {};
+    // allow microtask queue to flush
+    await Promise.resolve();
+    await Promise.resolve();
 
-    runEffects<Env, Msg>(effects, env, dispatch);
-
-    expect(log).toHaveBeenCalledTimes(1);
-    expect(log).toHaveBeenCalledWith(99);
-  });
-
-  it("runs custom Effect<Env,Msg>", () => {
-    const log = vi.fn();
-    const dispatched: Msg[] = [];
-
-    const fx: Effect<Env, Msg> = {
-      run(env, dispatch) {
-        log(env.value);
-        dispatch({
-          type: "Test.Inc",
-          msg: { value: env.value + 1 },
-        });
-      },
-    };
-
-    const effects: RawEffect<Env>[] = [fx];
-    const env: Env = { value: 10 };
-    const dispatch: Dispatch<Msg> = (m) => dispatched.push(m);
-
-    runEffects<Env, Msg>(effects, env, dispatch);
-
-    expect(log).toHaveBeenCalledWith(10);
-    expect(dispatched).toEqual([{ type: "Test.Inc", msg: { value: 11 } }]);
+    expect(dispatch).toHaveBeenCalledWith(5);
   });
 
   it("ignores falsy effects", () => {
-    const effects: RawEffect<Env>[] = [
-      null as unknown as RawEffect<Env>,
-      undefined as unknown as RawEffect<Env>,
-    ];
-    const env: Env = { value: 0 };
-    const dispatch: Dispatch<Msg> = () => {};
-
-    expect(() => runEffects<Env, Msg>(effects, env, dispatch)).not.toThrow();
+    expect(() =>
+      runEffects({}, () => {}, [null as any, undefined as any])
+    ).not.toThrow();
   });
 });

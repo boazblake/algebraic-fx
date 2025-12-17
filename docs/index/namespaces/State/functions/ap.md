@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../../README.md)
+[**algebraic-fx v0.0.2**](../../../../README.md)
 
 ***
 
@@ -6,11 +6,9 @@
 
 # Function: ap()
 
-> **ap**\<`S`, `A`, `B`\>(`fb`): (`fa`) => [`State`](../../../type-aliases/State.md)\<`S`, `B`\>
+> **ap**\<`S`, `A`, `B`\>(`sf`): (`sa`) => [`State`](../interfaces/State.md)\<`S`, `B`\>
 
-Defined in: [adt/state.ts:115](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/state.ts#L115)
-
-Point-free applicative apply.
+Defined in: [adt/state.ts:62](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/state.ts#L62)
 
 ## Type Parameters
 
@@ -28,20 +26,20 @@ Point-free applicative apply.
 
 ## Parameters
 
-### fb
+### sf
 
-[`State`](../../../type-aliases/State.md)\<`S`, (`a`) => `B`\>
+[`State`](../interfaces/State.md)\<`S`, (`a`) => `B`\>
 
 ## Returns
 
-> (`fa`): [`State`](../../../type-aliases/State.md)\<`S`, `B`\>
+> (`sa`): [`State`](../interfaces/State.md)\<`S`, `B`\>
 
 ### Parameters
 
-#### fa
+#### sa
 
-[`State`](../../../type-aliases/State.md)\<`S`, `A`\>
+[`State`](../interfaces/State.md)\<`S`, `A`\>
 
 ### Returns
 
-[`State`](../../../type-aliases/State.md)\<`S`, `B`\>
+[`State`](../interfaces/State.md)\<`S`, `B`\>

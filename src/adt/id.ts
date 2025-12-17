@@ -1,93 +1,95 @@
-/**
- * Nominal brand for Identity values, preventing structural collisions.
- */
-const IdBrand = Symbol("IdBrand");
+// src/adt/id.ts
+import { fl } from "./fl.js";
 
-/**
- * Identity monad.
- *
- * Represents a pure wrapped value `A` and supports:
- * - Functor map
- * - Monad chain
- * - Applicative apply
- *
- * Conceptually:
- *   Id<A> ≅ A
- *
- * It is primarily used to unify APIs that expect a monadic interface
- * even when effects are not needed.
- *
- * @typeParam A Wrapped value type
- */
-export type Id<A> = {
-  readonly [IdBrand]: true;
+export interface Identity<A> {
+  readonly _tag: "ID";
+  readonly value: A;
+  readonly run: () => A;
 
-  /** Extract the wrapped value. */
-  run: () => A;
+  map: <B>(f: (a: A) => B) => Identity<B>;
+  chain: <B>(f: (a: A) => Identity<B>) => Identity<B>;
+  ap: <B>(fab: Identity<(a: A) => B>) => Identity<B>;
 
-  /** Functor map. */
-  map: <B>(f: (a: A) => B) => Id<B>;
+  readonly [fl.map]: Identity<A>["map"];
+  readonly [fl.chain]: Identity<A>["chain"];
+  readonly [fl.ap]: Identity<A>["ap"];
+}
 
-  /** Monad chain. */
-  chain: <B>(f: (a: A) => Id<B>) => Id<B>;
+const makeID = <A>(a: A): Identity<A> => {
+  const self: Identity<A> = {
+    _tag: "ID",
+    value: a,
+    run: () => a,
 
-  /** Applicative apply. */
-  ap: <B>(fb: Id<(a: A) => B>) => Id<B>;
+    map<B>(f: (x: A) => B): Identity<B> {
+      return makeID(f(a));
+    },
+
+    chain<B>(f: (x: A) => Identity<B>): Identity<B> {
+      return f(a);
+    },
+
+    ap<B>(fab: Identity<(x: A) => B>): Identity<B> {
+      return makeID(fab.value(a));
+    },
+
+    [fl.map]: undefined as any,
+    [fl.chain]: undefined as any,
+    [fl.ap]: undefined as any,
+  };
+
+  (self as any)[fl.map] = self.map;
+  (self as any)[fl.chain] = self.chain;
+  (self as any)[fl.ap] = self.ap;
+
+  return self;
 };
 
-/**
- * Identity constructor.
- *
- * @param a Wrapped value
- */
-export const Id = <A>(a: A): Id<A> => ({
-  [IdBrand]: true,
-  run: () => a,
-  map: (f) => Id(f(a)),
-  chain: (f) => f(a),
-  ap: (fb) => Id(fb.run()(a)),
-});
+export const of = <A>(a: A): Identity<A> => makeID(a);
 
-/**
- * Lift a pure value into the Identity monad.
- */
-Id.of = <A>(a: A): Id<A> => Id(a);
-
-/**
- * Point-free applicative apply.
- */
-Id.ap =
-  <A, B>(fb: Id<(a: A) => B>) =>
-  (fa: Id<A>): Id<B> =>
-    fa.ap(fb);
-
-/**
- * Point-free functor map.
- */
-Id.map =
+export const map =
   <A, B>(f: (a: A) => B) =>
-  (id: Id<A>): Id<B> =>
-    id.map(f);
+  (fa: Identity<A>): Identity<B> =>
+    fa[fl.map](f);
 
-/**
- * Point-free monadic chain.
- */
-Id.chain =
-  <A, B>(f: (a: A) => Id<B>) =>
-  (id: Id<A>): Id<B> =>
-    id.chain(f);
+export const chain =
+  <A, B>(f: (a: A) => Identity<B>) =>
+  (fa: Identity<A>): Identity<B> =>
+    fa[fl.chain](f);
 
-/**
- * Execute and retrieve the wrapped value.
- */
-Id.run = <A>(id: Id<A>): A => id.run();
+export const ap =
+  <A, B>(fab: Identity<(a: A) => B>) =>
+  (fa: Identity<A>): Identity<B> =>
+    fa[fl.ap](fab);
 
-/**
- * Alias for `run`.
- */
-Id.extract = <A>(id: Id<A>): A => id.run();
+export const isID = (u: unknown): u is Identity<unknown> =>
+  !!u &&
+  typeof u === "object" &&
+  (u as any)._tag === "ID" &&
+  typeof (u as any).run === "function";
 
-/**
- * Default export for ergonomic usage.
- */
-export default Id;
+// fp-ts style dictionary
+export const IDModule = {
+  URI: "ID",
+
+  of,
+  map: <A, B>(fa: Identity<A>, f: (a: A) => B): Identity<B> => map(f)(fa),
+  chain: <A, B>(fa: Identity<A>, f: (a: A) => Identity<B>): Identity<B> =>
+    chain(f)(fa),
+  ap: <A, B>(fab: Identity<(a: A) => B>, fa: Identity<A>) => ap(fab)(fa),
+  isID,
+
+  [fl.of]: (a: any) => of(a),
+  [fl.map]:
+    (f: any) =>
+    (fa: Identity<any>): Identity<any> =>
+      map(f)(fa),
+  [fl.chain]:
+    (f: any) =>
+    (fa: Identity<any>): Identity<any> =>
+      chain(f)(fa),
+  [fl.ap]: (fab: Identity<(a: any) => any>) => (fa: Identity<any>) =>
+    ap(fab)(fa),
+};
+
+export type ID<A> = Identity<A>;

@@ -1,28 +1,26 @@
-[**algebraic-fx v0.0.1**](../../README.md)
+[**algebraic-fx v0.0.2**](../../README.md)
 
 ***
 
 [algebraic-fx](../../README.md) / [index](../README.md) / Dispatch
 
-# Type Alias: Dispatch()\<P\>
+# Type Alias: Dispatch()\<Msg\>
 
-> **Dispatch**\<`P`\> = (`payload`) => `void`
+> **Dispatch**\<`Msg`\> = (`msg`) => `void`
 
-Defined in: [core/types.ts:82](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L82)
-
-Dispatch function type for sending messages into `Program.update`.
+Defined in: [core/types.ts:35](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L35)
 
 ## Type Parameters
 
-### P
+### Msg
 
-`P`
+`Msg`
 
 ## Parameters
 
-### payload
+### msg
 
-`P`
+`Msg`
 
 ## Returns
 

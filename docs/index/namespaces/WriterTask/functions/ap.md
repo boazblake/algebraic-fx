@@ -1,0 +1,43 @@
+[**algebraic-fx v0.0.2**](../../../../README.md)
+
+***
+
+[algebraic-fx](../../../../README.md) / [index](../../../README.md) / [WriterTask](../README.md) / ap
+
+# Function: ap()
+
+> **ap**\<`W`, `E`, `A`, `B`\>(`wf`, `wa`): [`WriterTask`](../type-aliases/WriterTask.md)\<`W`, `E`, `B`\>
+
+Defined in: [adt/writer-task.ts:60](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/writer-task.ts#L60)
+
+## Type Parameters
+
+### W
+
+`W`
+
+### E
+
+`E`
+
+### A
+
+`A`
+
+### B
+
+`B`
+
+## Parameters
+
+### wf
+
+[`WriterTask`](../type-aliases/WriterTask.md)\<`W`, `E`, (`a`) => `B`\>
+
+### wa
+
+[`WriterTask`](../type-aliases/WriterTask.md)\<`W`, `E`, `A`\>
+
+## Returns
+
+[`WriterTask`](../type-aliases/WriterTask.md)\<`W`, `E`, `B`\>

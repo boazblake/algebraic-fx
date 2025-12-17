@@ -1,172 +1,104 @@
-/**
- * Unique brand for nominal typing of State values.
- * Prevents accidental structural equivalence.
- */
-const StateBrand = Symbol("StateBrand");
+import { fl } from "./fl.js";
 
-/**
- * The State monad represents a pure state transition:
- *
- *     State<S, A>  ≅  S → [A, S]
- *
- * It is:
- * - Lazy: nothing runs until `.run(initialState)` is called
- * - Pure: no effects, only deterministic state threading
- * - Composable: supports map, chain, ap, sequence, traverse
- *
- * Common uses:
- * - Pure parsers
- * - Reducer-style transformations
- * - Simulating local mutable state in a purely functional way
- *
- * @typeParam S State type
- * @typeParam A Result value type
- */
-export type State<S, A> = {
-  readonly [StateBrand]: true;
+export interface State<S, A> {
+  readonly _tag: "State";
+  readonly run: (s: S) => [A, S];
 
-  /** Execute the stateful computation starting from initial state `s`. */
-  run: (s: S) => [A, S];
+  readonly [fl.map]: <B>(f: (a: A) => B) => State<S, B>;
+  readonly [fl.chain]: <B>(f: (a: A) => State<S, B>) => State<S, B>;
+  readonly [fl.ap]: <B>(sf: State<S, (a: A) => B>) => State<S, B>;
+}
 
-  /** Functor map: transform the result value, leaving state threading untouched. */
-  map: <B>(f: (a: A) => B) => State<S, B>;
+const make = <S, A>(run: (s: S) => [A, S]): State<S, A> => {
+  const self: State<S, A> = {
+    _tag: "State",
+    run,
 
-  /**
-   * Monad chain / flatMap:
-   * Feed the result of this state transition into the next stateful computation.
-   */
-  chain: <B>(f: (a: A) => State<S, B>) => State<S, B>;
+    [fl.map]<B>(f: (a: A) => B): State<S, B> {
+      return make((s) => {
+        const [a, s2] = self.run(s);
+        return [f(a), s2];
+      });
+    },
 
-  /**
-   * Applicative apply:
-   * Apply a stateful function to a stateful value.
-   */
-  ap: <B>(fb: State<S, (a: A) => B>) => State<S, B>;
+    [fl.chain]<B>(f: (a: A) => State<S, B>): State<S, B> {
+      return make((s) => {
+        const [a, s2] = self.run(s);
+        return f(a).run(s2);
+      });
+    },
+
+    [fl.ap]<B>(sf: State<S, (a: A) => B>): State<S, B> {
+      return make((s) => {
+        const [fn, s2] = sf.run(s);
+        const [a, s3] = self.run(s2);
+        return [fn(a), s3];
+      });
+    },
+  };
+
+  return self;
 };
 
-/**
- * Construct a new State computation.
- *
- * @param run A pure function `(state: S) => [result, newState]`
- */
-export const State = <S, A>(run: (s: S) => [A, S]): State<S, A> => ({
-  [StateBrand]: true,
-  run,
+export const of = <S, A>(a: A): State<S, A> => make((s) => [a, s]);
 
-  map: (f) =>
-    State((s: S) => {
-      const [a, s1] = run(s);
-      return [f(a), s1];
-    }),
-
-  chain: (f) =>
-    State((s: S) => {
-      const [a, s1] = run(s);
-      return f(a).run(s1);
-    }),
-
-  ap: (fb) =>
-    State((s: S) => {
-      const [fn, s1] = fb.run(s);
-      const [a, s2] = run(s1);
-      return [fn(a), s2];
-    }),
-});
-
-/**
- * Lift a pure value into State, leaving the state unchanged.
- */
-State.of = <S, A>(a: A): State<S, A> => State((s) => [a, s]);
-
-/**
- * Retrieve the current state as the result value.
- */
-State.get = <S>(): State<S, S> => State((s) => [s, s]);
-
-/**
- * Replace the current state with `s`, returning no result value.
- */
-State.put = <S>(s: S): State<S, void> => State(() => [undefined, s]);
-
-/**
- * Modify the state using a pure function.
- */
-State.modify = <S>(f: (s: S) => S): State<S, void> =>
-  State((s) => [undefined, f(s)]);
-
-/**
- * Extract a value from the state using `f(state)`, without modifying it.
- */
-State.gets = <S, A>(f: (s: S) => A): State<S, A> => State((s) => [f(s), s]);
-
-/** Point-free functor map. */
-State.map =
+export const map =
   <S, A, B>(f: (a: A) => B) =>
-  (st: State<S, A>): State<S, B> =>
-    st.map(f);
+  (sa: State<S, A>): State<S, B> =>
+    make((s) => {
+      const [a, s2] = sa.run(s);
+      return [f(a), s2];
+    });
 
-/** Point-free monadic chain. */
-State.chain =
+export const chain =
   <S, A, B>(f: (a: A) => State<S, B>) =>
-  (st: State<S, A>): State<S, B> =>
-    st.chain(f);
+  (sa: State<S, A>): State<S, B> =>
+    make((s) => {
+      const [a, s2] = sa.run(s);
+      return f(a).run(s2);
+    });
 
-/** Point-free applicative apply. */
-State.ap =
-  <S, A, B>(fb: State<S, (a: A) => B>) =>
-  (fa: State<S, A>): State<S, B> =>
-    fa.ap(fb);
+export const ap =
+  <S, A, B>(sf: State<S, (a: A) => B>) =>
+  (sa: State<S, A>): State<S, B> =>
+    make((s) => {
+      const [fn, s2] = sf.run(s);
+      const [a, s3] = sa.run(s2);
+      return [fn(a), s3];
+    });
 
-/**
- * Run a State computation with initial state `s`.
- */
-State.run =
-  <S, A>(s: S) =>
-  (st: State<S, A>): [A, S] =>
-    st.run(s);
+export const get = <S>(): State<S, S> => make((s) => [s, s]);
 
-/**
- * Evaluate: run state and return only the result value.
- */
-State.evalState =
-  <S, A>(s: S) =>
-  (st: State<S, A>): A =>
-    st.run(s)[0];
+export const put = <S>(s: S): State<S, void> => make(() => [undefined, s]);
 
-/**
- * Execute: run state and return only the final state.
- */
-State.execState =
-  <S, A>(s: S) =>
-  (st: State<S, A>): S =>
-    st.run(s)[1];
+export const modify = <S>(f: (s: S) => S): State<S, void> =>
+  make((s) => [undefined, f(s)]);
 
-/**
- * Sequence an array of State computations sequentially.
- *
- * @returns A State that returns array of results while threading state forward.
- */
-State.sequence = <S, A>(states: State<S, A>[]): State<S, A[]> =>
-  State((s) => {
-    let currentState = s;
-    const values: A[] = [];
+export const evalState = <S, A>(sa: State<S, A>, s: S): A => sa.run(s)[0];
 
-    for (const st of states) {
-      const [a, nextState] = st.run(currentState);
-      values.push(a);
-      currentState = nextState;
-    }
+export const execState = <S, A>(sa: State<S, A>, s: S): S => sa.run(s)[1];
 
-    return [values, currentState];
-  });
+export const isState = (u: unknown): u is State<any, any> =>
+  !!u && typeof u === "object" && typeof (u as any).run === "function";
 
-/**
- * Traverse an array using a function that returns a State.
- * Equivalent to: `State.sequence(arr.map(f))`.
- */
-State.traverse =
-  <S, A, B>(f: (a: A) => State<S, B>) =>
-  (arr: A[]): State<S, B[]> =>
-    State.sequence(arr.map(f));
+export const StateModule = {
+  URI: "State",
 
-export default State;
+  of,
+  map,
+  chain,
+  ap,
+  get,
+  put,
+  modify,
+  evalState,
+  execState,
+  isState,
+
+  [fl.of]: of,
+  [fl.map]: (f: (a: any) => any) => (sa: State<any, any>) => map(f)(sa),
+  [fl.chain]: (f: (a: any) => State<any, any>) => (sa: State<any, any>) =>
+    chain(f)(sa),
+  [fl.ap]: (sf: State<any, (a: any) => any>) => (sa: State<any, any>) =>
+    ap(sf)(sa),
+};

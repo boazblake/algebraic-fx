@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../README.md)
+[**algebraic-fx v0.0.2**](../../../README.md)
 
 ***
 
@@ -6,19 +6,22 @@
 
 # IO
 
-Construct a new lazy IO effect.
+## Interfaces
 
-## Param
+- [IO](interfaces/IO.md)
 
-A function describing the effect
+## Variables
+
+- [IO](variables/IO.md)
+- [IO\_URI](variables/IO_URI.md)
+- [ioModule](variables/ioModule.md)
 
 ## Functions
 
 - [ap](functions/ap.md)
 - [chain](functions/chain.md)
+- [fromThunk](functions/fromThunk.md)
+- [isIO](functions/isIO.md)
 - [map](functions/map.md)
 - [of](functions/of.md)
-- [run](functions/run.md)
-- [sequence](functions/sequence.md)
-- [traverse](functions/traverse.md)
-- [tryCatch](functions/tryCatch.md)
+- [toThunk](functions/toThunk.md)

@@ -1,10 +1,18 @@
-export { Id } from "./id.js";
-export { IO } from "./io.js";
-export { Either } from "./either.js";
-export { Maybe } from "./maybe.js";
-export { Reader } from "./reader.js";
-export { Writer } from "./writer.js";
-export { State } from "./state.js";
-export { Stream } from "./stream.js";
-export { Task } from "./task.js";
-export { Validation } from "./validation.js";
+/**
+ * @module adt
+ *
+ * Barrel file re-exporting all ADTs.
+ */
+
+// export * as ID from "./id";
+export * as Maybe from "./maybe";
+export * as Either from "./either";
+export * as IO from "./io";
+export * as Reader from "./reader";
+export * as Task from "./task";
+export * as State from "./state";
+export * as Validation from "./validation";
+export * as Writer from "./writer";
+export * as WriterTask from "./writer-task";
+export * as Monoid from "./monoid";
+export { fl } from "./fl";

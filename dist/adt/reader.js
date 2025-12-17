@@ -1,94 +1,69 @@
-/**
- * Unique nominal brand for Reader. Ensures Readers cannot be confused with plain
- * objects of the same structural shape.
- */
-const ReaderBrand = Symbol("ReaderBrand");
-/**
- * Construct a Reader from a function `(env: E) => A`.
- *
- * @param run Environment-dependent computation
- */
-export const Reader = (run) => ({
-    [ReaderBrand]: true,
-    run,
-    map: (f) => Reader((env) => f(run(env))),
-    chain: (f) => Reader((env) => f(run(env)).run(env)),
-    ap: (fb) => Reader((env) => fb.run(env)(run(env))),
+// src/adt/reader.ts
+import { fl } from "./fl.js";
+// ======================================================
+// Internal constructor
+// ======================================================
+const makeReader = (run) => {
+    const self = {
+        _tag: "Reader",
+        run,
+        map(f) {
+            return makeReader((r) => f(run(r)));
+        },
+        chain(f) {
+            return makeReader((r) => f(run(r)).run(r));
+        },
+        ap(fa) {
+            return makeReader((r) => this.run(r)(fa.run(r)));
+        },
+        [fl.map](f) {
+            return this.map(f);
+        },
+        [fl.chain](f) {
+            return this.chain(f);
+        },
+        [fl.ap](fa) {
+            return this.ap(fa);
+        },
+    };
+    return self;
+};
+// ======================================================
+// Public constructors: of / ask / asks
+// ======================================================
+export const of = (a) => makeReader(() => a);
+export const ask = () => makeReader((r) => r);
+export const asks = (f) => makeReader((r) => f(r));
+// ======================================================
+// Exported Reader value (with static helpers)
+// ======================================================
+export const Reader = Object.assign((run) => makeReader(run), {
+    of,
+    ask,
+    asks,
 });
-/**
- * Lift a pure value into a Reader that ignores the environment.
- */
-Reader.of = (a) => Reader(() => a);
-/**
- * Retrieve the entire environment.
- *
- * Equivalent to `(env) => env`.
- */
-Reader.ask = () => Reader((env) => env);
-/**
- * Extract a value from the environment using a projection function.
- */
-Reader.asks = (f) => Reader(f);
-/**
- * Point-free functor map.
- */
-Reader.map =
-    (f) => (r) => r.map(f);
-/**
- * Point-free chain.
- */
-Reader.chain =
-    (f) => (r) => r.chain(f);
-/**
- * Point-free applicative apply.
- */
-Reader.ap =
-    (fb) => (fa) => fa.ap(fb);
-/**
- * Run a Reader using a supplied environment.
- *
- * Useful for point-free or curried styles.
- */
-Reader.run =
-    (env) => (r) => r.run(env);
-/**
- * Modify the environment for the duration of a Reader computation.
- *
- * Transforms environment from E1 to E2, allowing the Reader to work with
- * a transformed environment.
- *
- * Equivalent to:
- *    local : (e1 -> e2) -> Reader e2 a -> Reader e1 a
- *
- * This is the CORRECTED version that allows transforming between different
- * environment types.
- *
- * @example
- * type Config = { dbUrl: string };
- * type ExtendedConfig = Config & { debug: boolean };
- *
- * const readDb = Reader<Config, string>(env => env.dbUrl);
- * const withDebug = Reader.local<ExtendedConfig, Config, string>(
- *   env => ({ dbUrl: env.dbUrl })
- * )(readDb);
- *
- * withDebug.run({ dbUrl: "localhost", debug: true }); // "localhost"
- */
-Reader.local =
-    (f) => (r) => Reader((env) => r.run(f(env)));
-/**
- * Execute multiple Readers under the same environment.
- *
- * @returns A Reader that returns an array of results.
- */
-Reader.sequence = (readers) => Reader((env) => readers.map((r) => r.run(env)));
-/**
- * Traverse an array using a Reader-producing function.
- *
- * Equivalent to: `Reader.sequence(arr.map(f))`.
- */
-Reader.traverse =
-    (f) => (arr) => Reader((env) => arr.map((a) => f(a).run(env)));
-/** Default export for ergonomic imports. */
-export default Reader;
+// ======================================================
+// Type guard
+// ======================================================
+export const isReader = (u) => !!u &&
+    typeof u === "object" &&
+    u._tag === "Reader" &&
+    typeof u.run === "function";
+// ======================================================
+// fp-ts style helpers
+// ======================================================
+export const map = (f) => (fa) => fa.map(f);
+export const chain = (f) => (fa) => fa.chain(f);
+export const ap = (fab) => (fa) => fab.ap(fa);
+// ======================================================
+// ReaderModule (used by tests)
+// ======================================================
+export const ReaderModule = {
+    URI: "Reader",
+    of,
+    map: (fa, f) => fa.map(f),
+    chain: (fa, f) => fa.chain(f),
+    ap: (fab, fa) => fab.ap(fa),
+    [fl.of]: of,
+};
 //# sourceMappingURL=reader.js.map

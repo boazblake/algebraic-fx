@@ -1,148 +1,62 @@
-/**
- * Unique nominal brand for Maybe. Prevents structural collisions with plain
- * objects that accidentally look like Just or Nothing.
- */
-// declare const MaybeBrand: unique symbol;
-const MaybeBrand = Symbol("MaybeBrand");
-/**
- * Construct a `Just` value.
- */
-export const Just = (value) => ({
+// src/adt/maybe.ts
+import { fl } from "./fl.js";
+export const isJust = (m) => m._tag === "Just";
+export const isNothing = (m) => m._tag === "Nothing";
+export const isMaybe = (u) => {
+    if (!u || typeof u !== "object")
+        return false;
+    const tag = u._tag;
+    return tag === "Just" || tag === "Nothing";
+};
+export const of = (a) => just(a);
+export const just = (value) => ({
     _tag: "Just",
     value,
-    [MaybeBrand]: true,
+    [fl.map]: (f) => just(f(value)),
+    [fl.chain]: (f) => f(value),
+    [fl.ap]: (mf) => isJust(mf) ? just(mf.value(value)) : nothing,
+    [fl.of]: of,
 });
-/**
- * The singleton Nothing value, representing absence.
- */
-export const Nothing = {
+export const nothing = {
     _tag: "Nothing",
-    [MaybeBrand]: true,
+    [fl.map]: () => nothing,
+    [fl.chain]: () => nothing,
+    [fl.ap]: () => nothing,
+    [fl.of]: of,
 };
-/**
- * Functor map: transform the inner value when present.
- *
- * @example
- * map(x => x + 1, Just(2))    // Just(3)
- * map(x => x + 1, Nothing)    // Nothing
- */
-export const map = (f, ma) => ma._tag === "Just" ? Just(f(ma.value)) : Nothing;
-/**
- * Applicative apply: apply a Maybe-wrapped function to a Maybe-wrapped value.
- *
- * @example
- * ap(Just(x => x + 1), Just(2))   // Just(3)
- * ap(Just(x => x + 1), Nothing)   // Nothing
- * ap(Nothing, Just(2))            // Nothing
- */
-export const ap = (mf, ma) => mf._tag === "Just" && ma._tag === "Just" ? Just(mf.value(ma.value)) : Nothing;
-/**
- * Monad chain / flatMap:
- * Run a function returning another Maybe if value is present.
- *
- * @example
- * chain(x => x > 0 ? Just(x) : Nothing, Just(1))   // Just(1)
- * chain(x => Nothing, Just(1))                     // Nothing
- * chain(f, Nothing)                                // Nothing
- */
-export const chain = (f, ma) => ma._tag === "Just" ? f(ma.value) : Nothing;
-/**
- * Lift a value into a `Just`.
- */
-export const of = (a) => Just(a);
-/**
- * Pattern matching for Maybe.
- *
- * @example
- * fold(() => 0, x => x * 2, Just(3))    // 6
- * fold(() => 0, x => x * 2, Nothing)    // 0
- */
-export const fold = (onNothing, onJust, ma) => (ma._tag === "Nothing" ? onNothing() : onJust(ma.value));
-/**
- * Extract the value or fall back to a default.
- */
-export const getOrElse = (defaultValue, ma) => ma._tag === "Just" ? ma.value : defaultValue;
-/**
- * Extract the value or compute the default lazily.
- */
-export const getOrElseW = (onNothing, ma) => ma._tag === "Just" ? ma.value : onNothing();
-/**
- * Alternative: return the first Just encountered.
- */
-export const alt = (ma1, ma2) => ma1._tag === "Just" ? ma1 : ma2;
-/**
- * Convert `null | undefined | A` into Maybe.
- *
- * @example
- * fromNullable(null)      // Nothing
- * fromNullable(undefined) // Nothing
- * fromNullable(5)         // Just(5)
- */
-export const fromNullable = (a) => (a == null ? Nothing : Just(a));
-/**
- * Convert Maybe into nullable.
- */
-export const toNullable = (ma) => ma._tag === "Just" ? ma.value : null;
-/**
- * Convert Maybe into undefined.
- */
-export const toUndefined = (ma) => ma._tag === "Just" ? ma.value : undefined;
-/**
- * Type guard: detect Just.
- */
-export const isJust = (ma) => ma._tag === "Just";
-/**
- * Type guard: detect Nothing.
- */
-export const isNothing = (ma) => ma._tag === "Nothing";
-/**
- * Filter a Maybe by predicate.
- *
- * Keeps Just(a) if predicate(a) is true, otherwise returns Nothing.
- */
-export const filter = (predicate, ma) => (ma._tag === "Just" && predicate(ma.value) ? ma : Nothing);
-/**
- * Traverse an array with a function returning Maybe.
- * Stops at the first Nothing.
- */
-export const traverse = (f, arr) => {
-    const result = [];
-    for (const a of arr) {
-        const mb = f(a);
-        if (mb._tag === "Nothing")
-            return Nothing;
-        result.push(mb.value);
-    }
-    return Just(result);
-};
-/**
- * Sequence an array of Maybes:
- * - If any element is Nothing, result is Nothing
- * - Otherwise returns Just(array of values)
- */
-export const sequence = (arr) => traverse((x) => x, arr);
-/**
- * Unified module-style export containing all Maybe functions.
- */
-export const Maybe = {
-    Just,
-    Nothing,
+// Functor
+export const map = (f) => (ma) => isJust(ma) ? just(f(ma.value)) : nothing;
+// Monad
+export const chain = (f) => (ma) => isJust(ma) ? f(ma.value) : nothing;
+// Applicative
+export const ap = (mf) => (ma) => isJust(mf) && isJust(ma) ? just(mf.value(ma.value)) : nothing;
+// Helpers
+export const fromNullable = (a) => a == null ? nothing : just(a);
+export const toNullable = (ma) => isJust(ma) ? ma.value : null;
+export const toUndefined = (ma) => isJust(ma) ? ma.value : undefined;
+export const fromPredicate = (pred) => (a) => pred(a) ? just(a) : nothing;
+export const withDefault = (onNothing) => (ma) => isJust(ma) ? ma.value : onNothing;
+export const match = (onNothing, onJust) => (ma) => isJust(ma) ? onJust(ma.value) : onNothing();
+export const maybe = (onNothing, onJust) => (ma) => isJust(ma) ? onJust(ma.value) : onNothing;
+// Traversable helpers (standard signature, used by other modules if needed)
+export const traverse = (ofF, mapF, apF, f) => (ma) => isJust(ma)
+    ? mapF((b) => just(b))(f(ma.value))
+    : ofF(nothing);
+export const sequence = (ofF, mapF, apF) => (mma) => isJust(mma)
+    ? mapF((a) => just(a))(mma.value)
+    : ofF(nothing);
+// fp-ts style dictionary
+export const MAYBE_URI = "Maybe";
+export const MaybeModule = {
+    URI: MAYBE_URI,
+    of,
     map,
     ap,
     chain,
-    of,
-    fold,
-    getOrElse,
-    getOrElseW,
-    alt,
     fromNullable,
-    toNullable,
-    toUndefined,
-    isJust,
-    isNothing,
-    filter,
-    traverse,
-    sequence,
+    fromPredicate,
+    withDefault,
+    match,
+    maybe,
 };
-export default Maybe;
 //# sourceMappingURL=maybe.js.map

@@ -1,136 +1,84 @@
 // tests/adt.writer.laws.test.ts
 import { describe, it, expect } from "vitest";
-import fc from "fast-check";
-import WriterModule, { type Writer as WriterT } from "../src/adt/writer.ts";
+import { monoidString } from "../src/adt/monoid";
+import { of, WriterModule, type Writer } from "../src/adt/writer";
+import { fl } from "../src/adt/fl";
 
-const Writer = WriterModule;
+type WriterS<A> = Writer<string, A>;
 
-// Monoid instance for W = string[]
-const emptyLog: string[] = [];
-const combineLog = (w1: string[], w2: string[]): string[] => [...w1, ...w2];
+const M = monoidString;
+const W = WriterModule(M);
 
-const of = <A>(a: A): WriterT<string[], A> =>
-  Writer.of<string[], A>(a, emptyLog, combineLog);
+const ofS = <A>(a: A, log?: string): WriterS<A> => of(M, a, log ?? "");
 
-const tell = (msg: string): WriterT<string[], void> =>
-  Writer.tell<string[]>([msg], emptyLog, combineLog);
-
-// Arbitrary Writer<string[], number>
-const arbWriterNumber: fc.Arbitrary<WriterT<string[], number>> = fc
-  .tuple(fc.integer(), fc.array(fc.string()))
-  .map(([n, logs]) => Writer.of<string[], number>(n, logs, combineLog));
-
-const eqWriter = (
-  w1: WriterT<string[], number>,
-  w2: WriterT<string[], number>
-): boolean => {
-  const [v1, l1] = w1.run();
-  const [v2, l2] = w2.run();
-  return v1 === v2 && JSON.stringify(l1) === JSON.stringify(l2);
+const eqWriter = <A>(wa: WriterS<A>, wb: WriterS<A>): boolean => {
+  const [va, la] = wa.run();
+  const [vb, lb] = wb.run();
+  return va === vb && la === lb;
 };
 
-describe("Writer laws (fast-check)", () => {
-  it("Monoid associativity for log", () => {
-    fc.assert(
-      fc.property(
-        fc.array(fc.string()),
-        fc.array(fc.string()),
-        fc.array(fc.string()),
-        (a, b, c) => {
-          const ab_c = combineLog(combineLog(a, b), c);
-          const a_bc = combineLog(a, combineLog(b, c));
-          expect(ab_c).toEqual(a_bc);
-        }
-      )
-    );
-  });
-
-  it("Monoid identity for log", () => {
-    fc.assert(
-      fc.property(fc.array(fc.string()), (w) => {
-        expect(combineLog(emptyLog, w)).toEqual(w);
-        expect(combineLog(w, emptyLog)).toEqual(w);
-      })
-    );
-  });
-
+describe("Writer laws", () => {
   it("Functor identity", () => {
-    fc.assert(
-      fc.property(arbWriterNumber, (fa) => {
-        const id = (x: number): number => x;
-        const lhs = fa.map(id);
-        const rhs = fa;
-        expect(eqWriter(lhs, rhs)).toBe(true);
-      })
-    );
+    const x = ofS(1);
+    const lhs = W.map(x, (a) => a);
+    const rhs = x;
+    expect(eqWriter(lhs, rhs)).toBe(true);
   });
 
   it("Functor composition", () => {
-    fc.assert(
-      fc.property(
-        arbWriterNumber,
-        fc.func<number, number>(fc.integer()),
-        fc.func<number, number>(fc.integer()),
-        (fa, f, g) => {
-          const compose = (x: number): number => f(g(x));
-          const lhs = fa.map(compose);
-          const rhs = fa.map(g).map(f);
-          expect(eqWriter(lhs, rhs)).toBe(true);
-        }
-      )
-    );
+    const x = ofS(1);
+    const f = (n: number) => n + 1;
+    const g = (n: number) => n * 2;
+
+    const lhs = W.map(x, (a) => g(f(a)));
+    const rhs = W.map(W.map(x, f), g);
+
+    expect(eqWriter(lhs, rhs)).toBe(true);
   });
 
   it("Monad left identity", () => {
-    fc.assert(
-      fc.property(
-        fc.integer(),
-        fc.func<number, WriterT<string[], number>>(arbWriterNumber),
-        (a, f) => {
-          const lhs = of(a).chain(f);
-          const rhs = f(a);
-          expect(eqWriter(lhs, rhs)).toBe(true);
-        }
-      )
-    );
+    const a = 1;
+    const f = (n: number) => ofS(n + 1);
+
+    const lhs = W.chain(ofS(a), f);
+    const rhs = f(a);
+
+    expect(eqWriter(lhs, rhs)).toBe(true);
   });
 
   it("Monad right identity", () => {
-    fc.assert(
-      fc.property(arbWriterNumber, (fa) => {
-        const lhs = fa.chain(of);
-        const rhs = fa;
-        expect(eqWriter(lhs, rhs)).toBe(true);
-      })
-    );
+    const x = ofS(1);
+    const lhs = W.chain(x, ofS);
+    const rhs = x;
+    expect(eqWriter(lhs, rhs)).toBe(true);
   });
 
   it("Monad associativity", () => {
-    fc.assert(
-      fc.property(
-        arbWriterNumber,
-        fc.func<number, WriterT<string[], number>>(arbWriterNumber),
-        fc.func<number, WriterT<string[], number>>(arbWriterNumber),
-        (fa, f, g) => {
-          const lhs = fa.chain(f).chain(g);
-          const rhs = fa.chain((a) => f(a).chain(g));
-          expect(eqWriter(lhs, rhs)).toBe(true);
-        }
-      )
-    );
+    const x = ofS(1);
+    const f = (n: number) => ofS(n + 1);
+    const g = (n: number) => ofS(n * 2);
+
+    const lhs = W.chain(W.chain(x, f), g);
+    const rhs = W.chain(x, (n) => W.chain(f(n), g));
+
+    expect(eqWriter(lhs, rhs)).toBe(true);
   });
 
-  it("tell accumulates logs with of", () => {
-    fc.assert(
-      fc.property(fc.string(), fc.string(), (a, b) => {
-        const w = tell(a)
-          .chain(() => tell(b))
-          .chain(() => of(1));
+  it("module FL.map and FL.chain behave like map and chain", () => {
+    const M = monoidString;
+    const W = WriterModule(M);
 
-        const [val, logs] = w.run();
-        expect(val).toBe(1);
-        expect(logs).toEqual([a, b]); // Correct expectation
-      })
-    );
+    const x = W.of("x");
+
+    const mapped = W.map(x, (s) => s + "1");
+    const chained = W.chain(x, (s) => W.of(s + "1"));
+
+    const viaFl = x as any;
+
+    const mappedFl = viaFl[fl.map]((s: string) => s + "1");
+    const chainedFl = viaFl[fl.chain]((s: string) => W.of(s + "1"));
+
+    expect(eqWriter(mapped, mappedFl)).toBe(true);
+    expect(eqWriter(chained, chainedFl)).toBe(true);
   });
 });

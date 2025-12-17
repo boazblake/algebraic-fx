@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../README.md)
+[**algebraic-fx v0.0.2**](../../README.md)
 
 ***
 
@@ -8,15 +8,7 @@
 
 > **VNode** = `object`
 
-Defined in: [core/types.ts:67](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L67)
-
-The virtual DOM node shape recognized by the algebraic-fx renderer.
-
-- `tag`: HTML tag name or "#" for text nodes
-- `children`: optional list of child nodes
-- `props`: optional attributes, event handlers, lifecycle hooks
-- `key`: optional identity for keyed diffing
-- `dom`: real DOM element reference (populated by renderer)
+Defined in: [core/types.ts:23](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L23)
 
 ## Properties
 
@@ -24,7 +16,7 @@ The virtual DOM node shape recognized by the algebraic-fx renderer.
 
 > **children**: [`VChild`](VChild.md)[] \| `null`
 
-Defined in: [core/types.ts:70](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L70)
+Defined in: [core/types.ts:26](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L26)
 
 ***
 
@@ -32,7 +24,7 @@ Defined in: [core/types.ts:70](https://github.com/boazblake/algebraic-fx/blob/15
 
 > `optional` **dom**: `Node` \| `null`
 
-Defined in: [core/types.ts:72](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L72)
+Defined in: [core/types.ts:28](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L28)
 
 ***
 
@@ -40,7 +32,7 @@ Defined in: [core/types.ts:72](https://github.com/boazblake/algebraic-fx/blob/15
 
 > `optional` **key**: `string` \| `number`
 
-Defined in: [core/types.ts:71](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L71)
+Defined in: [core/types.ts:27](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L27)
 
 ***
 
@@ -48,7 +40,7 @@ Defined in: [core/types.ts:71](https://github.com/boazblake/algebraic-fx/blob/15
 
 > `optional` **props**: [`Props`](Props.md) \| `null`
 
-Defined in: [core/types.ts:69](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L69)
+Defined in: [core/types.ts:25](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L25)
 
 ***
 
@@ -56,4 +48,4 @@ Defined in: [core/types.ts:69](https://github.com/boazblake/algebraic-fx/blob/15
 
 > **tag**: `string`
 
-Defined in: [core/types.ts:68](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/types.ts#L68)
+Defined in: [core/types.ts:24](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L24)

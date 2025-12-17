@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../../README.md)
+[**algebraic-fx v0.0.2**](../../../../README.md)
 
 ***
 
@@ -6,11 +6,9 @@
 
 # Function: get()
 
-> **get**\<`S`\>(): [`State`](../../../type-aliases/State.md)\<`S`, `S`\>
+> **get**\<`S`\>(): [`State`](../interfaces/State.md)\<`S`, `S`\>
 
-Defined in: [adt/state.ts:84](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/state.ts#L84)
-
-Retrieve the current state as the result value.
+Defined in: [adt/state.ts:70](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/state.ts#L70)
 
 ## Type Parameters
 
@@ -20,4 +18,4 @@ Retrieve the current state as the result value.
 
 ## Returns
 
-[`State`](../../../type-aliases/State.md)\<`S`, `S`\>
+[`State`](../interfaces/State.md)\<`S`, `S`\>

@@ -1,157 +1,142 @@
-/**
- * Unique brand to nominally type Either values, preventing structural collisions.
- */
-const EitherBrand = Symbol("EitherBrand");
-/**
- * Construct a Left value (failure).
- */
-export const Left = (l) => ({
+// src/adt/either.ts
+import { fl } from "./fl.js";
+export const isLeft = (fa) => fa._tag === "Left";
+export const isRight = (fa) => fa._tag === "Right";
+export const left = (e) => withInstanceMethods({
     _tag: "Left",
-    left: l,
-    [EitherBrand]: true,
+    left: e,
 });
-/**
- * Construct a Right value (success).
- */
-export const Right = (r) => ({
+export const right = (a) => withInstanceMethods({
     _tag: "Right",
-    right: r,
-    [EitherBrand]: true,
+    right: a,
 });
 /**
- * Functor map: transform the Right value, preserve Left as-is.
+ * Applicative "of" injects a value in the Right side.
  */
-export const map = (f, e) => e._tag === "Right" ? Right(f(e.right)) : e;
+export const of = (a) => right(a);
 /**
- * Applicative apply: apply a Right-wrapped function to a Right-wrapped value.
+ * Functor map.
  */
-export const ap = (ef, ea) => {
-    if (ef._tag === "Left")
-        return Left(ef.left);
-    if (ea._tag === "Left")
-        return Left(ea.left);
-    return Right(ef.right(ea.right));
+export const map = (fa, f) => {
+    if (isLeft(fa))
+        return fa;
+    return right(f(fa.right));
 };
 /**
- * Monad chain: bind the Right value to the next computation, short-circuiting on Left.
+ * Map over the Left side.
  */
-export const chain = (f, e) => (e._tag === "Right" ? f(e.right) : e);
+export const mapLeft = (fa, f) => {
+    if (isLeft(fa))
+        return left(f(fa.left));
+    return fa;
+};
 /**
- * Bifunctor map over Left OR Right.
+ * Bimap over both sides.
  */
-export const bimap = (onLeft, onRight, e) => e._tag === "Left" ? Left(onLeft(e.left)) : Right(onRight(e.right));
+export const bimap = (fa, f, g) => {
+    if (isLeft(fa))
+        return left(f(fa.left));
+    return right(g(fa.right));
+};
 /**
- * Map only the Left (error) side.
+ * Apply. If either side is Left, it short circuits.
  */
-export const mapLeft = (f, e) => (e._tag === "Left" ? Left(f(e.left)) : e);
+export const ap = (fab, fa) => {
+    if (isLeft(fab))
+        return fab;
+    if (isLeft(fa))
+        return fa;
+    return right(fab.right(fa.right));
+};
 /**
- * Pattern match for Either.
+ * Monad chain.
  */
-export const fold = (onLeft, onRight, e) => (e._tag === "Left" ? onLeft(e.left) : onRight(e.right));
+export const chain = (fa, f) => {
+    if (isLeft(fa))
+        return fa;
+    return f(fa.right);
+};
 /**
- * Lift a value into Right (pure).
+ * Swap Left and Right.
  */
-export const of = (a) => Right(a);
+export const swap = (fa) => {
+    if (isLeft(fa))
+        return right(fa.left);
+    return left(fa.right);
+};
 /**
- * Extract the Right or fallback to a default.
+ * Pattern match.
  */
-export const getOrElse = (defaultValue, e) => e._tag === "Right" ? e.right : defaultValue;
+export const match = (onLeft, onRight) => (fa) => isLeft(fa) ? onLeft(fa.left) : onRight(fa.right);
 /**
- * Extract Right or compute fallback.
+ * Same as match but flipped argument order, aligns with maybe().
  */
-export const getOrElseW = (onLeft, e) => (e._tag === "Right" ? e.right : onLeft(e.left));
+export const either = (onLeft, onRight) => (fa) => match(onLeft, onRight)(fa);
 /**
- * Alternative: return the first Right encountered.
+ * Extract with default for Left.
  */
-export const alt = (e1, e2) => e1._tag === "Right" ? e1 : e2;
+export const getOrElse = (onLeft) => (fa) => isLeft(fa) ? onLeft(fa.left) : fa.right;
 /**
- * Type guard: check if e is Left.
+ * Build Either from nullable value.
  */
-export const isLeft = (e) => e._tag === "Left";
+export const fromNullable = (onNull) => (a) => a == null ? left(onNull()) : right(a);
 /**
- * Type guard: check if e is Right.
+ * Build Either from predicate.
  */
-export const isRight = (e) => e._tag === "Right";
+export const fromPredicate = (predicate, onFalse) => (a) => predicate(a) ? right(a) : left(onFalse(a));
 /**
- * Convert nullable to Either.
- *
- * @example
- * fromNullable("missing")(null)    // Left("missing")
- * fromNullable("missing")(42)      // Right(42)
+ * Effectful construction with error capture.
  */
-export const fromNullable = (onNull) => (a) => a == null ? Left(onNull) : Right(a);
-/**
- * Try/catch wrapper for synchronous code.
- */
-export const tryCatch = (f) => {
+export const tryCatch = (thunk, onThrow) => {
     try {
-        return Right(f());
+        return right(thunk());
     }
     catch (e) {
-        return Left(e);
+        return left(onThrow(e));
     }
 };
 /**
- * Try/catch wrapper with custom error mapping.
+ * Narrow type guard for Either values.
  */
-export const tryCatchK = (f, onError) => {
-    try {
-        return Right(f());
-    }
-    catch (e) {
-        return Left(onError(e));
-    }
+export const isEither = (u) => !!u &&
+    typeof u === "object" &&
+    "_tag" in u &&
+    ((u._tag === "Left" && "left" in u) ||
+        (u._tag === "Right" && "right" in u));
+const withInstanceMethods = (ea) => {
+    const self = ea;
+    self[fl.map] = (f) => map(self, f);
+    self[fl.chain] = (f) => chain(self, f);
+    // Method form: fab[fl.ap](fa)
+    self[fl.ap] = (fa) => 
+    // cast through unknown to satisfy type relations without cost at runtime
+    ap(self, fa);
+    self[fl.bimap] = (f, g) => bimap(self, f, g);
+    return self;
 };
 /**
- * Swap Left and Right positions.
+ * fp ts style module dictionary.
  */
-export const swap = (e) => e._tag === "Left" ? Right(e.left) : Left(e.right);
-/**
- * Keep Right only if predicate succeeds; otherwise convert to Left.
- */
-export const filterOrElse = (predicate, onFalse, e) => e._tag === "Right" && !predicate(e.right) ? Left(onFalse(e.right)) : e;
-/**
- * Traverse an array, short-circuiting on Left.
- */
-export const traverse = (f, arr) => {
-    const result = [];
-    for (const a of arr) {
-        const eb = f(a);
-        if (eb._tag === "Left")
-            return eb;
-        result.push(eb.right);
-    }
-    return Right(result);
-};
-/**
- * Sequence an array of Eithers into Either of array.
- */
-export const sequence = (arr) => traverse((x) => x, arr);
-/**
- * Unified namespace export.
- */
-export const Either = {
-    Left,
-    Right,
-    map,
-    ap,
-    chain,
-    bimap,
-    mapLeft,
-    fold,
+export const EitherModule = {
+    URI: "Either",
+    left,
+    right,
     of,
-    getOrElse,
-    getOrElseW,
-    alt,
     isLeft,
     isRight,
-    fromNullable,
-    tryCatch,
-    tryCatchK,
+    map,
+    mapLeft,
+    bimap,
+    ap,
+    chain,
     swap,
-    filterOrElse,
-    traverse,
-    sequence,
+    match,
+    either,
+    getOrElse,
+    fromNullable,
+    fromPredicate,
+    tryCatch,
+    isEither,
+    [fl.of]: of,
 };
-export default Either;
 //# sourceMappingURL=either.js.map

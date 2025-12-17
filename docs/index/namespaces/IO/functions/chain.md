@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../../README.md)
+[**algebraic-fx v0.0.2**](../../../../README.md)
 
 ***
 
@@ -6,11 +6,9 @@
 
 # Function: chain()
 
-> **chain**\<`A`, `B`\>(`f`): (`io`) => [`IO`](../../../type-aliases/IO.md)\<`B`\>
+> **chain**\<`A`, `B`\>(`f`): (`fa`) => [`IO`](../interfaces/IO.md)\<`B`\>
 
-Defined in: [adt/io.ts:78](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/io.ts#L78)
-
-Point-free monadic chain.
+Defined in: [adt/io.ts:48](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/io.ts#L48)
 
 ## Type Parameters
 
@@ -26,18 +24,18 @@ Point-free monadic chain.
 
 ### f
 
-(`a`) => [`IO`](../../../type-aliases/IO.md)\<`B`\>
+(`a`) => [`IO`](../interfaces/IO.md)\<`B`\>
 
 ## Returns
 
-> (`io`): [`IO`](../../../type-aliases/IO.md)\<`B`\>
+> (`fa`): [`IO`](../interfaces/IO.md)\<`B`\>
 
 ### Parameters
 
-#### io
+#### fa
 
-[`IO`](../../../type-aliases/IO.md)\<`A`\>
+[`IO`](../interfaces/IO.md)\<`A`\>
 
 ### Returns
 
-[`IO`](../../../type-aliases/IO.md)\<`B`\>
+[`IO`](../interfaces/IO.md)\<`B`\>

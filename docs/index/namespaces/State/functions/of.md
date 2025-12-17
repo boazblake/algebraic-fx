@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../../README.md)
+[**algebraic-fx v0.0.2**](../../../../README.md)
 
 ***
 
@@ -6,11 +6,9 @@
 
 # Function: of()
 
-> **of**\<`S`, `A`\>(`a`): [`State`](../../../type-aliases/State.md)\<`S`, `A`\>
+> **of**\<`S`, `A`\>(`a`): [`State`](../interfaces/State.md)\<`S`, `A`\>
 
-Defined in: [adt/state.ts:79](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/state.ts#L79)
-
-Lift a pure value into State, leaving the state unchanged.
+Defined in: [adt/state.ts:43](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/state.ts#L43)
 
 ## Type Parameters
 
@@ -30,4 +28,4 @@ Lift a pure value into State, leaving the state unchanged.
 
 ## Returns
 
-[`State`](../../../type-aliases/State.md)\<`S`, `A`\>
+[`State`](../interfaces/State.md)\<`S`, `A`\>

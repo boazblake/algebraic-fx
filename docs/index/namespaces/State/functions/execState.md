@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../../README.md)
+[**algebraic-fx v0.0.2**](../../../../README.md)
 
 ***
 
@@ -6,11 +6,9 @@
 
 # Function: execState()
 
-> **execState**\<`S`, `A`\>(`s`): (`st`) => `S`
+> **execState**\<`S`, `A`\>(`sa`, `s`): `S`
 
-Defined in: [adt/state.ts:139](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/state.ts#L139)
-
-Execute: run state and return only the final state.
+Defined in: [adt/state.ts:79](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/state.ts#L79)
 
 ## Type Parameters
 
@@ -24,20 +22,14 @@ Execute: run state and return only the final state.
 
 ## Parameters
 
+### sa
+
+[`State`](../interfaces/State.md)\<`S`, `A`\>
+
 ### s
 
 `S`
 
 ## Returns
-
-> (`st`): `S`
-
-### Parameters
-
-#### st
-
-[`State`](../../../type-aliases/State.md)\<`S`, `A`\>
-
-### Returns
 
 `S`

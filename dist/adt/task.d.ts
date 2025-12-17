@@ -1,73 +1,45 @@
+import { fl } from "./fl.js";
+import type { Either } from "./either.js";
+import type { IO } from "./io.js";
 /**
- * Unique brand for nominal typing of Task values.
- * Prevents structural type collisions with plain objects.
+ * Task<E, A> represents an async computation that can fail with E or succeed with A.
+ * It always resolves to Either<E, A>.
  */
-declare const TaskBrand: unique symbol;
-import { Either } from "./either.js";
-/**
- * Lazy asynchronous computation that:
- *
- * - may fail with `E` or succeed with `A`
- * - does not execute until `.run()` or `.runWith(signal)` is called
- * - supports cancellation via AbortSignal
- * - supports mapping, chaining, bimap, mapError, applicative ap
- *
- * Task semantics:
- * - `run()` executes without cancellation
- * - `runWith(signal)` executes with cancellation support
- *
- * @typeParam E Error type
- * @typeParam A Result type
- */
-export type Task<E, A> = {
-    readonly [TaskBrand]: true;
-    /** Start the async computation with no AbortSignal. */
-    run: () => Promise<Either<E, A>>;
+export interface Task<E, A> {
+    readonly _tag: "Task";
+    readonly run: () => Promise<Either<E, A>>;
+    readonly runWith: <R>(onError: (e: E) => R | Promise<R>, onSuccess: (a: A) => R | Promise<R>) => Promise<R>;
+}
+export declare const TaskModule: {
+    readonly [fl.of]: <A>(a: A) => Task<never, A>;
+    readonly [fl.map]: (f: (a: any) => any) => (fa: Task<any, any>) => Task<any, any>;
+    readonly [fl.chain]: (f: (a: any) => Task<any, any>) => (fa: Task<any, any>) => Task<any, any>;
+    readonly [fl.ap]: (tf: Task<any, (a: any) => any>) => (tv: Task<any, any>) => Task<any, any>;
+    readonly of: <E = never, A = never>(a: A) => Task<E, A>;
+    readonly fail: <E = unknown, A = never>(e: E) => Task<E, A>;
+    readonly map: <E, A, B>(f: (a: A) => B) => (fa: Task<E, A>) => Task<E, B>;
+    readonly chain: <E, A, B>(f: (a: A) => Task<E, B>) => (fa: Task<E, A>) => Task<E, B>;
     /**
-     * Start the async computation with cancellation support.
-     * Throws if no AbortSignal is provided.
+     * Applicative ap:
+     *   ap(tf)(tv) ≡ tv.ap(tf)
+     * where tf: Task<E, (a: A) => B>, tv: Task<E, A>.
      */
-    runWith: (signal: AbortSignal) => Promise<Either<E, A>>;
-    /** Transform the result value on success. */
-    map: <B>(f: (a: A) => B) => Task<E, B>;
-    /** Chain another Task-producing function. */
-    chain: <B>(f: (a: A) => Task<E, B>) => Task<E, B>;
-    /** Applicative apply. */
-    ap: <B>(fb: Task<E, (a: A) => B>) => Task<E, B>;
-    /** Map the error side only. */
-    mapError: <E2>(f: (e: E) => E2) => Task<E2, A>;
-    /** Map error OR value depending on outcome. */
-    bimap: <E2, B>(onError: (e: E) => E2, onSuccess: (a: A) => B) => Task<E2, B>;
+    readonly ap: <E, A, B>(tf: Task<E, (a: A) => B>) => (tv: Task<E, A>) => Task<E, B>;
+    readonly fromIO: <E = never, A = never>(io: IO<A>) => Task<E, A>;
+    readonly fromEither: <E, A>(ea: Either<E, A>) => Task<E, A>;
+    readonly fromPromise: <E = unknown, A = unknown>(thunk: () => Promise<A>, onError: (e: unknown) => E) => Task<E, A>;
+    readonly tryCatch: <E = unknown, A = unknown>(thunk: () => A, onError: (e: unknown) => E) => Task<E, A>;
+    readonly isTask: (u: unknown) => u is Task<unknown, unknown>;
 };
-/**
- * Construct a Task given a function that accepts an optional AbortSignal.
- *
- * The returned Task is lazy and will not run until `.run()` or `.runWith(signal)` is called.
- *
- * @param run0 Underlying async function returning `Either<E, A>`
- */
-export declare const Task: {
-    <E, A>(run0: (signal?: AbortSignal) => Promise<Either<E, A>>): Task<E, A>;
-    of<A>(a: A): Task<never, A>;
-    reject<E>(e: E): Task<E, never>;
-    fromAbortable<E, A>(register: (signal: AbortSignal) => Promise<A>, onError: (e: unknown) => E): Task<E, A>;
-    tryCatch<A>(f: () => Promise<A>): Task<unknown, A>;
-    tryCatchK<E, A>(f: () => Promise<A>, onError: (e: unknown) => E): Task<E, A>;
-    map<E, A, B>(f: (a: A) => B): (t: Task<E, A>) => Task<E, B>;
-    chain<E, A, B>(f: (a: A) => Task<E, B>): (t: Task<E, A>) => Task<E, B>;
-    ap<E, A, B>(fb: Task<E, (a: A) => B>): (fa: Task<E, A>) => Task<E, B>;
-    mapError<E, E2>(f: (e: E) => E2): <A>(t: Task<E, A>) => Task<E2, A>;
-    bimap<E, E2, A, B>(onError: (e: E) => E2, onSuccess: (a: A) => B): (t: Task<E, A>) => Task<E2, B>;
-    fold<E, A, B>(onError: (e: E) => B, onSuccess: (a: A) => B): (t: Task<E, A>) => Promise<B>;
-    getOrElse<E, A>(defaultValue: A): (t: Task<E, A>) => Promise<A>;
-    delay(ms: number): <E, A>(t: Task<E, A>) => Task<E, A>;
-    timeout<E>(ms: number, onTimeout: E): <A>(t: Task<E, A>) => Task<E, A>;
-    sequence<E, A>(tasks: Task<E, A>[]): Task<E, A[]>;
-    traverse<E, A, B>(f: (a: A) => Task<E, B>): (arr: A[]) => Task<E, B[]>;
-    all<E, A>(tasks: Task<E, A>[]): Task<E, A[]>;
-    race<E, A>(tasks: Task<E, A>[]): Task<E, A>;
-    fromEither<E, A>(e: Either<E, A>): Task<E, A>;
-    toPromise<E, A>(t: Task<E, A>): Promise<A>;
-};
-export default Task;
+export declare const of: <E = never, A = never>(a: A) => Task<E, A>;
+export declare const fail: <E = unknown, A = never>(e: E) => Task<E, A>;
+export declare const map: <E, A, B>(f: (a: A) => B) => (fa: Task<E, A>) => Task<E, B>;
+export declare const chain: <E, A, B>(f: (a: A) => Task<E, B>) => (fa: Task<E, A>) => Task<E, B>;
+export declare const ap: <E, A, B>(tf: Task<E, (a: A) => B>) => (tv: Task<E, A>) => Task<E, B>;
+export declare const fromIO: <E = never, A = never>(io: IO<A>) => Task<E, A>;
+export declare const fromEither: <E, A>(ea: Either<E, A>) => Task<E, A>;
+export declare const fromPromise: <E = unknown, A = unknown>(thunk: () => Promise<A>, onError: (e: unknown) => E) => Task<E, A>;
+export declare const tryCatch: <E = unknown, A = unknown>(thunk: () => A, onError: (e: unknown) => E) => Task<E, A>;
+export declare const isTask: (u: unknown) => u is Task<unknown, unknown>;
+export type { Task as TaskT };
 //# sourceMappingURL=task.d.ts.map

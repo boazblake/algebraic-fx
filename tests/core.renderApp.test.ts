@@ -1,167 +1,149 @@
-import { describe, it, expect } from "vitest";
-import { renderApp } from "../src/core/render.js";
-import type {
-  Program,
-  RawEffect,
-  Effect,
-  Dispatch,
-  Payload,
-} from "../src/core/types.js";
-import { IO } from "../src/adt/io.js";
+import { describe, it, expect, vi } from "vitest";
+import { renderApp } from "@/core/render";
+import { IO } from "@/adt/io";
+import { fx } from "@/core/effects";
 
-type Env = { tag: string };
+type Msg = "PING" | "PONG";
 
-type Msg =
-  | Payload<"Init">
-  | Payload<"Click">
-  | Payload<"SetText", { text: string }>;
+const makeRoot = () => document.createElement("div");
 
-type Model = {
-  text: string;
-  log: string[];
-};
-
-describe("renderApp", () => {
-  const mkProgram = (): Program<Model, Msg, Env> => {
-    return {
-      init: IO(() => ({
-        model: {
-          text: "hello",
-          log: ["init"],
-        },
-        effects: [],
-      })),
-      update: (msg, model): { model: Model; effects: RawEffect<Env>[] } => {
-        switch (msg.type) {
-          case "Click": {
-            return {
-              model: {
-                ...model,
-                text: model.text.toUpperCase(),
-                log: [...model.log, "Click"],
-              },
-              effects: [],
-            };
-          }
-          case "SetText": {
-            return {
-              model: {
-                ...model,
-                text: msg.msg.text,
-                log: [...model.log, "SetText"],
-              },
-              effects: [],
-            };
-          }
-          default:
-            return { model, effects: [] };
-        }
-      },
-      view: (model, dispatch) => {
-        return {
-          tag: "button",
-          props: {
-            onclick: () => dispatch({ type: "Click", msg: {} }),
-          },
-          children: [model.text],
-          key: undefined,
-        };
-      },
-    };
-  };
-
-  const createRenderer = () => {
-    const renders: any[] = [];
-    const renderer = (root: Element, vnode: any) => {
-      (root as any).__lastVNode = vnode;
-      renders.push(vnode);
-    };
-    return { renderer, renders };
-  };
-
+describe("renderApp (integration shape)", () => {
   it("runs init and renders once", () => {
-    const root = document.createElement("div");
-    const program = mkProgram();
-    const { renderer, renders } = createRenderer();
+    const root = makeRoot();
+    const renderer = vi.fn();
 
-    renderApp<Model, Msg, Env>(root, program, { tag: "env" }, renderer);
+    const program = {
+      init: IO(() => ({
+        model: { count: 0 },
+        effects: [] as any[],
+      })),
+      update: vi.fn(
+        (msg: Msg, model: { count: number }, _dispatch: (m: Msg) => void) => {
+          if (msg === "PING") {
+            return {
+              model: { count: model.count + 1 },
+              effects: [] as any[],
+            };
+          }
+          return { model, effects: [] as any[] };
+        }
+      ),
+      view: vi.fn((model: { count: number }, _dispatch: (m: Msg) => void) => ({
+        tag: "div",
+        attrs: { "data-count": model.count },
+      })),
+    };
 
-    expect(renders.length).toBe(1);
-    const vnode = (root as any).__lastVNode;
-    expect(vnode.children[0]).toBe("hello");
+    renderApp(root, program as any, {}, renderer);
+
+    expect(program.view).toHaveBeenCalledTimes(1);
+    expect(renderer).toHaveBeenCalledTimes(1);
   });
 
   it("dispatch flows through update and view", () => {
-    const root = document.createElement("div");
-    const program = mkProgram();
-    const { renderer, renders } = createRenderer();
+    const root = makeRoot();
+    const renderer = vi.fn();
 
-    const env: Env = { tag: "env" };
+    let capturedDispatch: ((m: Msg) => void) | null = null;
 
-    renderApp<Model, Msg, Env>(root, program, env, renderer);
-
-    const vnode = (root as any).__lastVNode;
-    const onclick = vnode.props.onclick as () => void;
-
-    onclick();
-
-    expect(renders.length).toBe(2);
-    const vnode2 = (root as any).__lastVNode;
-    expect(vnode2.children[0]).toBe("HELLO");
-  });
-
-  it("supports effects that dispatch follow-up messages", () => {
-    const root = document.createElement("div");
-    const effectsRun: string[] = [];
-
-    const program: Program<Model, Msg, Env> = {
+    const program = {
       init: IO(() => ({
-        model: { text: "start", log: [] },
-        effects: [],
+        model: { count: 0 },
+        effects: [] as any[],
       })),
-      update: (msg, model): { model: Model; effects: RawEffect<Env>[] } => {
-        if (msg.type === "Init") {
-          const fx: Effect<Env, Msg> = {
-            run(env, dispatchInner) {
-              effectsRun.push(`env:${env.tag}`);
-              dispatchInner({
-                type: "SetText",
-                msg: { text: "from effect" },
-              });
-            },
-          };
-          return { model, effects: [fx] };
-        }
-        if (msg.type === "SetText") {
-          return {
-            model: { ...model, text: msg.msg.text },
-            effects: [],
-          };
-        }
-        return { model, effects: [] };
-      },
-      view: (model, dispatch) => ({
-        tag: "div",
-        props: {
-          onclick: () => dispatch({ type: "Init", msg: {} }),
-        },
-        children: [model.text],
-        key: undefined,
+      update: vi.fn(
+        (msg: Msg, model: { count: number }, _dispatch: (m: Msg) => void) => ({
+          model: { count: model.count + 1 },
+          effects: [] as any[],
+        })
+      ),
+      view: vi.fn((model: { count: number }, dispatch: (m: Msg) => void) => {
+        capturedDispatch = dispatch;
+        return {
+          tag: "div",
+          attrs: { "data-count": model.count },
+        };
       }),
     };
 
-    const { renderer } = createRenderer();
-    const env: Env = { tag: "TEST" };
+    renderApp(root, program as any, {}, renderer);
 
-    renderApp<Model, Msg, Env>(root, program, env, renderer);
+    const dispatch = capturedDispatch as (m: Msg) => void;
+    dispatch("PING");
 
-    let vnode = (root as any).__lastVNode;
-    const onclick = vnode.props.onclick as () => void;
+    expect(program.update).toHaveBeenCalledWith(
+      "PING",
+      { count: 0 },
+      expect.any(Function)
+    );
+    expect(program.view).toHaveBeenCalledTimes(2);
+    expect(renderer).toHaveBeenCalledTimes(2);
+  });
 
-    onclick(); // dispatch Init → triggers Effect
+  it("supports effects that dispatch follow-up messages", () => {
+    const root = makeRoot();
+    const renderer = vi.fn();
 
-    vnode = (root as any).__lastVNode;
-    expect(vnode.children[0]).toBe("from effect");
-    expect(effectsRun).toEqual(["env:TEST"]);
+    let capturedDispatch: ((m: Msg) => void) | null = null;
+
+    const program = {
+      init: IO(() => ({
+        model: { count: 0 },
+        effects: [] as any[],
+      })),
+      update: vi.fn(
+        (msg: Msg, model: { count: number }, _dispatch: (m: Msg) => void) => {
+          if (msg === "PING") {
+            const eff = fx((_env: unknown, dispatch: (m: Msg) => void) => {
+              dispatch("PONG");
+            });
+
+            return {
+              model,
+              effects: [eff] as any[],
+            };
+          }
+
+          if (msg === "PONG") {
+            return {
+              model: { count: model.count + 1 },
+              effects: [] as any[],
+            };
+          }
+
+          return { model, effects: [] as any[] };
+        }
+      ),
+      view: vi.fn((model: { count: number }, dispatch: (m: Msg) => void) => {
+        capturedDispatch = dispatch;
+        return {
+          tag: "div",
+          attrs: { "data-count": model.count },
+        };
+      }),
+    };
+
+    renderApp(root, program as any, {}, renderer);
+
+    const dispatch = capturedDispatch as (m: Msg) => void;
+    dispatch("PING");
+
+    // PING update
+    expect(program.update).toHaveBeenCalledWith(
+      "PING",
+      { count: 0 },
+      expect.any(Function)
+    );
+
+    // PONG follow-up from effect
+    expect(program.update).toHaveBeenCalledWith(
+      "PONG",
+      { count: 0 },
+      expect.any(Function)
+    );
+
+    // One increment from PONG
+    const lastCall = program.view.mock.calls.at(-1);
+    expect(lastCall?.[0]).toEqual({ count: 1 });
   });
 });

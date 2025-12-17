@@ -1,57 +1,91 @@
-import { describe, it, expect } from "vitest";
-import { Reader } from "../src/adt/reader.js";
+// tests/adt.reader.test.ts
+import { fl } from "../src/adt/fl.js";
+import {
+  Reader,
+  of,
+  ask,
+  asks,
+  isReader,
+  ReaderModule,
+} from "../src/adt/reader.js";
 
-type Env = { base: number };
+describe("Reader ADT", () => {
+  type Env = { n: number };
 
-describe("Reader", () => {
-  it("reads from environment", () => {
-    const r = Reader<Env, number>((env) => env.base + 1);
-    expect(r.run({ base: 10 })).toBe(11);
+  test("constructs via of / ask / asks", () => {
+    const r1 = of<Env, number>(42);
+    expect(r1.run({ n: 0 })).toBe(42);
+
+    const r2 = ask<Env>();
+    expect(r2.run({ n: 10 })).toEqual({ n: 10 });
+
+    const r3 = asks<Env, number>((env) => env.n * 2);
+    expect(r3.run({ n: 5 })).toBe(10);
   });
 
-  it("supports map", () => {
-    const r = Reader<Env, number>((env) => env.base);
-    const r2 = r.map((x) => x * 2);
-
-    expect(r2.run({ base: 3 })).toBe(6);
+  test("map transforms the result", () => {
+    const r = of<Env, number>(3);
+    const mapped = r.map((x) => x + 1);
+    expect(mapped.run({ n: 0 })).toBe(4);
   });
 
-  it("supports chain", () => {
-    const r = Reader<Env, number>((env) => env.base);
-    const r2 = r.chain((x) => Reader<Env, number>((env) => env.base + x));
-
-    expect(r2.run({ base: 2 })).toBe(4);
+  test("chain sequences computations", () => {
+    const r = of<Env, number>(3).chain((x) => of<Env, string>(`v${x}`));
+    expect(r.run({ n: 0 })).toBe("v3");
   });
 
-  it("supports ask", () => {
-    const ask = Reader.ask<Env>();
-    const r = ask.map((env) => env.base * 3);
+  test("ap applies function Reader to value Reader", () => {
+    const fab = of<Env, (x: number) => number>((x) => x * 2);
+    const fa = of<Env, number>(5);
 
-    expect(r.run({ base: 4 })).toBe(12);
+    const applied = fab.ap(fa);
+    expect(applied.run({ n: 0 })).toBe(10);
   });
 
-  it("supports local (env transform)", () => {
-    type EnvWithExtra = Env & { extra: number };
-
-    const r = Reader<Env, number>((env) => env.base);
-    const r2 = Reader.local<EnvWithExtra, Env, number>((env) => ({
-      base: env.base + env.extra,
-    }))(r);
-
-    expect(r2.run({ base: 1, extra: 2 })).toBe(3);
+  test("isReader detects Reader values", () => {
+    const r = of<Env, number>(1);
+    expect(isReader(r)).toBe(true);
+    expect(isReader(123)).toBe(false);
+    expect(isReader({})).toBe(false);
   });
 
-  it("supports local with narrowing environment", () => {
-    type Config = { dbUrl: string; apiKey: string };
-    type DbConfig = { dbUrl: string };
+  test("exposes Fantasy-Land methods on the value", () => {
+    const r = of<Env, number>(3);
 
-    const readDb = Reader<DbConfig, string>((env) => env.dbUrl);
-    const withConfig = Reader.local<Config, DbConfig, string>((env) => ({
-      dbUrl: env.dbUrl,
-    }))(readDb);
+    expect(typeof (r as any)[fl.map]).toBe("function");
+    expect(typeof (r as any)[fl.chain]).toBe("function");
+    expect(typeof (r as any)[fl.ap]).toBe("function");
 
-    expect(withConfig.run({ dbUrl: "localhost", apiKey: "secret" })).toBe(
-      "localhost"
+    const mapped = (r as any)[fl.map]!((x: number) => x + 1);
+    expect(mapped.run({ n: 0 })).toBe(4);
+
+    const chained = (r as any)[fl.chain]!((x: number) =>
+      of<Env, number>(x + 2)
     );
+    expect(chained.run({ n: 0 })).toBe(5);
+
+    const fab = of<Env, (x: number) => number>((x) => x * 3);
+    const applied = (fab as any)[fl.ap]!(of<Env, number>(2));
+    expect(applied.run({ n: 0 })).toBe(6);
+  });
+
+  test("ReaderModule exposes fp-ts style dictionary and FL of", () => {
+    const env: Env = { n: 0 };
+
+    const r = ReaderModule.of<Env, number>(5);
+    const mapped = ReaderModule.map(r, (x) => x + 1);
+    const chained = ReaderModule.chain(mapped, (x) =>
+      ReaderModule.of<Env, string>(`v${x}`)
+    );
+
+    expect(mapped.run(env)).toBe(6);
+    expect(chained.run(env)).toBe("v6");
+
+    const fab = ReaderModule.of<Env, (x: number) => number>((x) => x * 10);
+    const applied = ReaderModule.ap(fab, r);
+    expect(applied.run(env)).toBe(50);
+
+    const viaFL = (ReaderModule as any)[fl.of]!(7);
+    expect(viaFL.run(env)).toBe(7);
   });
 });

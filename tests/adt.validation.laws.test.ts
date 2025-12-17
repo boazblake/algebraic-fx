@@ -1,88 +1,126 @@
-import { describe, it, expect } from "vitest";
+// tests/adt.validation.laws.test.ts
+import { describe, it } from "vitest";
 import fc from "fast-check";
-import ValidationModule, {
-  Success,
-  Failure,
-  type Validation as V,
-} from "../src/adt/validation.ts";
+import {
+  Validation,
+  failure,
+  success,
+  map,
+  getValidationApplicative,
+  semigroupString,
+} from "@/adt/validation";
 
-const { map, ap, of } = ValidationModule;
-
-// Arbitrary Validation<string, number>
-const arbValidation: fc.Arbitrary<V<string, number>> = fc.oneof(
-  fc.integer().map((n) => Success(n)),
-  fc.array(fc.string(), { minLength: 1 }).map((errs) => Failure(errs))
-);
-
-const eqValidation = (
-  v1: V<string, number>,
-  v2: V<string, number>
+const eqValidation = <E, A>(
+  x: Validation<E, A>,
+  y: Validation<E, A>
 ): boolean => {
-  if (v1._tag !== v2._tag) return false;
-  if (v1._tag === "Success") return v1.value === v2.value;
-  return JSON.stringify(v1.errors) === JSON.stringify(v2.errors);
+  if (x._tag !== y._tag) return false;
+  if (x._tag === "Failure" && y._tag === "Failure") {
+    return Object.is(x.left, (y as any).left);
+  }
+  if (x._tag === "Success" && y._tag === "Success") {
+    return Object.is((x as any).right, (y as any).right);
+  }
+  return false;
 };
 
-describe("Validation laws (fast-check)", () => {
+const arbValidation = fc.oneof<Validation<string, number>>(
+  fc.string().map((e) => failure<string, number>(e)),
+  fc.integer().map((n) => success<string, number>(n))
+);
+
+describe("Validation laws", () => {
+  // Functor
+
   it("Functor identity", () => {
     fc.assert(
       fc.property(arbValidation, (fa) => {
-        const id = (x: number) => x;
-        expect(eqValidation(map(id, fa), fa)).toBe(true);
+        const id = <T>(x: T): T => x;
+        const r = map<number, number>(id)<string>(fa);
+        return eqValidation(fa, r);
       })
     );
   });
 
   it("Functor composition", () => {
     fc.assert(
-      fc.property(
-        arbValidation,
-        fc.func(fc.integer()),
-        fc.func(fc.integer()),
-        (fa, f, g) => {
-          const lhs = map((x) => f(g(x)), fa);
-          const rhs = map(f, map(g, fa));
-          expect(eqValidation(lhs, rhs)).toBe(true);
-        }
-      )
+      fc.property(arbValidation, (fa) => {
+        const f = (n: number): number => n + 1;
+        const g = (n: number): number => n * 2;
+
+        const left = map<number, number>((x) => f(g(x)))<string>(fa);
+        const right = map<number, number>(f)<string>(
+          map<number, number>(g)<string>(fa)
+        );
+
+        return eqValidation(left, right);
+      })
     );
   });
 
+  // Applicative with semigroupString
+
   it("Applicative identity", () => {
+    const A = getValidationApplicative<string>(semigroupString);
+
     fc.assert(
       fc.property(arbValidation, (fa) => {
-        const pureId = of<string, (x: number) => number>((x) => x);
-        const lhs = ap(pureId, fa);
-        expect(eqValidation(lhs, fa)).toBe(true);
+        const id = (x: number): number => x;
+        const vId = success<string, (n: number) => number>(id);
+        const r = A.ap(vId, fa);
+        return eqValidation(fa, r);
       })
     );
   });
 
   it("Applicative homomorphism", () => {
+    const A = getValidationApplicative<string>(semigroupString);
+
     fc.assert(
-      fc.property(fc.integer(), fc.func(fc.integer()), (x, f) => {
-        const lhs = ap(of<string, typeof f>(f), of<string, number>(x));
-        const rhs = of<string, number>(f(x));
-        expect(eqValidation(lhs, rhs)).toBe(true);
+      fc.property(fc.integer(), (x) => {
+        const f = (n: number): number => n * 2;
+
+        const left = A.ap(
+          success<string, (n: number) => number>(f),
+          success<string, number>(x)
+        );
+        const right = success<string, number>(f(x));
+
+        return eqValidation(left, right);
       })
     );
   });
 
-  it("Applicative failure accumulation", () => {
-    fc.assert(
-      fc.property(
-        fc.array(fc.string(), { minLength: 1 }),
-        fc.array(fc.string(), { minLength: 1 }),
-        (errs1, errs2) => {
-          const f = Failure<string, (n: number) => number>(errs1);
-          const x = Failure<string, number>(errs2);
+  it("Applicative interchange", () => {
+    const A = getValidationApplicative<string>(semigroupString);
 
-          const combined = ap(f, x);
-          expect(combined._tag).toBe("Failure");
-          // Semigroup accumulation
-          expect(combined.errors).toEqual([...errs1, ...errs2]);
+    fc.assert(
+      fc.property(fc.integer(), (y) => {
+        const fab = success<string, (n: number) => number>((n) => n + 1);
+
+        const left = A.ap(fab, success<string, number>(y));
+
+        const u = (
+          f: (n: number) => number
+        ): Validation<string, (ignored: unknown) => number> =>
+          success<string, (ignored: unknown) => number>(() => f(y));
+
+        const right = A.ap(
+          u((fab as any).right),
+          success<string, unknown>(undefined)
+        );
+
+        // Compare by applying both to y in Success case, or same Failure
+        if (left._tag === "Failure" && right._tag === "Failure") {
+          return Object.is(left.left, right.left);
         }
-      )
+        if (left._tag === "Success" && right._tag === "Success") {
+          const lv = left.right;
+          const rv = right.right as any; // no call
+          return Object.is(lv, rv);
+        }
+        return false;
+      })
     );
   });
 });

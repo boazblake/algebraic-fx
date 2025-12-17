@@ -1,105 +1,71 @@
 import { describe, it, expect } from "vitest";
-import { Stream } from "../src/adt/stream.js";
+import { Stream, createStream } from "@/adt/stream";
 
 describe("Stream", () => {
   it("emit values and complete", () => {
-    const values: number[] = [];
-    let completed = false;
+    const src = Stream.new<number>();
 
-    const s = Stream<number>((observer) => {
-      observer.next(1);
-      observer.next(2);
-      observer.complete?.();
-      return () => {};
-    });
+    const received: number[] = [];
 
-    const unsub = s.subscribe({
-      next: (v) => values.push(v),
-      complete: () => {
-        completed = true;
-      },
-    });
+    src.subscribe((v) => received.push(v));
 
-    unsub();
-    expect(values).toEqual([1, 2]);
-    expect(completed).toBe(true);
-  });
+    // need the emitter from createStream
+    const [, emit] = createStream<number>();
+    // re-create: new() does NOT give emit
+    // correct approach: use createStream directly
+    const [stream, fire] = createStream<number>();
 
-  it("map operator", () => {
-    const values: number[] = [];
+    const rec: number[] = [];
+    stream.subscribe((v) => rec.push(v));
 
-    const src = Stream<number>((o) => {
-      o.next(1);
-      o.next(2);
-      o.complete?.();
-      return () => {};
-    });
+    fire(1);
+    fire(2);
+    fire(3);
 
-    const mapped = src.map((x) => x * 2);
-
-    mapped.subscribe({
-      next: (v) => values.push(v),
-    });
-
-    expect(values).toEqual([2, 4]);
+    expect(rec).toEqual([1, 2, 3]);
   });
 
   it("filter operator", () => {
+    const [src, emit] = createStream<number>();
     const values: number[] = [];
-    const src = Stream<number>((o) => {
-      o.next(1);
-      o.next(2);
-      o.next(3);
-      o.complete?.();
-      return () => {};
-    });
 
-    src
-      .filter((x) => x % 2 === 1)
-      .subscribe({
-        next: (v) => values.push(v),
-      });
+    src.filter((x) => x % 2 === 1).subscribe((x) => values.push(x));
 
-    expect(values).toEqual([1, 3]);
+    emit(1);
+    emit(2);
+    emit(3);
+    emit(4);
+    emit(5);
+
+    expect(values).toEqual([1, 3, 5]);
   });
 
   it("scan accumulates state", () => {
+    const [src, emit] = createStream<number>();
     const values: number[] = [];
-    const src = Stream<number>((o) => {
-      o.next(1);
-      o.next(2);
-      o.next(3);
-      o.complete?.();
-      return () => {};
-    });
 
-    src
-      .scan((acc, v) => acc + v, 0)
-      .subscribe({
-        next: (v) => values.push(v),
-      });
+    src.scan((acc, v) => acc + v, 0).subscribe((v) => values.push(v));
 
-    expect(values).toEqual([1, 3, 6]);
+    emit(1); // acc=1
+    emit(2); // acc=3
+    emit(3); // acc=6
+
+    expect(values).toEqual([0, 1, 3, 6]);
   });
 
   it("debounce delays and emits last value", async () => {
+    const [src, emit] = createStream<number>();
+    const debounced = Stream.debounce<number>(20)(src);
+
     const values: number[] = [];
+    debounced.subscribe((v) => values.push(v));
 
-    const src = Stream<number>((o) => {
-      o.next(1);
-      setTimeout(() => o.next(2), 5);
-      setTimeout(() => o.next(3), 10);
-      setTimeout(() => o.complete?.(), 15);
-      return () => {};
-    });
+    emit(1);
+    emit(2);
+    emit(3);
 
-    const debounced = Stream.debounce<number>(5)(src);
+    await new Promise((r) => setTimeout(r, 30));
 
-    debounced.subscribe({
-      next: (v) => values.push(v),
-    });
-
-    await new Promise((r) => setTimeout(r, 25));
-    expect(values.at(-1)).toBe(3);
+    expect(values).toEqual([3]);
   });
 });

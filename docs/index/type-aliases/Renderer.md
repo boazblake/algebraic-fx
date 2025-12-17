@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../README.md)
+[**algebraic-fx v0.0.2**](../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **Renderer** = (`root`, `vnode`) => `void`
 
-Defined in: [core/render.ts:30](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/core/render.ts#L30)
+Defined in: [core/render.ts:22](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/render.ts#L22)
 
 Renderer function type.
 

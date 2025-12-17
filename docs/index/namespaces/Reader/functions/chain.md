@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../../README.md)
+[**algebraic-fx v0.0.2**](../../../../README.md)
 
 ***
 
@@ -6,17 +6,11 @@
 
 # Function: chain()
 
-> **chain**\<`E`, `A`, `B`\>(`f`): (`r`) => [`Reader`](../../../type-aliases/Reader.md)\<`E`, `B`\>
+> **chain**\<`A`, `B`\>(`f`): \<`R`\>(`fa`) => [`Reader`](../interfaces/Reader.md)\<`R`, `B`\>
 
-Defined in: [adt/reader.ts:88](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L88)
-
-Point-free chain.
+Defined in: [adt/reader.ts:121](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/reader.ts#L121)
 
 ## Type Parameters
-
-### E
-
-`E`
 
 ### A
 
@@ -30,18 +24,24 @@ Point-free chain.
 
 ### f
 
-(`a`) => [`Reader`](../../../type-aliases/Reader.md)\<`E`, `B`\>
+(`a`) => [`Reader`](../interfaces/Reader.md)\<`any`, `B`\>
 
 ## Returns
 
-> (`r`): [`Reader`](../../../type-aliases/Reader.md)\<`E`, `B`\>
+> \<`R`\>(`fa`): [`Reader`](../interfaces/Reader.md)\<`R`, `B`\>
+
+### Type Parameters
+
+#### R
+
+`R`
 
 ### Parameters
 
-#### r
+#### fa
 
-[`Reader`](../../../type-aliases/Reader.md)\<`E`, `A`\>
+[`Reader`](../interfaces/Reader.md)\<`R`, `A`\>
 
 ### Returns
 
-[`Reader`](../../../type-aliases/Reader.md)\<`E`, `B`\>
+[`Reader`](../interfaces/Reader.md)\<`R`, `B`\>

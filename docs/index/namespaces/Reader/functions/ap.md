@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../../README.md)
+[**algebraic-fx v0.0.2**](../../../../README.md)
 
 ***
 
@@ -6,17 +6,15 @@
 
 # Function: ap()
 
-> **ap**\<`E`, `A`, `B`\>(`fb`): (`fa`) => [`Reader`](../../../type-aliases/Reader.md)\<`E`, `B`\>
+> **ap**\<`R`, `A`, `B`\>(`fab`): (`fa`) => [`Reader`](../interfaces/Reader.md)\<`R`, `B`\>
 
-Defined in: [adt/reader.ts:96](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/reader.ts#L96)
-
-Point-free applicative apply.
+Defined in: [adt/reader.ts:126](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/reader.ts#L126)
 
 ## Type Parameters
 
-### E
+### R
 
-`E`
+`R`
 
 ### A
 
@@ -28,20 +26,20 @@ Point-free applicative apply.
 
 ## Parameters
 
-### fb
+### fab
 
-[`Reader`](../../../type-aliases/Reader.md)\<`E`, (`a`) => `B`\>
+[`Reader`](../interfaces/Reader.md)\<`R`, (`a`) => `B`\>
 
 ## Returns
 
-> (`fa`): [`Reader`](../../../type-aliases/Reader.md)\<`E`, `B`\>
+> (`fa`): [`Reader`](../interfaces/Reader.md)\<`R`, `B`\>
 
 ### Parameters
 
 #### fa
 
-[`Reader`](../../../type-aliases/Reader.md)\<`E`, `A`\>
+[`Reader`](../interfaces/Reader.md)\<`R`, `A`\>
 
 ### Returns
 
-[`Reader`](../../../type-aliases/Reader.md)\<`E`, `B`\>
+[`Reader`](../interfaces/Reader.md)\<`R`, `B`\>

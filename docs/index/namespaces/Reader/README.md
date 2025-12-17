@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../README.md)
+[**algebraic-fx v0.0.2**](../../../README.md)
 
 ***
 
@@ -6,11 +6,15 @@
 
 # Reader
 
-Construct a Reader from a function `(env: E) => A`.
+## Interfaces
 
-## Param
+- [Reader](interfaces/Reader.md)
+- [ReaderConstructor](interfaces/ReaderConstructor.md)
 
-Environment-dependent computation
+## Variables
+
+- [Reader](variables/Reader.md)
+- [ReaderModule](variables/ReaderModule.md)
 
 ## Functions
 
@@ -18,9 +22,6 @@ Environment-dependent computation
 - [ask](functions/ask.md)
 - [asks](functions/asks.md)
 - [chain](functions/chain.md)
-- [local](functions/local.md)
+- [isReader](functions/isReader.md)
 - [map](functions/map.md)
 - [of](functions/of.md)
-- [run](functions/run.md)
-- [sequence](functions/sequence.md)
-- [traverse](functions/traverse.md)

@@ -1,52 +1,46 @@
-/**
- * @module helpers/http-task
- *
- * Pure HTTP helper using Reader<HttpEnv, Task<E,A>>.
- *
- * This helper:
- *   - does not depend on Program or Effect
- *   - returns Task<E,A> for algebraic composition
- *   - respects AbortSignal provided by Task.run(signal?)
- *
- * Integrate with algebraic-fx by wrapping Task in an Effect<Env,Msg>.
- */
 import { Reader } from "../adt/reader.js";
-import { Task } from "../adt/task.js";
-import { Left, Right } from "../adt/either.js";
-/**
- * Construct a Reader<HttpEnv, Task<E,A>> that performs a JSON HTTP request.
- *
- * @param path        URL path (resolved against HttpEnv.baseUrl if present)
- * @param options     fetch options
- * @param handleError optional mapper from DefaultHttpError | unknown to user E
- */
-export function httpTask(path, options, handleError) {
-    return Reader((env) => Task(async (signal) => {
-        const toDefaultError = (status, message) => ({ status, message });
-        const mapError = (e) => handleError ? handleError(e) : e;
-        const base = env.baseUrl ?? "";
-        const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
-        const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-        const url = base ? normalizedBase + normalizedPath : path;
+import { TaskModule as Task } from "../adt/task.js";
+import { isLeft } from "../adt/either.js";
+const makeError = (url, status, message, cause) => ({
+    _tag: "DefaultHttpError",
+    status,
+    message,
+    url,
+    cause,
+});
+export const httpTask = (path, decode, mapError = (e) => e) => Reader((env) => {
+    // FIX 1: Correct URL joining semantics
+    const url = env.baseUrl.replace(/\/+$/, "") + "/" + path.replace(/^\/+/, "");
+    return Task.fromPromise(async () => {
+        const res = await env.fetch(url);
+        // FIX 2: Non-2xx error message must be: "HTTP <status> <statusText>"
+        if (!res.ok) {
+            throw makeError(url, res.status, `HTTP ${res.status} ${res.statusText}`);
+        }
+        let json;
         try {
-            const res = await env.fetch(url, { ...options, signal });
-            if (!res.ok) {
-                const baseErr = toDefaultError(res.status, res.statusText || "HTTP error");
-                return Left(mapError(baseErr));
-            }
-            try {
-                const data = (await res.json());
-                return Right(data);
-            }
-            catch {
-                const baseErr = toDefaultError(res.status, "Invalid JSON");
-                return Left(mapError(baseErr));
-            }
+            json = await res.json();
         }
         catch (e) {
-            const baseErr = toDefaultError(0, e instanceof Error ? e.message : String(e));
-            return Left(mapError(baseErr));
+            // FIX 3: JSON parse error message must be EXACTLY:
+            //        "Failed to parse JSON response"
+            throw makeError(url, res.status, "Failed to parse JSON response", e);
         }
-    }));
-}
+        if (!decode) {
+            return json;
+        }
+        const decoded = decode(json);
+        if (isLeft(decoded)) {
+            throw decoded.left; // tests expect this behavior
+        }
+        return decoded.right;
+    }, (err) => {
+        if (err && err._tag === "DefaultHttpError") {
+            return mapError(err);
+        }
+        // Network or decode errors.
+        // Tests expect status === null and message === err.message
+        return mapError(makeError(url, null, err instanceof Error ? err.message : String(err), err));
+    });
+});
 //# sourceMappingURL=http-task.js.map

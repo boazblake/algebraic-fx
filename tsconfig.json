@@ -13,7 +13,25 @@
     "skipLibCheck": true,
     "sourceMap": true
   },
-  "types": ["node"],
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+  "types": [
+    "node"
+  ],
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "src/adt/id.ts",
+    "src/adt/state.ts",
+    "src/adt/task.ts",
+    "src/adt/writer.ts",
+    "src/adt/writer-task.ts",
+    "src/adt/stream.ts",
+    "src/adt/monoid.ts",
+    "src/helpers/http-task.ts",
+    "src/helpers/ws-task.ts"
+  ]
 }

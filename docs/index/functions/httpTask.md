@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../README.md)
+[**algebraic-fx v0.0.2**](../../README.md)
 
 ***
 
@@ -6,76 +6,34 @@
 
 # Function: httpTask()
 
-Construct a Reader<HttpEnv, Task<E,A>> that performs a JSON HTTP request.
+> **httpTask**\<`E`, `A`\>(`path`, `decode?`, `mapError?`): [`Reader`](../namespaces/Reader/interfaces/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../namespaces/Task/interfaces/Task.md)\<[`DefaultHttpError`](../type-aliases/DefaultHttpError.md) \| `E`, `A`\>\>
 
-## Param
+Defined in: [helpers/http-task.ts:37](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/helpers/http-task.ts#L37)
 
-URL path (resolved against HttpEnv.baseUrl if present)
+## Type Parameters
 
-## Param
+### E
 
-fetch options
+`E` = `never`
 
-## Param
+### A
 
-optional mapper from DefaultHttpError | unknown to user E
+`A` = `never`
 
-## Call Signature
+## Parameters
 
-> **httpTask**\<`A`\>(`path`, `options?`): [`Reader`](../type-aliases/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../type-aliases/Task.md)\<[`DefaultHttpError`](../type-aliases/DefaultHttpError.md), `A`\>\>
-
-Defined in: [helpers/http-task.ts:34](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/helpers/http-task.ts#L34)
-
-### Type Parameters
-
-#### A
-
-`A` = `unknown`
-
-### Parameters
-
-#### path
+### path
 
 `string`
 
-#### options?
+### decode?
 
-`RequestInit`
+(`data`) => [`Either`](../namespaces/Either/type-aliases/Either.md)\<`E`, `A`\>
 
-### Returns
+### mapError?
 
-[`Reader`](../type-aliases/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../type-aliases/Task.md)\<[`DefaultHttpError`](../type-aliases/DefaultHttpError.md), `A`\>\>
+(`err`) => [`DefaultHttpError`](../type-aliases/DefaultHttpError.md) \| `E`
 
-## Call Signature
+## Returns
 
-> **httpTask**\<`E`, `A`\>(`path`, `options`, `handleError`): [`Reader`](../type-aliases/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../type-aliases/Task.md)\<`E`, `A`\>\>
-
-Defined in: [helpers/http-task.ts:39](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/helpers/http-task.ts#L39)
-
-### Type Parameters
-
-#### E
-
-`E`
-
-#### A
-
-`A`
-
-### Parameters
-
-#### path
-
-`string`
-
-#### options
-
-`RequestInit` | `undefined`
-
-#### handleError
-
-(`e`) => `E`
-
-### Returns
-
-[`Reader`](../type-aliases/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../type-aliases/Task.md)\<`E`, `A`\>\>
+[`Reader`](../namespaces/Reader/interfaces/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../namespaces/Task/interfaces/Task.md)\<[`DefaultHttpError`](../type-aliases/DefaultHttpError.md) \| `E`, `A`\>\>

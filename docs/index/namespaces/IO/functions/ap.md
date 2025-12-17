@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.1**](../../../../README.md)
+[**algebraic-fx v0.0.2**](../../../../README.md)
 
 ***
 
@@ -6,11 +6,9 @@
 
 # Function: ap()
 
-> **ap**\<`A`, `B`\>(`fb`): (`fa`) => [`IO`](../../../type-aliases/IO.md)\<`B`\>
+> **ap**\<`A`, `B`\>(`fab`): (`fa`) => [`IO`](../interfaces/IO.md)\<`B`\>
 
-Defined in: [adt/io.ts:86](https://github.com/boazblake/algebraic-fx/blob/15fc23e58389a849d2c125ac9db8580b17172ce1/src/adt/io.ts#L86)
-
-Point-free applicative apply.
+Defined in: [adt/io.ts:53](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/io.ts#L53)
 
 ## Type Parameters
 
@@ -24,20 +22,20 @@ Point-free applicative apply.
 
 ## Parameters
 
-### fb
+### fab
 
-[`IO`](../../../type-aliases/IO.md)\<(`a`) => `B`\>
+[`IO`](../interfaces/IO.md)\<(`a`) => `B`\>
 
 ## Returns
 
-> (`fa`): [`IO`](../../../type-aliases/IO.md)\<`B`\>
+> (`fa`): [`IO`](../interfaces/IO.md)\<`B`\>
 
 ### Parameters
 
 #### fa
 
-[`IO`](../../../type-aliases/IO.md)\<`A`\>
+[`IO`](../interfaces/IO.md)\<`A`\>
 
 ### Returns
 
-[`IO`](../../../type-aliases/IO.md)\<`B`\>
+[`IO`](../interfaces/IO.md)\<`B`\>
