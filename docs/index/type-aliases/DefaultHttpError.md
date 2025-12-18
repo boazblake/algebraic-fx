@@ -8,7 +8,7 @@
 
 > **DefaultHttpError** = `object`
 
-Defined in: [helpers/http-task.ts:11](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/helpers/http-task.ts#L11)
+Defined in: [helpers/http-task.ts:11](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/helpers/http-task.ts#L11)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [helpers/http-task.ts:11](https://github.com/boazblake/algebraic-fx/
 
 > **\_tag**: `"DefaultHttpError"`
 
-Defined in: [helpers/http-task.ts:12](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/helpers/http-task.ts#L12)
+Defined in: [helpers/http-task.ts:12](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/helpers/http-task.ts#L12)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [helpers/http-task.ts:12](https://github.com/boazblake/algebraic-fx/
 
 > `optional` **cause**: `unknown`
 
-Defined in: [helpers/http-task.ts:16](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/helpers/http-task.ts#L16)
+Defined in: [helpers/http-task.ts:16](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/helpers/http-task.ts#L16)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [helpers/http-task.ts:16](https://github.com/boazblake/algebraic-fx/
 
 > **message**: `string`
 
-Defined in: [helpers/http-task.ts:14](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/helpers/http-task.ts#L14)
+Defined in: [helpers/http-task.ts:14](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/helpers/http-task.ts#L14)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [helpers/http-task.ts:14](https://github.com/boazblake/algebraic-fx/
 
 > **status**: `number` \| `null`
 
-Defined in: [helpers/http-task.ts:13](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/helpers/http-task.ts#L13)
+Defined in: [helpers/http-task.ts:13](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/helpers/http-task.ts#L13)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [helpers/http-task.ts:13](https://github.com/boazblake/algebraic-fx/
 
 > **url**: `string`
 
-Defined in: [helpers/http-task.ts:15](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/helpers/http-task.ts#L15)
+Defined in: [helpers/http-task.ts:15](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/helpers/http-task.ts#L15)

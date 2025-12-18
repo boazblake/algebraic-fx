@@ -8,7 +8,7 @@
 
 > **WebSocketEnv** = `object`
 
-Defined in: [helpers/ws-task.ts:6](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/helpers/ws-task.ts#L6)
+Defined in: [helpers/ws-task.ts:6](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/helpers/ws-task.ts#L6)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [helpers/ws-task.ts:6](https://github.com/boazblake/algebraic-fx/blo
 
 > **makeWebSocket**: (`url`) => `WebSocket`
 
-Defined in: [helpers/ws-task.ts:7](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/helpers/ws-task.ts#L7)
+Defined in: [helpers/ws-task.ts:7](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/helpers/ws-task.ts#L7)
 
 #### Parameters
 

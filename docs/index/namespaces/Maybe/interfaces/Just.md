@@ -6,7 +6,7 @@
 
 # Interface: Just\<A\>
 
-Defined in: [adt/maybe.ts:13](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/maybe.ts#L13)
+Defined in: [adt/maybe.ts:13](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/maybe.ts#L13)
 
 ## Extends
 
@@ -28,7 +28,7 @@ Defined in: [adt/maybe.ts:13](https://github.com/boazblake/algebraic-fx/blob/d0b
 
 > `readonly` **\_tag**: `"Just"`
 
-Defined in: [adt/maybe.ts:14](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/maybe.ts#L14)
+Defined in: [adt/maybe.ts:14](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/maybe.ts#L14)
 
 ***
 
@@ -36,4 +36,4 @@ Defined in: [adt/maybe.ts:14](https://github.com/boazblake/algebraic-fx/blob/d0b
 
 > `readonly` **value**: `A`
 
-Defined in: [adt/maybe.ts:15](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/maybe.ts#L15)
+Defined in: [adt/maybe.ts:15](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/maybe.ts#L15)

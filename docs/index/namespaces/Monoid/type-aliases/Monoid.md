@@ -8,7 +8,7 @@
 
 > **Monoid**\<`A`\> = `object`
 
-Defined in: [adt/monoid.ts:4](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/monoid.ts#L4)
+Defined in: [adt/monoid.ts:4](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/monoid.ts#L4)
 
 ## Type Parameters
 
@@ -26,7 +26,7 @@ Defined in: [adt/monoid.ts:4](https://github.com/boazblake/algebraic-fx/blob/d0b
 
 > `readonly` **concat**: (`x`, `y`) => `A`
 
-Defined in: [adt/monoid.ts:6](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/monoid.ts#L6)
+Defined in: [adt/monoid.ts:6](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/monoid.ts#L6)
 
 #### Parameters
 
@@ -48,4 +48,4 @@ Defined in: [adt/monoid.ts:6](https://github.com/boazblake/algebraic-fx/blob/d0b
 
 > `readonly` **empty**: `A`
 
-Defined in: [adt/monoid.ts:5](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/monoid.ts#L5)
+Defined in: [adt/monoid.ts:5](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/monoid.ts#L5)

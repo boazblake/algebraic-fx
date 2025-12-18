@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "algebraic-fx": "../"
+    "algebraic-fx": "../dist"
   },
   "devDependencies": {
     "typescript": "^5.6.3",

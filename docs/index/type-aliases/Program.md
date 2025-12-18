@@ -8,7 +8,7 @@
 
 > **Program**\<`M`, `Msg`, `Env`\> = `object`
 
-Defined in: [core/types.ts:53](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L53)
+Defined in: [core/types.ts:53](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/types.ts#L53)
 
 Program<M, Msg, Env>
 
@@ -34,9 +34,9 @@ Program<M, Msg, Env>
 
 ### init
 
-> **init**: [`IO`](../namespaces/IO/interfaces/IO.md)\<\{ `effects`: `RawEffect`\<`Env`, `Msg`\>[]; `model`: `M`; \}\>
+> **init**: [`IO`](../namespaces/IO/interfaces/IO.md)\<\{ `effects`: [`RawEffect`](RawEffect.md)\<`Env`, `Msg`\>[]; `model`: `M`; \}\>
 
-Defined in: [core/types.ts:54](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L54)
+Defined in: [core/types.ts:54](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/types.ts#L54)
 
 ***
 
@@ -44,7 +44,7 @@ Defined in: [core/types.ts:54](https://github.com/boazblake/algebraic-fx/blob/d0
 
 > **update**: (`msg`, `model`, `dispatch`) => `object`
 
-Defined in: [core/types.ts:56](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L56)
+Defined in: [core/types.ts:56](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/types.ts#L56)
 
 #### Parameters
 
@@ -66,7 +66,7 @@ Defined in: [core/types.ts:56](https://github.com/boazblake/algebraic-fx/blob/d0
 
 ##### effects
 
-> **effects**: `RawEffect`\<`Env`, `Msg`\>[]
+> **effects**: [`RawEffect`](RawEffect.md)\<`Env`, `Msg`\>[]
 
 ##### model
 
@@ -78,7 +78,7 @@ Defined in: [core/types.ts:56](https://github.com/boazblake/algebraic-fx/blob/d0
 
 > **view**: (`model`, `dispatch`) => [`VChild`](VChild.md) \| [`VChild`](VChild.md)[]
 
-Defined in: [core/types.ts:62](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L62)
+Defined in: [core/types.ts:62](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/types.ts#L62)
 
 #### Parameters
 

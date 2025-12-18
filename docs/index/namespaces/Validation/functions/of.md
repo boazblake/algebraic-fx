@@ -8,7 +8,7 @@
 
 > **of**\<`A`\>(`a`): [`Validation`](../type-aliases/Validation.md)\<`never`, `A`\>
 
-Defined in: [adt/validation.ts:30](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/validation.ts#L30)
+Defined in: [adt/validation.ts:30](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/validation.ts#L30)
 
 ## Type Parameters
 

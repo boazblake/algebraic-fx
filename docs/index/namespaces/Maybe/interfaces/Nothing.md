@@ -6,7 +6,7 @@
 
 # Interface: Nothing
 
-Defined in: [adt/maybe.ts:18](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/maybe.ts#L18)
+Defined in: [adt/maybe.ts:18](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/maybe.ts#L18)
 
 ## Extends
 
@@ -18,4 +18,4 @@ Defined in: [adt/maybe.ts:18](https://github.com/boazblake/algebraic-fx/blob/d0b
 
 > `readonly` **\_tag**: `"Nothing"`
 
-Defined in: [adt/maybe.ts:19](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/maybe.ts#L19)
+Defined in: [adt/maybe.ts:19](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/maybe.ts#L19)

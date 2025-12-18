@@ -8,7 +8,7 @@
 
 > **render**(`dom`, `vnodes`): `void`
 
-Defined in: [core/mithril-lite.ts:688](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/mithril-lite.ts#L688)
+Defined in: [core/mithril-lite.ts:688](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/mithril-lite.ts#L688)
 
 ## Parameters
 

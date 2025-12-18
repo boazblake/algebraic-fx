@@ -8,7 +8,7 @@
 
 > **ap**\<`A`, `B`\>(`mf`): (`ma`) => [`Maybe`](../type-aliases/Maybe.md)\<`B`\>
 
-Defined in: [adt/maybe.ts:66](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/maybe.ts#L66)
+Defined in: [adt/maybe.ts:66](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/maybe.ts#L66)
 
 ## Type Parameters
 

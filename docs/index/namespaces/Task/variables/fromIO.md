@@ -8,7 +8,7 @@
 
 > `const` **fromIO**: \<`E`, `A`\>(`io`) => [`Task`](../interfaces/Task.md)\<`E`, `A`\> = `TaskModule.fromIO`
 
-Defined in: [adt/task.ts:180](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/task.ts#L180)
+Defined in: [adt/task.ts:180](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/task.ts#L180)
 
 ## Type Parameters
 

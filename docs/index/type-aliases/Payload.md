@@ -8,7 +8,7 @@
 
 > **Payload**\<`T`, `M`\> = `object`
 
-Defined in: [core/types.ts:37](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L37)
+Defined in: [core/types.ts:37](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/types.ts#L37)
 
 ## Type Parameters
 
@@ -26,7 +26,7 @@ Defined in: [core/types.ts:37](https://github.com/boazblake/algebraic-fx/blob/d0
 
 > **msg**: `M`
 
-Defined in: [core/types.ts:39](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L39)
+Defined in: [core/types.ts:39](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/types.ts#L39)
 
 ***
 
@@ -34,4 +34,4 @@ Defined in: [core/types.ts:39](https://github.com/boazblake/algebraic-fx/blob/d0
 
 > **type**: `T`
 
-Defined in: [core/types.ts:38](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/core/types.ts#L38)
+Defined in: [core/types.ts:38](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/types.ts#L38)

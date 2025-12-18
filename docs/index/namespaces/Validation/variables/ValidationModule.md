@@ -8,7 +8,7 @@
 
 > `const` **ValidationModule**: `object`
 
-Defined in: [adt/validation.ts:144](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/validation.ts#L144)
+Defined in: [adt/validation.ts:144](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/validation.ts#L144)
 
 ## Type Declaration
 

@@ -19,6 +19,10 @@
 - [Writer](namespaces/Writer/README.md)
 - [WriterTask](namespaces/WriterTask/README.md)
 
+## Interfaces
+
+- [Effect](interfaces/Effect.md)
+
 ## Type Aliases
 
 - [DefaultHttpError](type-aliases/DefaultHttpError.md)
@@ -28,6 +32,7 @@
 - [Payload](type-aliases/Payload.md)
 - [Program](type-aliases/Program.md)
 - [Props](type-aliases/Props.md)
+- [RawEffect](type-aliases/RawEffect.md)
 - [Renderer](type-aliases/Renderer.md)
 - [VChild](type-aliases/VChild.md)
 - [Vnode](type-aliases/Vnode.md)
@@ -43,10 +48,13 @@
 
 ## Functions
 
+- [fx](functions/fx.md)
 - [httpTask](functions/httpTask.md)
+- [interpretRawEffect](functions/interpretRawEffect.md)
 - [m](functions/m.md)
 - [render](functions/render.md)
 - [renderApp](functions/renderApp.md)
 - [renderToString](functions/renderToString.md)
+- [runEffects](functions/runEffects.md)
 - [Vnode](functions/Vnode.md)
 - [wsTask](functions/wsTask.md)

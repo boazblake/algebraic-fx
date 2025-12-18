@@ -8,4 +8,4 @@
 
 > `const` **MonoidString**: [`Monoid`](../type-aliases/Monoid.md)\<`string`\> = `monoidString`
 
-Defined in: [adt/monoid.ts:47](https://github.com/boazblake/algebraic-fx/blob/d0bbbb937347c32e45bf55a848f87f5b870532c7/src/adt/monoid.ts#L47)
+Defined in: [adt/monoid.ts:47](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/monoid.ts#L47)

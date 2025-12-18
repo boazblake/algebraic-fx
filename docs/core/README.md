@@ -14,6 +14,24 @@ Re-exports [Dispatch](../index/type-aliases/Dispatch.md)
 
 ***
 
+### Effect
+
+Re-exports [Effect](../index/interfaces/Effect.md)
+
+***
+
+### fx
+
+Re-exports [fx](../index/functions/fx.md)
+
+***
+
+### interpretRawEffect
+
+Re-exports [interpretRawEffect](../index/functions/interpretRawEffect.md)
+
+***
+
 ### m
 
 Re-exports [m](../index/functions/m.md)
@@ -38,6 +56,12 @@ Re-exports [Props](../index/type-aliases/Props.md)
 
 ***
 
+### RawEffect
+
+Re-exports [RawEffect](../index/type-aliases/RawEffect.md)
+
+***
+
 ### render
 
 Re-exports [render](../index/functions/render.md)
@@ -59,6 +83,12 @@ Re-exports [Renderer](../index/type-aliases/Renderer.md)
 ### renderToString
 
 Re-exports [renderToString](../index/functions/renderToString.md)
+
+***
+
+### runEffects
+
+Re-exports [runEffects](../index/functions/runEffects.md)
 
 ***
 
