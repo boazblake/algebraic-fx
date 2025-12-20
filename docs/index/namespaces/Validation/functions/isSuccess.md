@@ -8,7 +8,7 @@
 
 > **isSuccess**\<`E`, `A`\>(`v`): `v is Success<A>`
 
-Defined in: [adt/validation.ts:39](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/validation.ts#L39)
+Defined in: [adt/validation.ts:39](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/validation.ts#L39)
 
 ## Type Parameters
 

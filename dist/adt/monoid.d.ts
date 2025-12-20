@@ -1,6 +1,9 @@
+import { fl } from "./fl.js";
 export type Monoid<A> = {
     readonly empty: A;
     readonly concat: (x: A, y: A) => A;
+    readonly [fl.empty]?: A;
+    readonly [fl.concat]?: (x: A, y: A) => A;
 };
 export declare const makeMonoid: <A>(empty: A, concat: (x: A, y: A) => A) => Monoid<A>;
 export declare const monoidString: Monoid<string>;

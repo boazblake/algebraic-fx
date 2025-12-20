@@ -8,7 +8,7 @@
 
 > **WriterModule**\<`W`\>(`m`): `object`
 
-Defined in: [adt/writer.ts:115](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/writer.ts#L115)
+Defined in: [adt/writer.ts:115](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/writer.ts#L115)
 
 fp-ts style module dictionary for a fixed monoid W.
 
@@ -25,6 +25,30 @@ fp-ts style module dictionary for a fixed monoid W.
 [`Monoid`](../../Monoid/type-aliases/Monoid.md)\<`W`\>
 
 ## Returns
+
+### \[fl\_of\]()
+
+> **\[fl\_of\]**: \<`A`\>(`a`, `w?`) => [`Writer`](../type-aliases/Writer.md)\<`W`, `A`\> = `ofM`
+
+#### Type Parameters
+
+##### A
+
+`A`
+
+#### Parameters
+
+##### a
+
+`A`
+
+##### w?
+
+`W`
+
+#### Returns
+
+[`Writer`](../type-aliases/Writer.md)\<`W`, `A`\>
 
 ### ap()
 

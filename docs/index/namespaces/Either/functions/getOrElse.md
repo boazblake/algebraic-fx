@@ -8,7 +8,7 @@
 
 > **getOrElse**\<`E`, `A`\>(`onLeft`): (`fa`) => `A`
 
-Defined in: [adt/either.ts:124](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/either.ts#L124)
+Defined in: [adt/either.ts:124](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/either.ts#L124)
 
 Extract with default for Left.
 

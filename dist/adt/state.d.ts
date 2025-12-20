@@ -2,6 +2,9 @@ import { fl } from "./fl.js";
 export interface State<S, A> {
     readonly _tag: "State";
     readonly run: (s: S) => [A, S];
+    readonly [fl.map]: <B>(f: (a: A) => B) => State<S, B>;
+    readonly [fl.chain]: <B>(f: (a: A) => State<S, B>) => State<S, B>;
+    readonly [fl.ap]: <B>(sf: State<S, (a: A) => B>) => State<S, B>;
 }
 export declare const of: <S, A>(a: A) => State<S, A>;
 export declare const map: <S, A, B>(f: (a: A) => B) => (sa: State<S, A>) => State<S, B>;
@@ -14,10 +17,6 @@ export declare const evalState: <S, A>(sa: State<S, A>, s: S) => A;
 export declare const execState: <S, A>(sa: State<S, A>, s: S) => S;
 export declare const isState: (u: unknown) => u is State<any, any>;
 export declare const StateModule: {
-    [fl.of]: <S, A>(a: A) => State<S, A>;
-    [fl.map]: (f: (a: any) => any) => (sa: State<any, any>) => State<unknown, any>;
-    [fl.chain]: (f: (a: any) => State<any, any>) => (sa: State<any, any>) => State<any, any>;
-    [fl.ap]: (sf: State<any, (a: any) => any>) => (sa: State<any, any>) => State<any, any>;
     URI: string;
     of: <S, A>(a: A) => State<S, A>;
     map: <S, A, B>(f: (a: A) => B) => (sa: State<S, A>) => State<S, B>;
@@ -29,5 +28,9 @@ export declare const StateModule: {
     evalState: <S, A>(sa: State<S, A>, s: S) => A;
     execState: <S, A>(sa: State<S, A>, s: S) => S;
     isState: (u: unknown) => u is State<any, any>;
+    [fl_of]: <S, A>(a: A) => State<S, A>;
+    [fl_map]: (f: (a: any) => any) => (sa: State<any, any>) => State<unknown, any>;
+    [fl_chain]: (f: (a: any) => State<any, any>) => (sa: State<any, any>) => State<any, any>;
+    [fl_ap]: (sf: State<any, (a: any) => any>) => (sa: State<any, any>) => State<any, any>;
 };
 //# sourceMappingURL=state.d.ts.map

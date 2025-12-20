@@ -8,4 +8,4 @@
 
 > `const` **IO\_URI**: `"IO"` = `"IO"`
 
-Defined in: [adt/io.ts:13](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/io.ts#L13)
+Defined in: [adt/io.ts:13](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L13)

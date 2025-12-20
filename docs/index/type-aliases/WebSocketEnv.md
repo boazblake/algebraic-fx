@@ -8,7 +8,14 @@
 
 > **WebSocketEnv** = `object`
 
-Defined in: [helpers/ws-task.ts:6](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/helpers/ws-task.ts#L6)
+Defined in: [helpers/ws-task.ts:17](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/helpers/ws-task.ts#L17)
+
+Environment required to construct WebSocket connections.
+
+This is intentionally abstract to allow:
+- browser WebSocket
+- mocked WebSocket in tests
+- custom implementations
 
 ## Properties
 
@@ -16,7 +23,9 @@ Defined in: [helpers/ws-task.ts:6](https://github.com/boazblake/algebraic-fx/blo
 
 > **makeWebSocket**: (`url`) => `WebSocket`
 
-Defined in: [helpers/ws-task.ts:7](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/helpers/ws-task.ts#L7)
+Defined in: [helpers/ws-task.ts:19](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/helpers/ws-task.ts#L19)
+
+Factory for creating a WebSocket instance.
 
 #### Parameters
 

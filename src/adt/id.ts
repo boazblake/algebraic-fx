@@ -38,6 +38,7 @@ const makeID = <A>(a: A): Identity<A> => {
     [fl.ap]: undefined as any,
   };
 
+  // Bind FL methods to the instance methods (no `any` intersection issues once fl keys are unique)
   (self as any)[fl.map] = self.map;
   (self as any)[fl.chain] = self.chain;
   (self as any)[fl.ap] = self.ap;

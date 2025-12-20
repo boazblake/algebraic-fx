@@ -8,13 +8,27 @@
 
 > **Program**\<`M`, `Msg`, `Env`\> = `object`
 
-Defined in: [core/types.ts:53](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/types.ts#L53)
+Defined in: [core/types.ts:109](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/types.ts#L109)
 
 Program<M, Msg, Env>
 
- - init: IO<{ model, effects }>
- - update: pure state transition plus follow up effects
- - view: pure virtual DOM renderer
+A pure description of an application.
+
+A Program consists of:
+
+ - init:
+     An IO that produces the initial model and initial effects.
+
+ - update:
+     A pure function that transforms (Msg, Model) into:
+       - a new Model
+       - a list of RawEffect values
+
+ - view:
+     A pure function that renders the Model into a virtual DOM tree.
+
+Programs do not perform effects directly.
+All effects are described as data and interpreted by the runtime.
 
 ## Type Parameters
 
@@ -36,7 +50,7 @@ Program<M, Msg, Env>
 
 > **init**: [`IO`](../namespaces/IO/interfaces/IO.md)\<\{ `effects`: [`RawEffect`](RawEffect.md)\<`Env`, `Msg`\>[]; `model`: `M`; \}\>
 
-Defined in: [core/types.ts:54](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/types.ts#L54)
+Defined in: [core/types.ts:110](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/types.ts#L110)
 
 ***
 
@@ -44,7 +58,7 @@ Defined in: [core/types.ts:54](https://github.com/boazblake/algebraic-fx/blob/45
 
 > **update**: (`msg`, `model`, `dispatch`) => `object`
 
-Defined in: [core/types.ts:56](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/types.ts#L56)
+Defined in: [core/types.ts:112](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/types.ts#L112)
 
 #### Parameters
 
@@ -78,7 +92,7 @@ Defined in: [core/types.ts:56](https://github.com/boazblake/algebraic-fx/blob/45
 
 > **view**: (`model`, `dispatch`) => [`VChild`](VChild.md) \| [`VChild`](VChild.md)[]
 
-Defined in: [core/types.ts:62](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/types.ts#L62)
+Defined in: [core/types.ts:118](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/types.ts#L118)
 
 #### Parameters
 

@@ -1,193 +1,139 @@
-import {
-  IO,
-  Reader,
-  Task,
-  Either,
-  m,
-  render,
-  renderApp,
-  type Program,
-  type Dispatch,
-  type RawEffect,
-  type DomEnv,
-} from "algebraic-fx";
+import { IO, fx, m, render, renderApp } from "algebraic-fx";
+import { httpTask } from "algebraic-fx/helpers/http-task";
+import type { RawEffect, Dispatch } from "algebraic-fx/core/types";
+import type { DomEnv } from "algebraic-fx/env/dom-env";
 
-/* ============================================================================
+/* ================================
    Types
-============================================================================ */
+================================ */
+
+type User = {
+  id: number;
+  name: string;
+  email: string;
+};
 
 type Model = {
   count: number;
+  users: User[];
   loading: boolean;
-  message: string | null;
   error: string | null;
 };
 
 type Msg =
-  | { type: "INC" }
-  | { type: "DEC" }
-  | { type: "LOAD" }
-  | { type: "LOADED"; value: string }
-  | { type: "LOAD_ERROR"; error: string };
+  | { type: "Inc" }
+  | { type: "Dec" }
+  | { type: "FetchUsers" }
+  | { type: "UsersFetched"; users: User[] }
+  | { type: "UsersFailed"; error: string };
 
-type LoadError = { message: string };
+/* ================================
+   Init
+================================ */
 
-/* ============================================================================
-   Decoder using EitherModule
-============================================================================ */
-
-const decode = (raw: unknown): any /* Either<L,R> */ => {
-  const obj = raw as any;
-
-  if (obj && typeof obj.title === "string") {
-    return { _tag: "Right", right: obj.title };
-  }
-
-  return { _tag: "Left", left: { message: "Invalid JSON" } };
-};
-
-/* ============================================================================
-   Reader<Env,Task> effect
-============================================================================ */
-
-const fetchMessage = Reader.Reader((env: DomEnv) =>
-  Task.of((signal?: AbortSignal) =>
-    env
-      .fetch("posts/1", { signal })
-      .then((r) => r.json())
-      .then((json) => decode(json))
-      .catch((err) => ({ _tag: "Left", left: { message: String(err) } }))
-  )
-);
-
-/* ============================================================================
-   Init — MUST use IO.IO
-============================================================================ */
-
-const init = IO.IO(() => ({
+const init: IO<{ model: Model; effects: RawEffect<DomEnv, Msg>[] }> = IO.of({
   model: {
     count: 0,
+    users: [],
     loading: false,
-    message: null,
     error: null,
   },
-  effects: [] as RawEffect<DomEnv>[],
-}));
+  effects: [],
+});
 
-console.log("IO imported =", IO);
-console.log("IO.IO =", IO.IO);
-console.log("init =", init);
-console.log("isIO =", typeof init === "object" && "_tag" in init);
-/* ============================================================================
-   Update — pure
-============================================================================ */
+/* ================================
+   Effects
+================================ */
+
+const fetchUsers = (): RawEffect<DomEnv, Msg> =>
+  httpTask<unknown, User[], Msg>(
+    "/users",
+    undefined,
+    (err) => ({ type: "UsersFailed", error: String(err) }),
+    (users) => ({ type: "UsersFetched", users })
+  );
+
+/* ================================
+   Update
+================================ */
 
 const update = (
   msg: Msg,
   model: Model,
-  dispatch: Dispatch<Msg>
-): { model: Model; effects: RawEffect<DomEnv>[] } => {
+  _dispatch: Dispatch<Msg>
+): { model: Model; effects: RawEffect<DomEnv, Msg>[] } => {
   switch (msg.type) {
-    case "INC":
+    case "Inc":
       return { model: { ...model, count: model.count + 1 }, effects: [] };
 
-    case "DEC":
+    case "Dec":
       return { model: { ...model, count: model.count - 1 }, effects: [] };
 
-    case "LOAD": {
-      const fx: RawEffect<DomEnv> = Reader.map((task: any) =>
-        IO.IO(() => {
-          task.run().then((either: any) => {
-            if (either._tag === "Right") {
-              dispatch({ type: "LOADED", value: either.right });
-            } else {
-              dispatch({
-                type: "LOAD_ERROR",
-                error: either.left.message,
-              });
-            }
-          });
-        })
-      )(fetchMessage);
-
+    case "FetchUsers":
       return {
-        model: { ...model, loading: true, message: null, error: null },
-        effects: [fx],
+        model: { ...model, loading: true, error: null },
+        effects: [fetchUsers()],
       };
-    }
 
-    case "LOADED":
+    case "UsersFetched":
       return {
-        model: { ...model, loading: false, message: msg.value },
+        model: { ...model, users: msg.users, loading: false },
         effects: [],
       };
 
-    case "LOAD_ERROR":
+    case "UsersFailed":
       return {
         model: { ...model, loading: false, error: msg.error },
         effects: [],
       };
-
     default:
+      console.warn("Unhandled Msg", msg);
       return { model, effects: [] };
   }
 };
 
-/* ============================================================================
+/* ================================
    View
-============================================================================ */
+================================ */
 
 const view = (model: Model, dispatch: Dispatch<Msg>) =>
-  m("div", { style: "padding:1rem;font-family:sans-serif;" }, [
-    m("h1", "algebraic-fx 0.0.2 — working demo"),
+  m("div", [
+    m("h1", "algebraic-fx demo"),
 
-    m("div", { style: "margin:.5rem 0;" }, [
-      m("button", { onclick: () => dispatch({ type: "DEC" }) }, "-"),
-      m("span", { style: "padding:0 .75rem;" }, String(model.count)),
-      m("button", { onclick: () => dispatch({ type: "INC" }) }, "+"),
+    m("div", [
+      m("button", { onclick: () => dispatch({ type: "Dec" }) }, "-"),
+      m("span", String(model.count)),
+      m("button", { onclick: () => dispatch({ type: "Inc" }) }, "+"),
     ]),
 
     m(
       "button",
-      {
-        onclick: () => dispatch({ type: "LOAD" }),
-        disabled: model.loading,
-      },
-      model.loading ? "Loading…" : "Load Message"
+      { onclick: () => dispatch({ type: "FetchUsers" }) },
+      model.loading ? "Loading…" : "Load users"
     ),
 
-    model.message && m("p", "Message: " + model.message),
-    model.error && m("p", { style: "color:red" }, model.error),
+    model.error && m("div", { style: "color:red" }, model.error),
+
+    m(
+      "ul",
+      model.users.map((u) => m("li", `${u.name} (${u.email})`))
+    ),
   ]);
 
-/* ============================================================================
-   Program
-============================================================================ */
+/* ================================
+   Program + Bootstrap
+================================ */
 
-const program: Program<Model, Msg> = {
-  init,
-  update,
-  view,
-};
+const program = { init, update, view };
 
-/* ============================================================================
-   Env
-============================================================================ */
-
-const env: DomEnv = {
-  document: window.document,
+const env: DomEnv & { baseUrl: string } = {
+  document,
   window,
   localStorage: window.localStorage,
   sessionStorage: window.sessionStorage,
   fetch: window.fetch.bind(window),
+  baseUrl: "https://jsonplaceholder.typicode.com",
 };
 
-/* ============================================================================
-   Root
-============================================================================ */
-
-/* ============================================================================
-   Run
-============================================================================ */
-
-renderApp(env.document.getElementById("app"), program, env, render);
+const root = document.getElementById("app")!;
+renderApp(root, program, env, render);

@@ -1,19 +1,17 @@
 {
-  "name": "fp-rebalance",
-  "version": "1.0.0",
-  "type": "module",
+  "name": "algebraic-fx-demo",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "vite --config vite.config.ts",
-    "build": "tsc --noEmit && vite build",
+    "dev": "vite",
+    "build": "tsc -p . && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "algebraic-fx": "../dist"
+    "algebraic-fx": "../"
   },
   "devDependencies": {
     "typescript": "^5.6.3",
-    "vite": "^5.2.0",
-    "@types/node": "^20.12.7"
+    "vite": "^6.0.0"
   }
 }

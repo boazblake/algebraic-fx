@@ -8,7 +8,7 @@
 
 > `const` **fail**: \<`E`, `A`\>(`e`) => [`Task`](../interfaces/Task.md)\<`E`, `A`\> = `TaskModule.fail`
 
-Defined in: [adt/task.ts:176](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/task.ts#L176)
+Defined in: [adt/task.ts:176](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/task.ts#L176)
 
 ## Type Parameters
 

@@ -8,13 +8,29 @@
 
 > `const` **ioModule**: `object`
 
-Defined in: [adt/io.ts:67](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/io.ts#L67)
+Defined in: [adt/io.ts:67](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L67)
 
 ## Type Declaration
 
-## Index Signature
+### \[fl\_of\]()
 
-\[`key`: `number`\]: \<`A`\>(`a`) => [`IO`](../interfaces/IO.md)\<`A`\>
+> `readonly` **\[fl\_of\]**: \<`A`\>(`a`) => [`IO`](../interfaces/IO.md)\<`A`\> = `of`
+
+#### Type Parameters
+
+##### A
+
+`A`
+
+#### Parameters
+
+##### a
+
+`A`
+
+#### Returns
+
+[`IO`](../interfaces/IO.md)\<`A`\>
 
 ### ap()
 

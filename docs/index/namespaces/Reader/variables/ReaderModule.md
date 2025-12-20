@@ -8,13 +8,33 @@
 
 > `const` **ReaderModule**: `object`
 
-Defined in: [adt/reader.ts:134](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/reader.ts#L134)
+Defined in: [adt/reader.ts:134](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/reader.ts#L134)
 
 ## Type Declaration
 
-## Index Signature
+### \[fl\_of\]()
 
-\[`key`: `number`\]: \<`R`, `A`\>(`a`) => [`Reader`](../interfaces/Reader.md)\<`R`, `A`\>
+> `readonly` **\[fl\_of\]**: \<`R`, `A`\>(`a`) => [`Reader`](../interfaces/Reader.md)\<`R`, `A`\> = `of`
+
+#### Type Parameters
+
+##### R
+
+`R`
+
+##### A
+
+`A`
+
+#### Parameters
+
+##### a
+
+`A`
+
+#### Returns
+
+[`Reader`](../interfaces/Reader.md)\<`R`, `A`\>
 
 ### ap()
 

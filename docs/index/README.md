@@ -9,11 +9,13 @@
 ## Namespaces
 
 - [Either](namespaces/Either/README.md)
+- [ID](namespaces/ID/README.md)
 - [IO](namespaces/IO/README.md)
 - [Maybe](namespaces/Maybe/README.md)
 - [Monoid](namespaces/Monoid/README.md)
 - [Reader](namespaces/Reader/README.md)
 - [State](namespaces/State/README.md)
+- [Stream](namespaces/Stream/README.md)
 - [Task](namespaces/Task/README.md)
 - [Validation](namespaces/Validation/README.md)
 - [Writer](namespaces/Writer/README.md)

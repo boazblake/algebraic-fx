@@ -32,7 +32,6 @@ export declare const getValidationApplicative: <E>(S: Semigroup<E>) => {
     ap: <A, B_1>(fab: Validation<E, (a: A) => B_1>, fa: Validation<E, A>) => Validation<E, B_1>;
 };
 export declare const ValidationModule: {
-    [fl.of]: <A>(a: A) => Validation<never, A>;
     URI: string;
     failure: <E = unknown, A = never>(e: E) => Validation<E, A>;
     success: <E = never, A = unknown>(a: A) => Validation<E, A>;
@@ -50,5 +49,6 @@ export declare const ValidationModule: {
     };
     semigroupString: Semigroup<string>;
     semigroupArray: <A>() => Semigroup<A[]>;
+    [fl_of]: <A>(a: A) => Validation<never, A>;
 };
 //# sourceMappingURL=validation.d.ts.map

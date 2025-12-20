@@ -6,15 +6,24 @@
 
 # Function: wsTask()
 
-> **wsTask**\<`E`\>(`url`, `env`, `onError?`): [`Task`](../namespaces/Task/interfaces/Task.md)\<`E`, `WebSocket`\>
+> **wsTask**\<`E`\>(`url`, `onError?`): [`Reader`](../namespaces/Reader/interfaces/Reader.md)\<[`WebSocketEnv`](../type-aliases/WebSocketEnv.md), [`Task`](../namespaces/Task/interfaces/Task.md)\<`E`, `WebSocket`\>\>
 
-Defined in: [helpers/ws-task.ts:10](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/helpers/ws-task.ts#L10)
+Defined in: [helpers/ws-task.ts:44](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/helpers/ws-task.ts#L44)
+
+Construct a Task that opens a WebSocket connection.
+
+IMPORTANT:
+- wsTask DOES NOT dispatch messages.
+- It returns Reader<Env, Task<E, WebSocket>>.
+- The caller MUST map the result into Msg if used as an effect.
 
 ## Type Parameters
 
 ### E
 
-`E`
+`E` = `unknown`
+
+Error type produced on connection failure
 
 ## Parameters
 
@@ -22,14 +31,26 @@ Defined in: [helpers/ws-task.ts:10](https://github.com/boazblake/algebraic-fx/bl
 
 `string`
 
-### env
-
-[`WebSocketEnv`](../type-aliases/WebSocketEnv.md)
+WebSocket URL
 
 ### onError?
 
 (`err`) => `E`
 
+Optional mapper for connection errors
+
 ## Returns
 
-[`Task`](../namespaces/Task/interfaces/Task.md)\<`E`, `WebSocket`\>
+[`Reader`](../namespaces/Reader/interfaces/Reader.md)\<[`WebSocketEnv`](../type-aliases/WebSocketEnv.md), [`Task`](../namespaces/Task/interfaces/Task.md)\<`E`, `WebSocket`\>\>
+
+Reader that produces a Task when run with WebSocketEnv
+
+## Example
+
+```ts
+const connect =
+  wsTask("/socket")
+    .map(task =>
+      task.map(ws => ({ type: "SocketOpened", ws }))
+    );
+```

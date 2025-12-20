@@ -6,7 +6,7 @@
 
 # Interface: IO\<A\>
 
-Defined in: [adt/io.ts:4](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/io.ts#L4)
+Defined in: [adt/io.ts:4](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L4)
 
 ## Type Parameters
 
@@ -14,17 +14,85 @@ Defined in: [adt/io.ts:4](https://github.com/boazblake/algebraic-fx/blob/45e1464
 
 `A`
 
-## Indexable
-
-\[`key`: `number`\]: \<`B`\>(`f`) => `IO`\<`B`\> \| \<`B`\>(`f`) => `IO`\<`B`\> \| \<`B`\>(`fa`) => `IO`\<`B`\>
-
 ## Properties
 
 ### \_tag
 
 > `readonly` **\_tag**: `"IO"`
 
-Defined in: [adt/io.ts:5](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/io.ts#L5)
+Defined in: [adt/io.ts:5](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L5)
+
+***
+
+### \[fl\_ap\]()
+
+> `readonly` **\[fl\_ap\]**: \<`B`\>(`fa`) => `IO`\<`B`\>
+
+Defined in: [adt/io.ts:10](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L10)
+
+#### Type Parameters
+
+##### B
+
+`B`
+
+#### Parameters
+
+##### fa
+
+`IO`\<`A`\>
+
+#### Returns
+
+`IO`\<`B`\>
+
+***
+
+### \[fl\_chain\]()
+
+> `readonly` **\[fl\_chain\]**: \<`B`\>(`f`) => `IO`\<`B`\>
+
+Defined in: [adt/io.ts:9](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L9)
+
+#### Type Parameters
+
+##### B
+
+`B`
+
+#### Parameters
+
+##### f
+
+(`a`) => `IO`\<`B`\>
+
+#### Returns
+
+`IO`\<`B`\>
+
+***
+
+### \[fl\_map\]()
+
+> `readonly` **\[fl\_map\]**: \<`B`\>(`f`) => `IO`\<`B`\>
+
+Defined in: [adt/io.ts:8](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L8)
+
+#### Type Parameters
+
+##### B
+
+`B`
+
+#### Parameters
+
+##### f
+
+(`a`) => `B`
+
+#### Returns
+
+`IO`\<`B`\>
 
 ***
 
@@ -32,7 +100,7 @@ Defined in: [adt/io.ts:5](https://github.com/boazblake/algebraic-fx/blob/45e1464
 
 > `readonly` **run**: () => `A`
 
-Defined in: [adt/io.ts:6](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/io.ts#L6)
+Defined in: [adt/io.ts:6](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L6)
 
 #### Returns
 

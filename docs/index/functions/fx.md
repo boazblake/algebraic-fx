@@ -8,9 +8,15 @@
 
 > **fx**\<`Env`, `Msg`\>(`impl`): [`Effect`](../interfaces/Effect.md)\<`Env`, `Msg`\>
 
-Defined in: [core/effects.ts:25](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/effects.ts#L25)
+Defined in: [core/effects.ts:47](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/effects.ts#L47)
 
-Helper to construct an Effect without exposing the brand.
+Construct a branded Effect.
+
+This helper hides the internal Effect brand and provides a safe way
+to define long-lived effects such as subscriptions or listeners.
+
+The provided implementation is invoked with the runtime environment
+and dispatch function.
 
 ## Type Parameters
 
