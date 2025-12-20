@@ -1,34 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     "module": "ESNext",
+    "moduleResolution": "Bundler",
     "lib": [
-      "ES2020",
-      "DOM"
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
     ],
-    "moduleResolution": "bundler",
     "strict": true,
     "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
-    // Add these for perfect editor + build alignment
-    "baseUrl": ".",
-    "paths": {
-      "@shared/*": [
-        "src/shared/*"
-      ],
-      "@effects/*": [
-        "src/effects/*"
-      ],
-      "@panels/*": [
-        "src/panels/*"
-      ],
-      "@main/*": [
-        "src/main/*"
-      ],
-      "@core/*": [
-        "src/core/*"
-      ]
-    }
+    "noEmit": true,
+    "types": []
   },
   "include": [
     "src"

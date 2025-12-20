@@ -8,7 +8,7 @@
 
 > **Either**\<`E`, `A`\> = [`Left`](Left.md)\<`E`\> \| [`Right`](Right.md)\<`A`\>
 
-Defined in: [adt/either.ts:14](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/either.ts#L14)
+Defined in: [adt/either.ts:14](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/either.ts#L14)
 
 ## Type Parameters
 

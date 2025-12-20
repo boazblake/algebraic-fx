@@ -1,5 +1,10 @@
+import { fl } from "./fl.js";
 export type Maybe<A> = Just<A> | Nothing;
 interface FLMethods<A> {
+    readonly [fl.map]: <B>(f: (a: A) => B) => Maybe<B>;
+    readonly [fl.chain]: <B>(f: (a: A) => Maybe<B>) => Maybe<B>;
+    readonly [fl.ap]: <B>(mf: Maybe<(a: A) => B>) => Maybe<B>;
+    readonly [fl.of]: <B>(b: B) => Maybe<B>;
 }
 export interface Just<A> extends FLMethods<A> {
     readonly _tag: "Just";

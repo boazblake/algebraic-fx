@@ -72,7 +72,6 @@ export declare const isEither: (u: unknown) => u is Either<unknown, unknown>;
  * fp ts style module dictionary.
  */
 export declare const EitherModule: {
-    [fl.of]: <A>(a: A) => Either<never, A>;
     URI: string;
     left: <E = never, A = never>(e: E) => Either<E, A>;
     right: <E = never, A = never>(a: A) => Either<E, A>;
@@ -92,5 +91,6 @@ export declare const EitherModule: {
     fromPredicate: <E, A>(predicate: (a: A) => boolean, onFalse: (a: A) => E) => (a: A) => Either<E, A>;
     tryCatch: <E, A>(thunk: () => A, onThrow: (u: unknown) => E) => Either<E, A>;
     isEither: (u: unknown) => u is Either<unknown, unknown>;
+    [fl_of]: <A>(a: A) => Either<never, A>;
 };
 //# sourceMappingURL=either.d.ts.map

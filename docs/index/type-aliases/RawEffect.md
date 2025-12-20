@@ -8,17 +8,34 @@
 
 > **RawEffect**\<`Env`, `Msg`\> = `Msg` \| [`IO`](../namespaces/IO/interfaces/IO.md)\<`Msg` \| `void`\> \| [`Reader`](../namespaces/Reader/interfaces/Reader.md)\<`Env`, [`IO`](../namespaces/IO/interfaces/IO.md)\<`Msg` \| `void`\>\> \| [`Task`](../namespaces/Task/interfaces/Task.md)\<`unknown`, `Msg` \| `void`\> \| [`Reader`](../namespaces/Reader/interfaces/Reader.md)\<`Env`, [`Task`](../namespaces/Task/interfaces/Task.md)\<`unknown`, `Msg` \| `void`\>\> \| [`Effect`](../interfaces/Effect.md)\<`Env`, `Msg`\>
 
-Defined in: [core/effects.ts:43](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/effects.ts#L43)
+Defined in: [core/effects.ts:82](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/core/effects.ts#L82)
 
-RawEffect is anything the program is allowed to return from init/update.
+RawEffect represents any side-effect description a Program may emit.
 
-Supported:
- - plain message (Msg)
+RawEffects are *data*, not executions.
+They are interpreted by the runtime after each update and during init.
+
+Supported forms:
+
+ - Msg
+     Dispatches the message immediately.
+
  - IO<Msg | void>
+     Executed synchronously.
+     If a Msg is returned, it is dispatched.
+
  - Reader<Env, IO<Msg | void>>
+     Environment-dependent synchronous effect.
+
  - Task<E, Msg | void>
+     Fire-and-forget asynchronous computation.
+     Only successful results are dispatched.
+
  - Reader<Env, Task<E, Msg | void>>
+     Environment-dependent asynchronous computation.
+
  - Effect<Env, Msg>
+     Long-lived subscription effect with optional cleanup.
 
 ## Type Parameters
 

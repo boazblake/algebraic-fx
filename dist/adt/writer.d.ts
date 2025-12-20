@@ -36,7 +36,6 @@ export declare const isWriter: (u: unknown) => u is Writer<unknown, unknown>;
  * fp-ts style module dictionary for a fixed monoid W.
  */
 export declare const WriterModule: <W>(m: Monoid<W>) => {
-    [fl.of]: <A>(a: A, w?: W) => Writer<W, A>;
     of: <A>(a: A, w?: W) => Writer<W, A>;
     map: <A, B>(wa: Writer<W, A>, f: (a: A) => B) => Writer<W, B>;
     chain: <A, B_1>(wa: Writer<W, A>, f: (a: A) => Writer<W, B_1>) => Writer<W, B_1>;
@@ -44,5 +43,6 @@ export declare const WriterModule: <W>(m: Monoid<W>) => {
     tell: (w: W) => Writer<W, void>;
     listen: <A>(wa: Writer<W, A>) => Writer<W, [A, W]>;
     isWriter: (u: unknown) => u is Writer<unknown, unknown>;
+    [fl_of]: <A>(a: A, w?: W) => Writer<W, A>;
 };
 //# sourceMappingURL=writer.d.ts.map

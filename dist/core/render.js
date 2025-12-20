@@ -1,7 +1,24 @@
 // src/core/render.ts
 import { runEffects } from "./effects.js";
 /**
- * Connect Program<M, Msg, Env> to a renderer and environment.
+ * Start an algebraic-fx application.
+ *
+ * This function wires together:
+ *  - a Program (init / update / view)
+ *  - a renderer
+ *  - an environment value
+ *
+ * IMPORTANT SEMANTICS:
+ *  - This function is NOT curried.
+ *  - This function does NOT return an IO.
+ *  - The runtime starts immediately.
+ *
+ * @param root Root DOM element to render into
+ * @param program Application Program definition
+ * @param env Environment value passed to effects
+ * @param renderer Virtual DOM renderer
+ *
+ * @throws TypeError if any required argument is missing or invalid
  */
 export const renderApp = (root, program, env, renderer) => {
     if (!root) {

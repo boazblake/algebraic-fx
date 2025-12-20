@@ -8,15 +8,27 @@
 
 > **interpretRawEffect**\<`Env`, `Msg`\>(`env`, `dispatch`, `eff`): `void` \| () => `void`
 
-Defined in: [core/effects.ts:91](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/effects.ts#L91)
+Defined in: [core/effects.ts:142](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/core/effects.ts#L142)
 
-Interpret a single RawEffect:
- - synchronously for IO / Reader<IO>
- - fire and forget for Task / Reader<Task>
- - delegate to Effect.run for subscriptions
- - if given a plain Msg, dispatches it directly
+Interpret a single RawEffect.
 
-Returns a cleanup function only for Effect cases; all others return void.
+Execution semantics:
+ - Msg:
+     Dispatched immediately.
+
+ - IO / Reader<IO>:
+     Executed synchronously.
+     Any returned Msg is dispatched.
+
+ - Task / Reader<Task>:
+     Executed asynchronously (fire-and-forget).
+     Only successful results are dispatched.
+
+ - Effect:
+     Delegated to Effect.run.
+     May return a cleanup function.
+
+Returns a cleanup function only for Effect cases.
 
 ## Type Parameters
 

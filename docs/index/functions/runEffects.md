@@ -8,10 +8,15 @@
 
 > **runEffects**\<`Env`, `Msg`\>(`env`, `dispatch`, `effects`): () => `void`
 
-Defined in: [core/effects.ts:151](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/effects.ts#L151)
+Defined in: [core/effects.ts:207](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/core/effects.ts#L207)
 
-Interpret an array of RawEffects.
-Any cleanup function from subscription effects is returned as a combined disposer.
+Interpret a list of RawEffects.
+
+All effects are executed in order.
+Cleanup functions returned by Effect values are collected and
+combined into a single disposer function.
+
+The returned disposer invokes all cleanups safely.
 
 ## Type Parameters
 

@@ -8,7 +8,7 @@
 
 > **of**\<`A`\>(`a`): [`Maybe`](../type-aliases/Maybe.md)\<`A`\>
 
-Defined in: [adt/maybe.ts:32](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/maybe.ts#L32)
+Defined in: [adt/maybe.ts:32](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/maybe.ts#L32)
 
 ## Type Parameters
 

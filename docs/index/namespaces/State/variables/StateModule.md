@@ -8,13 +8,105 @@
 
 > `const` **StateModule**: `object`
 
-Defined in: [adt/state.ts:84](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/state.ts#L84)
+Defined in: [adt/state.ts:84](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/state.ts#L84)
 
 ## Type Declaration
 
-## Index Signature
+### \[fl\_ap\]()
 
-\[`key`: `number`\]: \<`S`, `A`\>(`a`) => [`State`](../interfaces/State.md)\<`S`, `A`\> \| (`f`) => (`sa`) => [`State`](../interfaces/State.md)\<`unknown`, `any`\> \| (`f`) => (`sa`) => [`State`](../interfaces/State.md)\<`any`, `any`\> \| (`sf`) => (`sa`) => [`State`](../interfaces/State.md)\<`any`, `any`\>
+> **\[fl\_ap\]**: (`sf`) => (`sa`) => [`State`](../interfaces/State.md)\<`any`, `any`\>
+
+#### Parameters
+
+##### sf
+
+[`State`](../interfaces/State.md)\<`any`, (`a`) => `any`\>
+
+#### Returns
+
+> (`sa`): [`State`](../interfaces/State.md)\<`any`, `any`\>
+
+##### Parameters
+
+###### sa
+
+[`State`](../interfaces/State.md)\<`any`, `any`\>
+
+##### Returns
+
+[`State`](../interfaces/State.md)\<`any`, `any`\>
+
+### \[fl\_chain\]()
+
+> **\[fl\_chain\]**: (`f`) => (`sa`) => [`State`](../interfaces/State.md)\<`any`, `any`\>
+
+#### Parameters
+
+##### f
+
+(`a`) => [`State`](../interfaces/State.md)\<`any`, `any`\>
+
+#### Returns
+
+> (`sa`): [`State`](../interfaces/State.md)\<`any`, `any`\>
+
+##### Parameters
+
+###### sa
+
+[`State`](../interfaces/State.md)\<`any`, `any`\>
+
+##### Returns
+
+[`State`](../interfaces/State.md)\<`any`, `any`\>
+
+### \[fl\_map\]()
+
+> **\[fl\_map\]**: (`f`) => (`sa`) => [`State`](../interfaces/State.md)\<`unknown`, `any`\>
+
+#### Parameters
+
+##### f
+
+(`a`) => `any`
+
+#### Returns
+
+> (`sa`): [`State`](../interfaces/State.md)\<`unknown`, `any`\>
+
+##### Parameters
+
+###### sa
+
+[`State`](../interfaces/State.md)\<`any`, `any`\>
+
+##### Returns
+
+[`State`](../interfaces/State.md)\<`unknown`, `any`\>
+
+### \[fl\_of\]()
+
+> **\[fl\_of\]**: \<`S`, `A`\>(`a`) => [`State`](../interfaces/State.md)\<`S`, `A`\> = `of`
+
+#### Type Parameters
+
+##### S
+
+`S`
+
+##### A
+
+`A`
+
+#### Parameters
+
+##### a
+
+`A`
+
+#### Returns
+
+[`State`](../interfaces/State.md)\<`S`, `A`\>
 
 ### ap()
 

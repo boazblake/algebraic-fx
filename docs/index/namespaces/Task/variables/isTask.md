@@ -8,7 +8,7 @@
 
 > `const` **isTask**: (`u`) => `u is Task<unknown, unknown>` = `TaskModule.isTask`
 
-Defined in: [adt/task.ts:184](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/task.ts#L184)
+Defined in: [adt/task.ts:184](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/task.ts#L184)
 
 ## Parameters
 

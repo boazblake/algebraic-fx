@@ -6,7 +6,7 @@
 
 # Interface: Reader\<R, A\>
 
-Defined in: [adt/reader.ts:8](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/reader.ts#L8)
+Defined in: [adt/reader.ts:8](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/reader.ts#L8)
 
 ## Type Parameters
 
@@ -18,17 +18,89 @@ Defined in: [adt/reader.ts:8](https://github.com/boazblake/algebraic-fx/blob/45e
 
 `A`
 
-## Indexable
-
-\[`key`: `number`\]: \<`B`\>(`f`) => `Reader`\<`R`, `B`\> \| \<`B`\>(`f`) => `Reader`\<`R`, `B`\> \| \<`B`\>(`this`, `fa`) => `Reader`\<`R`, `B`\>
-
 ## Properties
 
 ### \_tag
 
 > `readonly` **\_tag**: `"Reader"`
 
-Defined in: [adt/reader.ts:9](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/reader.ts#L9)
+Defined in: [adt/reader.ts:9](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/reader.ts#L9)
+
+***
+
+### \[fl\_ap\]()
+
+> `readonly` **\[fl\_ap\]**: \<`B`\>(`this`, `fa`) => `Reader`\<`R`, `B`\>
+
+Defined in: [adt/reader.ts:23](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/reader.ts#L23)
+
+#### Type Parameters
+
+##### B
+
+`B`
+
+#### Parameters
+
+##### this
+
+`Reader`\<`R`, (`a`) => `B`\>
+
+##### fa
+
+`Reader`\<`R`, `any`\>
+
+#### Returns
+
+`Reader`\<`R`, `B`\>
+
+***
+
+### \[fl\_chain\]()
+
+> `readonly` **\[fl\_chain\]**: \<`B`\>(`f`) => `Reader`\<`R`, `B`\>
+
+Defined in: [adt/reader.ts:22](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/reader.ts#L22)
+
+#### Type Parameters
+
+##### B
+
+`B`
+
+#### Parameters
+
+##### f
+
+(`a`) => `Reader`\<`R`, `B`\>
+
+#### Returns
+
+`Reader`\<`R`, `B`\>
+
+***
+
+### \[fl\_map\]()
+
+> `readonly` **\[fl\_map\]**: \<`B`\>(`f`) => `Reader`\<`R`, `B`\>
+
+Defined in: [adt/reader.ts:21](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/reader.ts#L21)
+
+#### Type Parameters
+
+##### B
+
+`B`
+
+#### Parameters
+
+##### f
+
+(`a`) => `B`
+
+#### Returns
+
+`Reader`\<`R`, `B`\>
 
 ***
 
@@ -36,7 +108,7 @@ Defined in: [adt/reader.ts:9](https://github.com/boazblake/algebraic-fx/blob/45e
 
 > `readonly` **ap**: \<`B`\>(`this`, `fa`) => `Reader`\<`R`, `B`\>
 
-Defined in: [adt/reader.ts:15](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/reader.ts#L15)
+Defined in: [adt/reader.ts:15](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/reader.ts#L15)
 
 #### Type Parameters
 
@@ -64,7 +136,7 @@ Defined in: [adt/reader.ts:15](https://github.com/boazblake/algebraic-fx/blob/45
 
 > `readonly` **chain**: \<`B`\>(`f`) => `Reader`\<`R`, `B`\>
 
-Defined in: [adt/reader.ts:14](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/reader.ts#L14)
+Defined in: [adt/reader.ts:14](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/reader.ts#L14)
 
 #### Type Parameters
 
@@ -88,7 +160,7 @@ Defined in: [adt/reader.ts:14](https://github.com/boazblake/algebraic-fx/blob/45
 
 > `readonly` **map**: \<`B`\>(`f`) => `Reader`\<`R`, `B`\>
 
-Defined in: [adt/reader.ts:13](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/reader.ts#L13)
+Defined in: [adt/reader.ts:13](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/reader.ts#L13)
 
 #### Type Parameters
 
@@ -112,7 +184,7 @@ Defined in: [adt/reader.ts:13](https://github.com/boazblake/algebraic-fx/blob/45
 
 > `readonly` **run**: (`r`) => `A`
 
-Defined in: [adt/reader.ts:10](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/reader.ts#L10)
+Defined in: [adt/reader.ts:10](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/reader.ts#L10)
 
 #### Parameters
 

@@ -10,7 +10,7 @@ const makeError = (url, status, message, cause) => ({
 });
 export const httpTask = (path, decode, mapError = (e) => e) => Reader((env) => {
     // FIX 1: Correct URL joining semantics
-    const url = env.baseUrl.replace(/\/+$/, "") + "/" + path.replace(/^\/+/, "");
+    const url = env.baseUrl + path;
     return Task.fromPromise(async () => {
         const res = await env.fetch(url);
         // FIX 2: Non-2xx error message must be: "HTTP <status> <statusText>"

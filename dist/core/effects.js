@@ -1,10 +1,27 @@
 // src/core/effects.ts
 /**
+ * Effect interpreter and runtime side-effect model for algebraic-fx.
+ *
+ * This module defines:
+ *  - the Effect abstraction for long-lived subscriptions
+ *  - the RawEffect union type accepted by Program.init and Program.update
+ *  - the runtime interpreter for executing effects
+ *
+ * Effects in algebraic-fx are *descriptions*, not executions.
+ * They are returned as data from Programs and interpreted by the runtime.
+ */
+/**
  * Brand for runtime managed Effect objects.
  */
 const EffectBrand = Symbol("EffectBrand");
 /**
- * Helper to construct an Effect without exposing the brand.
+ * Construct a branded Effect.
+ *
+ * This helper hides the internal Effect brand and provides a safe way
+ * to define long-lived effects such as subscriptions or listeners.
+ *
+ * The provided implementation is invoked with the runtime environment
+ * and dispatch function.
  */
 export const fx = (impl) => ({
     [EffectBrand]: true,
@@ -32,13 +49,25 @@ const isIO = (u) => !!u &&
 /* Interpreter                                                               */
 /* ------------------------------------------------------------------------- */
 /**
- * Interpret a single RawEffect:
- *  - synchronously for IO / Reader<IO>
- *  - fire and forget for Task / Reader<Task>
- *  - delegate to Effect.run for subscriptions
- *  - if given a plain Msg, dispatches it directly
+ * Interpret a single RawEffect.
  *
- * Returns a cleanup function only for Effect cases; all others return void.
+ * Execution semantics:
+ *  - Msg:
+ *      Dispatched immediately.
+ *
+ *  - IO / Reader<IO>:
+ *      Executed synchronously.
+ *      Any returned Msg is dispatched.
+ *
+ *  - Task / Reader<Task>:
+ *      Executed asynchronously (fire-and-forget).
+ *      Only successful results are dispatched.
+ *
+ *  - Effect:
+ *      Delegated to Effect.run.
+ *      May return a cleanup function.
+ *
+ * Returns a cleanup function only for Effect cases.
  */
 export const interpretRawEffect = (env, dispatch, eff) => {
     if (eff == null)
@@ -87,8 +116,13 @@ export const interpretRawEffect = (env, dispatch, eff) => {
     dispatch(eff);
 };
 /**
- * Interpret an array of RawEffects.
- * Any cleanup function from subscription effects is returned as a combined disposer.
+ * Interpret a list of RawEffects.
+ *
+ * All effects are executed in order.
+ * Cleanup functions returned by Effect values are collected and
+ * combined into a single disposer function.
+ *
+ * The returned disposer invokes all cleanups safely.
  */
 export const runEffects = (env, dispatch, effects) => {
     if (!effects || effects.length === 0) {

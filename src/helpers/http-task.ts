@@ -41,9 +41,7 @@ export const httpTask = <E = never, A = never>(
 ): ReaderT<HttpEnv, TaskT<DefaultHttpError | E, A>> =>
   Reader((env: HttpEnv) => {
     // FIX 1: Correct URL joining semantics
-    const url =
-      env.baseUrl.replace(/\/+$/, "") + "/" + path.replace(/^\/+/, "");
-
+    const url = env.baseUrl + path;
     return Task.fromPromise<DefaultHttpError | E, A>(
       async () => {
         const res = await env.fetch(url);

@@ -8,13 +8,101 @@
 
 > `const` **TaskModule**: `object`
 
-Defined in: [adt/task.ts:83](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/task.ts#L83)
+Defined in: [adt/task.ts:83](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/task.ts#L83)
 
 ## Type Declaration
 
-## Index Signature
+### \[fl\_ap\]()
 
-\[`key`: `number`\]: \<`A`\>(`a`) => [`Task`](../interfaces/Task.md)\<`never`, `A`\> \| (`f`) => (`fa`) => [`Task`](../interfaces/Task.md)\<`any`, `any`\> \| (`tf`) => (`tv`) => [`Task`](../interfaces/Task.md)\<`any`, `any`\>
+> `readonly` **\[fl\_ap\]**(`tf`): (`tv`) => [`Task`](../interfaces/Task.md)\<`any`, `any`\>
+
+#### Parameters
+
+##### tf
+
+[`Task`](../interfaces/Task.md)\<`any`, (`a`) => `any`\>
+
+#### Returns
+
+> (`tv`): [`Task`](../interfaces/Task.md)\<`any`, `any`\>
+
+##### Parameters
+
+###### tv
+
+[`Task`](../interfaces/Task.md)\<`any`, `any`\>
+
+##### Returns
+
+[`Task`](../interfaces/Task.md)\<`any`, `any`\>
+
+### \[fl\_chain\]()
+
+> `readonly` **\[fl\_chain\]**(`f`): (`fa`) => [`Task`](../interfaces/Task.md)\<`any`, `any`\>
+
+#### Parameters
+
+##### f
+
+(`a`) => [`Task`](../interfaces/Task.md)\<`any`, `any`\>
+
+#### Returns
+
+> (`fa`): [`Task`](../interfaces/Task.md)\<`any`, `any`\>
+
+##### Parameters
+
+###### fa
+
+[`Task`](../interfaces/Task.md)\<`any`, `any`\>
+
+##### Returns
+
+[`Task`](../interfaces/Task.md)\<`any`, `any`\>
+
+### \[fl\_map\]()
+
+> `readonly` **\[fl\_map\]**(`f`): (`fa`) => [`Task`](../interfaces/Task.md)\<`any`, `any`\>
+
+#### Parameters
+
+##### f
+
+(`a`) => `any`
+
+#### Returns
+
+> (`fa`): [`Task`](../interfaces/Task.md)\<`any`, `any`\>
+
+##### Parameters
+
+###### fa
+
+[`Task`](../interfaces/Task.md)\<`any`, `any`\>
+
+##### Returns
+
+[`Task`](../interfaces/Task.md)\<`any`, `any`\>
+
+### \[fl\_of\]()
+
+> `readonly` **\[fl\_of\]**\<`A`\>(`a`): [`Task`](../interfaces/Task.md)\<`never`, `A`\>
+
+#### Type Parameters
+
+##### A
+
+`A`
+
+#### Parameters
+
+##### a
+
+`A`
+
+#### Returns
+
+[`Task`](../interfaces/Task.md)\<`never`, `A`\>
 
 ### ap()
 

@@ -8,11 +8,14 @@
 
 > **Renderer** = (`root`, `vnode`) => `void`
 
-Defined in: [core/render.ts:22](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/render.ts#L22)
+Defined in: [core/render.ts:31](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/core/render.ts#L31)
 
-Renderer function type.
+Renderer function.
 
-User supplies a function that updates the DOM from a VNode tree.
+A renderer reconciles a virtual DOM tree into a concrete DOM subtree.
+
+algebraic-fx does not prescribe a renderer implementation.
+The default renderer is mithril-lite (`render` from core/mithril-lite.ts).
 
 ## Parameters
 

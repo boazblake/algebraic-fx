@@ -8,7 +8,7 @@
 
 > **isMaybe**(`u`): `u is Maybe<unknown>`
 
-Defined in: [adt/maybe.ts:26](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/maybe.ts#L26)
+Defined in: [adt/maybe.ts:26](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/maybe.ts#L26)
 
 ## Parameters
 

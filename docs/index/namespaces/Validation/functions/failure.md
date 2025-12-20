@@ -8,7 +8,7 @@
 
 > **failure**\<`E`, `A`\>(`e`): [`Validation`](../type-aliases/Validation.md)\<`E`, `A`\>
 
-Defined in: [adt/validation.ts:20](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/validation.ts#L20)
+Defined in: [adt/validation.ts:20](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/validation.ts#L20)
 
 ## Type Parameters
 

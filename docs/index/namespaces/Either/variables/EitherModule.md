@@ -8,15 +8,33 @@
 
 > `const` **EitherModule**: `object`
 
-Defined in: [adt/either.ts:205](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/either.ts#L205)
+Defined in: [adt/either.ts:205](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/either.ts#L205)
 
 fp ts style module dictionary.
 
 ## Type Declaration
 
-## Index Signature
+### \[fl\_of\]()
 
-\[`key`: `number`\]: \<`A`\>(`a`) => [`Either`](../type-aliases/Either.md)\<`never`, `A`\>
+> **\[fl\_of\]**: \<`A`\>(`a`) => [`Either`](../type-aliases/Either.md)\<`never`, `A`\> = `of`
+
+Applicative "of" injects a value in the Right side.
+
+#### Type Parameters
+
+##### A
+
+`A`
+
+#### Parameters
+
+##### a
+
+`A`
+
+#### Returns
+
+[`Either`](../type-aliases/Either.md)\<`never`, `A`\>
 
 ### ap()
 

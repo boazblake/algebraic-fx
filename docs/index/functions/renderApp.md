@@ -8,9 +8,19 @@
 
 > **renderApp**\<`M`, `Msg`, `Env`\>(`root`, `program`, `env`, `renderer`): `void`
 
-Defined in: [core/render.ts:27](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/render.ts#L27)
+Defined in: [core/render.ts:53](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/core/render.ts#L53)
 
-Connect Program<M, Msg, Env> to a renderer and environment.
+Start an algebraic-fx application.
+
+This function wires together:
+ - a Program (init / update / view)
+ - a renderer
+ - an environment value
+
+IMPORTANT SEMANTICS:
+ - This function is NOT curried.
+ - This function does NOT return an IO.
+ - The runtime starts immediately.
 
 ## Type Parameters
 
@@ -32,18 +42,30 @@ Connect Program<M, Msg, Env> to a renderer and environment.
 
 `Element`
 
+Root DOM element to render into
+
 ### program
 
 [`Program`](../type-aliases/Program.md)\<`M`, `Msg`, `Env`\>
+
+Application Program definition
 
 ### env
 
 `Env`
 
+Environment value passed to effects
+
 ### renderer
 
 [`Renderer`](../type-aliases/Renderer.md)
 
+Virtual DOM renderer
+
 ## Returns
 
 `void`
+
+## Throws
+
+TypeError if any required argument is missing or invalid

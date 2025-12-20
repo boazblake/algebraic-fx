@@ -9,12 +9,11 @@ export interface Task<E, A> {
     readonly _tag: "Task";
     readonly run: () => Promise<Either<E, A>>;
     readonly runWith: <R>(onError: (e: E) => R | Promise<R>, onSuccess: (a: A) => R | Promise<R>) => Promise<R>;
+    readonly [fl.map]: <B>(f: (a: A) => B) => Task<E, B>;
+    readonly [fl.chain]: <B>(f: (a: A) => Task<E, B>) => Task<E, B>;
+    readonly [fl.ap]: <B>(fab: Task<E, (a: A) => B>) => Task<E, B>;
 }
 export declare const TaskModule: {
-    readonly [fl.of]: <A>(a: A) => Task<never, A>;
-    readonly [fl.map]: (f: (a: any) => any) => (fa: Task<any, any>) => Task<any, any>;
-    readonly [fl.chain]: (f: (a: any) => Task<any, any>) => (fa: Task<any, any>) => Task<any, any>;
-    readonly [fl.ap]: (tf: Task<any, (a: any) => any>) => (tv: Task<any, any>) => Task<any, any>;
     readonly of: <E = never, A = never>(a: A) => Task<E, A>;
     readonly fail: <E = unknown, A = never>(e: E) => Task<E, A>;
     readonly map: <E, A, B>(f: (a: A) => B) => (fa: Task<E, A>) => Task<E, B>;
@@ -30,6 +29,10 @@ export declare const TaskModule: {
     readonly fromPromise: <E = unknown, A = unknown>(thunk: () => Promise<A>, onError: (e: unknown) => E) => Task<E, A>;
     readonly tryCatch: <E = unknown, A = unknown>(thunk: () => A, onError: (e: unknown) => E) => Task<E, A>;
     readonly isTask: (u: unknown) => u is Task<unknown, unknown>;
+    readonly [fl_of]: <A>(a: A) => Task<never, A>;
+    readonly [fl_map]: (f: (a: any) => any) => (fa: Task<any, any>) => Task<any, any>;
+    readonly [fl_chain]: (f: (a: any) => Task<any, any>) => (fa: Task<any, any>) => Task<any, any>;
+    readonly [fl_ap]: (tf: Task<any, (a: any) => any>) => (tv: Task<any, any>) => Task<any, any>;
 };
 export declare const of: <E = never, A = never>(a: A) => Task<E, A>;
 export declare const fail: <E = unknown, A = never>(e: E) => Task<E, A>;

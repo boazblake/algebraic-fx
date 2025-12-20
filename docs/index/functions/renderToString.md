@@ -8,11 +8,20 @@
 
 > **renderToString**(`node`): `string`
 
-Defined in: [core/render-to-string.ts:72](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/render-to-string.ts#L72)
+Defined in: [core/render-to-string.ts:86](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/core/render-to-string.ts#L86)
 
-Convert a vnode tree into an HTML string.
+Convert a mithril-lite vnode tree into an escaped HTML string.
 
-CORRECTED: Now works with mithril-lite.ts Vnode structure using 'attrs' instead of 'props'.
+Input: a Vnode, an array of nodes, or a primitive.
+Output: an HTML string with text and attribute values escaped.
+
+Serialization rules:
+ - `tag === "#"` renders as escaped text (using `text`).
+ - `attrs.key` is ignored.
+ - attributes starting with `"on"` are ignored (event handlers).
+ - boolean `true` attributes render as bare keys (e.g. `disabled`).
+ - `style` objects are serialized into a `style="k: v; ..."` string.
+ - void elements are emitted without a closing tag.
 
 ## Parameters
 
@@ -20,16 +29,13 @@ CORRECTED: Now works with mithril-lite.ts Vnode structure using 'attrs' instead 
 
 `unknown`
 
-A vnode, array, string, number, or null
+A Vnode, array of nodes, string, number, boolean, null, or undefined.
 
 ## Returns
 
 `string`
 
-Escaped HTML string
-
-Text is escaped via escapeText.
-Attributes are escaped via escapeAttr.
+Escaped HTML string.
 
 ## Example
 

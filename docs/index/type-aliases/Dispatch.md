@@ -8,7 +8,11 @@
 
 > **Dispatch**\<`Msg`\> = (`msg`) => `void`
 
-Defined in: [core/types.ts:35](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/core/types.ts#L35)
+Defined in: [core/types.ts:72](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/core/types.ts#L72)
+
+Dispatch function used to send messages into the runtime.
+
+Calling dispatch schedules a state transition via Program.update.
 
 ## Type Parameters
 

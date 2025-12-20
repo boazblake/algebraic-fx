@@ -5,6 +5,9 @@ export interface Reader<R, A> {
     readonly map: <B>(f: (a: A) => B) => Reader<R, B>;
     readonly chain: <B>(f: (a: A) => Reader<R, B>) => Reader<R, B>;
     readonly ap: <B>(this: Reader<R, (a: any) => B>, fa: Reader<R, any>) => Reader<R, B>;
+    readonly [fl.map]: <B>(f: (a: A) => B) => Reader<R, B>;
+    readonly [fl.chain]: <B>(f: (a: A) => Reader<R, B>) => Reader<R, B>;
+    readonly [fl.ap]: <B>(this: Reader<R, (a: any) => B>, fa: Reader<R, any>) => Reader<R, B>;
 }
 export interface ReaderConstructor {
     <R, A>(run: (r: R) => A): Reader<R, A>;
@@ -21,11 +24,11 @@ export declare const map: <A, B>(f: (a: A) => B) => <R>(fa: Reader<R, A>) => Rea
 export declare const chain: <A, B>(f: (a: A) => Reader<any, B>) => <R>(fa: Reader<R, A>) => Reader<R, B>;
 export declare const ap: <R, A, B>(fab: Reader<R, (a: A) => B>) => (fa: Reader<R, A>) => Reader<R, B>;
 export declare const ReaderModule: {
-    readonly [fl.of]: <R, A>(a: A) => Reader<R, A>;
     readonly URI: "Reader";
     readonly of: <R, A>(a: A) => Reader<R, A>;
     readonly map: <R, A, B>(fa: Reader<R, A>, f: (a: A) => B) => Reader<R, B>;
     readonly chain: <R, A, B>(fa: Reader<R, A>, f: (a: A) => Reader<R, B>) => Reader<R, B>;
     readonly ap: <R, A, B>(fab: Reader<R, (a: A) => B>, fa: Reader<R, A>) => Reader<R, B>;
+    readonly [fl_of]: <R, A>(a: A) => Reader<R, A>;
 };
 //# sourceMappingURL=reader.d.ts.map

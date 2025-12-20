@@ -8,7 +8,7 @@
 
 > **map**\<`W`, `A`, `B`\>(`wa`, `f`): [`Writer`](../type-aliases/Writer.md)\<`W`, `B`\>
 
-Defined in: [adt/writer.ts:55](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/writer.ts#L55)
+Defined in: [adt/writer.ts:55](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/writer.ts#L55)
 
 map: transform the value, keep the same log.
 

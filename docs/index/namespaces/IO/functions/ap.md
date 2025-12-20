@@ -8,7 +8,7 @@
 
 > **ap**\<`A`, `B`\>(`fab`): (`fa`) => [`IO`](../interfaces/IO.md)\<`B`\>
 
-Defined in: [adt/io.ts:53](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/io.ts#L53)
+Defined in: [adt/io.ts:53](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/io.ts#L53)
 
 ## Type Parameters
 

@@ -8,7 +8,7 @@
 
 > `const` **fromEither**: \<`E`, `A`\>(`ea`) => [`Task`](../interfaces/Task.md)\<`E`, `A`\> = `TaskModule.fromEither`
 
-Defined in: [adt/task.ts:181](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/task.ts#L181)
+Defined in: [adt/task.ts:181](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/task.ts#L181)
 
 ## Type Parameters
 

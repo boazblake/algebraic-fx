@@ -6,7 +6,7 @@
 
 # Interface: State\<S, A\>
 
-Defined in: [adt/state.ts:3](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/state.ts#L3)
+Defined in: [adt/state.ts:3](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/state.ts#L3)
 
 ## Type Parameters
 
@@ -18,17 +18,85 @@ Defined in: [adt/state.ts:3](https://github.com/boazblake/algebraic-fx/blob/45e1
 
 `A`
 
-## Indexable
-
-\[`key`: `number`\]: \<`B`\>(`f`) => `State`\<`S`, `B`\> \| \<`B`\>(`f`) => `State`\<`S`, `B`\> \| \<`B`\>(`sf`) => `State`\<`S`, `B`\>
-
 ## Properties
 
 ### \_tag
 
 > `readonly` **\_tag**: `"State"`
 
-Defined in: [adt/state.ts:4](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/state.ts#L4)
+Defined in: [adt/state.ts:4](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/state.ts#L4)
+
+***
+
+### \[fl\_ap\]()
+
+> `readonly` **\[fl\_ap\]**: \<`B`\>(`sf`) => `State`\<`S`, `B`\>
+
+Defined in: [adt/state.ts:9](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/state.ts#L9)
+
+#### Type Parameters
+
+##### B
+
+`B`
+
+#### Parameters
+
+##### sf
+
+`State`\<`S`, (`a`) => `B`\>
+
+#### Returns
+
+`State`\<`S`, `B`\>
+
+***
+
+### \[fl\_chain\]()
+
+> `readonly` **\[fl\_chain\]**: \<`B`\>(`f`) => `State`\<`S`, `B`\>
+
+Defined in: [adt/state.ts:8](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/state.ts#L8)
+
+#### Type Parameters
+
+##### B
+
+`B`
+
+#### Parameters
+
+##### f
+
+(`a`) => `State`\<`S`, `B`\>
+
+#### Returns
+
+`State`\<`S`, `B`\>
+
+***
+
+### \[fl\_map\]()
+
+> `readonly` **\[fl\_map\]**: \<`B`\>(`f`) => `State`\<`S`, `B`\>
+
+Defined in: [adt/state.ts:7](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/state.ts#L7)
+
+#### Type Parameters
+
+##### B
+
+`B`
+
+#### Parameters
+
+##### f
+
+(`a`) => `B`
+
+#### Returns
+
+`State`\<`S`, `B`\>
 
 ***
 
@@ -36,7 +104,7 @@ Defined in: [adt/state.ts:4](https://github.com/boazblake/algebraic-fx/blob/45e1
 
 > `readonly` **run**: (`s`) => \[`A`, `S`\]
 
-Defined in: [adt/state.ts:5](https://github.com/boazblake/algebraic-fx/blob/45e14646ac8599aefff6cd371096e5d1cc186922/src/adt/state.ts#L5)
+Defined in: [adt/state.ts:5](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/adt/state.ts#L5)
 
 #### Parameters
 
