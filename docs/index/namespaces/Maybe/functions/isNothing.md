@@ -8,7 +8,7 @@
 
 > **isNothing**\<`A`\>(`m`): `m is Nothing`
 
-Defined in: [adt/maybe.ts:24](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/maybe.ts#L24)
+Defined in: [adt/maybe.ts:24](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/maybe.ts#L24)
 
 ## Type Parameters
 

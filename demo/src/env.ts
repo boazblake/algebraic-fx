@@ -1,9 +1,19 @@
 export type AppEnv = {
-  document: Document;
   window: Window & typeof globalThis;
-
-  apiBaseUrl: string;
-
+  storage: Storage;
   now: () => number;
-  log: (...args: unknown[]) => void;
+  usersBaseUrl: string;
+  quotesBaseUrl: string;
+};
+
+export const makeEnv = (): AppEnv => {
+  const w = window as unknown as Window & typeof globalThis;
+
+  return {
+    window: w,
+    storage: w.localStorage,
+    now: () => Date.now(),
+    usersBaseUrl: "https://jsonplaceholder.typicode.com",
+    quotesBaseUrl: "https://api.coingecko.com/api/v3",
+  };
 };

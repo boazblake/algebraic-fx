@@ -8,7 +8,7 @@
 
 > **Right**\<`A`\> = `object`
 
-Defined in: [adt/either.ts:9](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/either.ts#L9)
+Defined in: [adt/either.ts:9](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/either.ts#L9)
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ Defined in: [adt/either.ts:9](https://github.com/boazblake/algebraic-fx/blob/826
 
 > `readonly` **\_tag**: `"Right"`
 
-Defined in: [adt/either.ts:10](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/either.ts#L10)
+Defined in: [adt/either.ts:10](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/either.ts#L10)
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: [adt/either.ts:10](https://github.com/boazblake/algebraic-fx/blob/82
 
 > `readonly` **right**: `A`
 
-Defined in: [adt/either.ts:11](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/either.ts#L11)
+Defined in: [adt/either.ts:11](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/either.ts#L11)

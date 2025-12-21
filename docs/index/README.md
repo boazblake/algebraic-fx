@@ -27,10 +27,10 @@
 
 ## Type Aliases
 
-- [DefaultHttpError](type-aliases/DefaultHttpError.md)
 - [Dispatch](type-aliases/Dispatch.md)
 - [DomEnv](type-aliases/DomEnv.md)
 - [HttpEnv](type-aliases/HttpEnv.md)
+- [HttpError](type-aliases/HttpError.md)
 - [Payload](type-aliases/Payload.md)
 - [Program](type-aliases/Program.md)
 - [Props](type-aliases/Props.md)

@@ -6,7 +6,7 @@
 
 # Interface: IO\<A\>
 
-Defined in: [adt/io.ts:4](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L4)
+Defined in: [adt/io.ts:4](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/io.ts#L4)
 
 ## Type Parameters
 
@@ -20,7 +20,7 @@ Defined in: [adt/io.ts:4](https://github.com/boazblake/algebraic-fx/blob/826d025
 
 > `readonly` **\_tag**: `"IO"`
 
-Defined in: [adt/io.ts:5](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L5)
+Defined in: [adt/io.ts:5](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/io.ts#L5)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [adt/io.ts:5](https://github.com/boazblake/algebraic-fx/blob/826d025
 
 > `readonly` **\[fl\_ap\]**: \<`B`\>(`fa`) => `IO`\<`B`\>
 
-Defined in: [adt/io.ts:10](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L10)
+Defined in: [adt/io.ts:10](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/io.ts#L10)
 
 #### Type Parameters
 
@@ -52,7 +52,7 @@ Defined in: [adt/io.ts:10](https://github.com/boazblake/algebraic-fx/blob/826d02
 
 > `readonly` **\[fl\_chain\]**: \<`B`\>(`f`) => `IO`\<`B`\>
 
-Defined in: [adt/io.ts:9](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L9)
+Defined in: [adt/io.ts:9](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/io.ts#L9)
 
 #### Type Parameters
 
@@ -76,7 +76,7 @@ Defined in: [adt/io.ts:9](https://github.com/boazblake/algebraic-fx/blob/826d025
 
 > `readonly` **\[fl\_map\]**: \<`B`\>(`f`) => `IO`\<`B`\>
 
-Defined in: [adt/io.ts:8](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L8)
+Defined in: [adt/io.ts:8](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/io.ts#L8)
 
 #### Type Parameters
 
@@ -100,7 +100,7 @@ Defined in: [adt/io.ts:8](https://github.com/boazblake/algebraic-fx/blob/826d025
 
 > `readonly` **run**: () => `A`
 
-Defined in: [adt/io.ts:6](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/io.ts#L6)
+Defined in: [adt/io.ts:6](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/io.ts#L6)
 
 #### Returns
 

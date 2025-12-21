@@ -8,7 +8,7 @@
 
 > **renderApp**\<`M`, `Msg`, `Env`\>(`root`, `program`, `env`, `renderer`): `void`
 
-Defined in: [core/render.ts:53](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/render.ts#L53)
+Defined in: [core/render.ts:53](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/render.ts#L53)
 
 Start an algebraic-fx application.
 

@@ -6,30 +6,21 @@
 
 # Function: httpTask()
 
-> **httpTask**\<`E`, `A`\>(`path`, `decode?`, `mapError?`): [`Reader`](../namespaces/Reader/interfaces/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../namespaces/Task/interfaces/Task.md)\<[`DefaultHttpError`](../type-aliases/DefaultHttpError.md) \| `E`, `A`\>\>
+> **httpTask**\<`Msg`\>(`path`, `onSuccess`, `onError`): [`Reader`](../namespaces/Reader/interfaces/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../namespaces/Task/interfaces/Task.md)\<`never`, `Msg`\>\>
 
-Defined in: [helpers/http-task.ts:79](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/helpers/http-task.ts#L79)
+Defined in: [helpers/http-task.ts:37](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/helpers/http-task.ts#L37)
 
-Construct an HTTP Task wrapped in a Reader.
+HTTP effect that ALWAYS resolves to a Msg.
 
-IMPORTANT:
-- httpTask DOES NOT dispatch messages.
-- It returns Reader<Env, Task<E, A>>.
-- The caller MUST map the Task result into Msg.
+- Reader injects HttpEnv
+- Task NEVER fails (E = never)
+- All failures are mapped into Msg in the Promise itself
 
 ## Type Parameters
 
-### E
+### Msg
 
-`E` = `never`
-
-Domain-specific decode error type
-
-### A
-
-`A` = `never`
-
-Decoded success value
+`Msg`
 
 ## Parameters
 
@@ -37,32 +28,14 @@ Decoded success value
 
 `string`
 
-Relative request path (appended to env.baseUrl)
+### onSuccess
 
-### decode?
+(`data`) => `Msg`
 
-(`data`) => [`Either`](../namespaces/Either/type-aliases/Either.md)\<`E`, `A`\>
+### onError
 
-Optional decoder transforming JSON into Either<E, A>
-
-### mapError?
-
-(`err`) => [`DefaultHttpError`](../type-aliases/DefaultHttpError.md) \| `E`
-
-Optional error mapper for DefaultHttpError or decode errors
+(`err`) => `Msg`
 
 ## Returns
 
-[`Reader`](../namespaces/Reader/interfaces/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../namespaces/Task/interfaces/Task.md)\<[`DefaultHttpError`](../type-aliases/DefaultHttpError.md) \| `E`, `A`\>\>
-
-Reader that produces a Task when run with HttpEnv
-
-## Example
-
-```ts
-const fetchUsers =
-  httpTask("/users", decodeUsers)
-    .map(task =>
-      task.map(users => ({ type: "UsersFetched", users }))
-    );
-```
+[`Reader`](../namespaces/Reader/interfaces/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../namespaces/Task/interfaces/Task.md)\<`never`, `Msg`\>\>

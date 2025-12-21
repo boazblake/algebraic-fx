@@ -8,7 +8,7 @@
 
 > **tryCatch**\<`E`, `A`\>(`thunk`, `onThrow`): [`Either`](../type-aliases/Either.md)\<`E`, `A`\>
 
-Defined in: [adt/either.ts:147](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/either.ts#L147)
+Defined in: [adt/either.ts:147](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/either.ts#L147)
 
 Effectful construction with error capture.
 

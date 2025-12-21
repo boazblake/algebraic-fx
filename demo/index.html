@@ -9,14 +9,26 @@
     />
     <title>algebraic-fx demo</title>
     <style>
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 16px; }
-      button { padding: 6px 10px; }
-      .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-      .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; margin: 12px 0; }
-      .muted { opacity: 0.7; }
-      .error { color: #b00020; }
-      input { padding: 6px 10px; }
-      ul { margin: 8px 0 0; padding-left: 18px; }
+  :root { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  body { margin: 0; padding: 16px; background: #0b0f14; color: #e8eef6; }
+  h1, h2 { margin: 0 0 8px 0; }
+  button, input { background: #141c26; color: #e8eef6; border: 1px solid #263445; border-radius: 10px; padding: 8px 10px; }
+  button { cursor: pointer; }
+  button:disabled { opacity: 0.6; cursor: default; }
+  button.small { padding: 6px 8px; border-radius: 8px; }
+  input { width: 100%; }
+  .app { max-width: 1100px; margin: 0 auto; }
+  header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  @media (min-width: 900px) { .grid { grid-template-columns: 1fr 1fr; } }
+  .card { background: #0f1722; border: 1px solid #223044; border-radius: 16px; padding: 12px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .big { font-size: 22px; min-width: 48px; text-align: center; }
+  .muted { opacity: 0.75; }
+  .error { color: #ff9aa6; white-space: pre-wrap; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th, td { border-bottom: 1px solid #223044; padding: 8px; text-align: left; }
+  th { opacity: 0.8; font-weight: 600; }
     </style>
   </head>
   <body>

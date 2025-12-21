@@ -1,133 +1,99 @@
 // src/helpers/http-task.ts
 
 import type { Reader as ReaderT } from "../adt/reader.js";
-import { Reader } from "../adt/reader.js";
+import { ReaderModule as Reader } from "../adt/reader.js";
 
 import type { Task as TaskT } from "../adt/task.js";
 import { TaskModule as Task } from "../adt/task.js";
 
-import type { Either } from "../adt/either.js";
-import { isLeft } from "../adt/either.js";
+/* ============================================================================
+ * Types
+ * ========================================================================== */
 
-/**
- * Default structured HTTP error produced by httpTask.
- *
- * All errors are normalized into this shape so callers do not
- * need to handle heterogeneous error types.
- */
-export type DefaultHttpError = {
-  _tag: "DefaultHttpError";
-  /** HTTP status code, or null if unavailable (network / decode error). */
-  status: number | null;
-  /** Human-readable error message. */
-  message: string;
-  /** Fully resolved request URL. */
-  url: string;
-  /** Optional underlying error (for debugging). */
-  cause?: unknown;
-};
-
-/**
- * Environment required by httpTask.
- *
- * This is intentionally minimal and must be supplied by the application.
- */
 export type HttpEnv = {
-  /** Base URL prepended to all request paths. */
   baseUrl: string;
-  /** Fetch implementation (usually window.fetch). */
   fetch: typeof fetch;
 };
 
-const makeError = (
-  url: string,
-  status: number | null,
-  message: string,
-  cause?: unknown
-): DefaultHttpError => ({
-  _tag: "DefaultHttpError",
-  status,
-  message,
-  url,
-  cause,
-});
+export type HttpError = {
+  _tag: "HttpError";
+  status: number | null;
+  message: string;
+  url: string;
+  cause?: unknown;
+};
+
+/* ============================================================================
+ * httpTask
+ * ========================================================================== */
 
 /**
- * Construct an HTTP Task wrapped in a Reader.
+ * HTTP effect that ALWAYS resolves to a Msg.
  *
- * IMPORTANT:
- * - httpTask DOES NOT dispatch messages.
- * - It returns Reader<Env, Task<E, A>>.
- * - The caller MUST map the Task result into Msg.
- *
- * @typeParam E Domain-specific decode error type
- * @typeParam A Decoded success value
- *
- * @param path Relative request path (appended to env.baseUrl)
- * @param decode Optional decoder transforming JSON into Either<E, A>
- * @param mapError Optional error mapper for DefaultHttpError or decode errors
- *
- * @returns Reader that produces a Task when run with HttpEnv
- *
- * @example
- * const fetchUsers =
- *   httpTask("/users", decodeUsers)
- *     .map(task =>
- *       task.map(users => ({ type: "UsersFetched", users }))
- *     );
+ * - Reader injects HttpEnv
+ * - Task NEVER fails (E = never)
+ * - All failures are mapped into Msg in the Promise itself
  */
-export const httpTask = <E = never, A = never>(
+export const httpTask = <Msg>(
   path: string,
-  decode?: (data: unknown) => Either<E, A>,
-  mapError: (err: DefaultHttpError | E) => DefaultHttpError | E = (e) => e
-): ReaderT<HttpEnv, TaskT<DefaultHttpError | E, A>> =>
-  Reader((env: HttpEnv) => {
-    const url = env.baseUrl + path;
+  onSuccess: (data: unknown) => Msg,
+  onError: (err: HttpError) => Msg
+): ReaderT<HttpEnv, TaskT<never, Msg>> =>
+  Reader.of(
+    Task.fromPromise<never, Msg>(
+      () => fetchPromise(path, onSuccess, onError),
+      unreachable
+    )
+  );
 
-    return Task.fromPromise<DefaultHttpError | E, A>(
-      async () => {
-        const res = await env.fetch(url);
+/* ============================================================================
+ * Internal helpers
+ * ========================================================================== */
 
-        if (!res.ok) {
-          throw makeError(
-            url,
-            res.status,
-            `HTTP ${res.status} ${res.statusText}`
-          );
-        }
+const unreachable = (_: unknown): never => {
+  throw new Error("Unreachable: Task<never, Msg> rejected");
+};
 
-        let json: unknown;
-        try {
-          json = await res.json();
-        } catch (e) {
-          throw makeError(url, res.status, "Failed to parse JSON response", e);
-        }
+const fetchPromise = async <Msg>(
+  path: string,
+  onSuccess: (data: unknown) => Msg,
+  onError: (err: HttpError) => Msg
+): Promise<Msg> => {
+  const url = path;
 
-        if (!decode) {
-          return json as A;
-        }
+  try {
+    const res = await fetch(url);
 
-        const decoded = decode(json);
-        if (isLeft(decoded)) {
-          throw decoded.left;
-        }
+    if (!res.ok) {
+      return onError({
+        _tag: "HttpError",
+        status: res.status,
+        message: `HTTP ${res.status} ${res.statusText}`,
+        url,
+      });
+    }
 
-        return decoded.right;
-      },
+    let json: unknown;
+    try {
+      json = await res.json();
+    } catch (e) {
+      return onError({
+        _tag: "HttpError",
+        status: res.status,
+        message: "Failed to parse JSON response",
+        url,
+        cause: e,
+      });
+    }
 
-      (err: unknown) => {
-        if (err && (err as any)._tag === "DefaultHttpError") {
-          return mapError(err as DefaultHttpError);
-        }
-
-        return mapError(
-          makeError(
-            url,
-            null,
-            err instanceof Error ? err.message : String(err),
-            err
-          )
-        );
-      }
-    );
-  });
+    return onSuccess(json);
+  } catch (e) {
+    return onError({
+      _tag: "HttpError",
+      status: null,
+      message: e instanceof Error ? e.message : String(e),
+      url,
+      cause: e,
+    });
+  }
+};

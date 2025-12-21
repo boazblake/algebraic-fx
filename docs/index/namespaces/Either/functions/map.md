@@ -8,7 +8,7 @@
 
 > **map**\<`E`, `A`, `B`\>(`fa`, `f`): [`Either`](../type-aliases/Either.md)\<`E`, `B`\>
 
-Defined in: [adt/either.ts:42](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/either.ts#L42)
+Defined in: [adt/either.ts:42](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/either.ts#L42)
 
 Functor map.
 

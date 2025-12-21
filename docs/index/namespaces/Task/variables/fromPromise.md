@@ -8,7 +8,7 @@
 
 > `const` **fromPromise**: \<`E`, `A`\>(`thunk`, `onError`) => [`Task`](../interfaces/Task.md)\<`E`, `A`\> = `TaskModule.fromPromise`
 
-Defined in: [adt/task.ts:182](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/task.ts#L182)
+Defined in: [adt/task.ts:182](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/task.ts#L182)
 
 ## Type Parameters
 

@@ -8,7 +8,7 @@
 
 > **listen**\<`W`, `A`\>(`wa`): [`Writer`](../type-aliases/Writer.md)\<`W`, \[`A`, `W`\]\>
 
-Defined in: [adt/writer.ts:99](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/writer.ts#L99)
+Defined in: [adt/writer.ts:99](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/writer.ts#L99)
 
 listen: produce [value, log] as value, keep same log.
 

@@ -8,7 +8,7 @@
 
 > **DomEnv** = `object`
 
-Defined in: [env/dom-env.ts:1](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/env/dom-env.ts#L1)
+Defined in: [env/dom-env.ts:1](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/env/dom-env.ts#L1)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [env/dom-env.ts:1](https://github.com/boazblake/algebraic-fx/blob/82
 
 > **document**: `Document`
 
-Defined in: [env/dom-env.ts:2](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/env/dom-env.ts#L2)
+Defined in: [env/dom-env.ts:2](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/env/dom-env.ts#L2)
 
 ***
 
@@ -24,4 +24,4 @@ Defined in: [env/dom-env.ts:2](https://github.com/boazblake/algebraic-fx/blob/82
 
 > **window**: `Window`
 
-Defined in: [env/dom-env.ts:3](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/env/dom-env.ts#L3)
+Defined in: [env/dom-env.ts:3](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/env/dom-env.ts#L3)

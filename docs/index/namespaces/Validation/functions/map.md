@@ -8,7 +8,7 @@
 
 > **map**\<`A`, `B`\>(`f`): \<`E`\>(`fa`) => [`Validation`](../type-aliases/Validation.md)\<`E`, `B`\>
 
-Defined in: [adt/validation.ts:51](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/validation.ts#L51)
+Defined in: [adt/validation.ts:51](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/validation.ts#L51)
 
 ## Type Parameters
 

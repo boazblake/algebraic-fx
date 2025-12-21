@@ -6,7 +6,7 @@
 
 # Interface: Identity\<A\>
 
-Defined in: [adt/id.ts:4](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/id.ts#L4)
+Defined in: [adt/id.ts:4](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/id.ts#L4)
 
 ## Type Parameters
 
@@ -20,7 +20,7 @@ Defined in: [adt/id.ts:4](https://github.com/boazblake/algebraic-fx/blob/826d025
 
 > `readonly` **\_tag**: `"ID"`
 
-Defined in: [adt/id.ts:5](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/id.ts#L5)
+Defined in: [adt/id.ts:5](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/id.ts#L5)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [adt/id.ts:5](https://github.com/boazblake/algebraic-fx/blob/826d025
 
 > `readonly` **\[fl\_ap\]**: \<`B`\>(`fab`) => `Identity`\<`B`\>
 
-Defined in: [adt/id.ts:15](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/id.ts#L15)
+Defined in: [adt/id.ts:15](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/id.ts#L15)
 
 #### Type Parameters
 
@@ -52,7 +52,7 @@ Defined in: [adt/id.ts:15](https://github.com/boazblake/algebraic-fx/blob/826d02
 
 > `readonly` **\[fl\_chain\]**: \<`B`\>(`f`) => `Identity`\<`B`\>
 
-Defined in: [adt/id.ts:14](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/id.ts#L14)
+Defined in: [adt/id.ts:14](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/id.ts#L14)
 
 #### Type Parameters
 
@@ -76,7 +76,7 @@ Defined in: [adt/id.ts:14](https://github.com/boazblake/algebraic-fx/blob/826d02
 
 > `readonly` **\[fl\_map\]**: \<`B`\>(`f`) => `Identity`\<`B`\>
 
-Defined in: [adt/id.ts:13](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/id.ts#L13)
+Defined in: [adt/id.ts:13](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/id.ts#L13)
 
 #### Type Parameters
 
@@ -100,7 +100,7 @@ Defined in: [adt/id.ts:13](https://github.com/boazblake/algebraic-fx/blob/826d02
 
 > **ap**: \<`B`\>(`fab`) => `Identity`\<`B`\>
 
-Defined in: [adt/id.ts:11](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/id.ts#L11)
+Defined in: [adt/id.ts:11](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/id.ts#L11)
 
 #### Type Parameters
 
@@ -124,7 +124,7 @@ Defined in: [adt/id.ts:11](https://github.com/boazblake/algebraic-fx/blob/826d02
 
 > **chain**: \<`B`\>(`f`) => `Identity`\<`B`\>
 
-Defined in: [adt/id.ts:10](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/id.ts#L10)
+Defined in: [adt/id.ts:10](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/id.ts#L10)
 
 #### Type Parameters
 
@@ -148,7 +148,7 @@ Defined in: [adt/id.ts:10](https://github.com/boazblake/algebraic-fx/blob/826d02
 
 > **map**: \<`B`\>(`f`) => `Identity`\<`B`\>
 
-Defined in: [adt/id.ts:9](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/id.ts#L9)
+Defined in: [adt/id.ts:9](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/id.ts#L9)
 
 #### Type Parameters
 
@@ -172,7 +172,7 @@ Defined in: [adt/id.ts:9](https://github.com/boazblake/algebraic-fx/blob/826d025
 
 > `readonly` **run**: () => `A`
 
-Defined in: [adt/id.ts:7](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/id.ts#L7)
+Defined in: [adt/id.ts:7](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/id.ts#L7)
 
 #### Returns
 
@@ -184,4 +184,4 @@ Defined in: [adt/id.ts:7](https://github.com/boazblake/algebraic-fx/blob/826d025
 
 > `readonly` **value**: `A`
 
-Defined in: [adt/id.ts:6](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/id.ts#L6)
+Defined in: [adt/id.ts:6](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/id.ts#L6)

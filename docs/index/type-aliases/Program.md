@@ -8,7 +8,7 @@
 
 > **Program**\<`M`, `Msg`, `Env`\> = `object`
 
-Defined in: [core/types.ts:109](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/types.ts#L109)
+Defined in: [core/types.ts:109](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/types.ts#L109)
 
 Program<M, Msg, Env>
 
@@ -50,7 +50,7 @@ All effects are described as data and interpreted by the runtime.
 
 > **init**: [`IO`](../namespaces/IO/interfaces/IO.md)\<\{ `effects`: [`RawEffect`](RawEffect.md)\<`Env`, `Msg`\>[]; `model`: `M`; \}\>
 
-Defined in: [core/types.ts:110](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/types.ts#L110)
+Defined in: [core/types.ts:110](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/types.ts#L110)
 
 ***
 
@@ -58,7 +58,7 @@ Defined in: [core/types.ts:110](https://github.com/boazblake/algebraic-fx/blob/8
 
 > **update**: (`msg`, `model`, `dispatch`) => `object`
 
-Defined in: [core/types.ts:112](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/types.ts#L112)
+Defined in: [core/types.ts:112](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/types.ts#L112)
 
 #### Parameters
 
@@ -92,7 +92,7 @@ Defined in: [core/types.ts:112](https://github.com/boazblake/algebraic-fx/blob/8
 
 > **view**: (`model`, `dispatch`) => [`VChild`](VChild.md) \| [`VChild`](VChild.md)[]
 
-Defined in: [core/types.ts:118](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/types.ts#L118)
+Defined in: [core/types.ts:118](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/types.ts#L118)
 
 #### Parameters
 

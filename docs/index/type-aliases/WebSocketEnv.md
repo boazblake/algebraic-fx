@@ -8,7 +8,7 @@
 
 > **WebSocketEnv** = `object`
 
-Defined in: [helpers/ws-task.ts:17](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/helpers/ws-task.ts#L17)
+Defined in: [helpers/ws-task.ts:17](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/helpers/ws-task.ts#L17)
 
 Environment required to construct WebSocket connections.
 
@@ -23,7 +23,7 @@ This is intentionally abstract to allow:
 
 > **makeWebSocket**: (`url`) => `WebSocket`
 
-Defined in: [helpers/ws-task.ts:19](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/helpers/ws-task.ts#L19)
+Defined in: [helpers/ws-task.ts:19](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/helpers/ws-task.ts#L19)
 
 Factory for creating a WebSocket instance.
 

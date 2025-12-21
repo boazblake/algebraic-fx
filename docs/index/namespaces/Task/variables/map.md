@@ -8,7 +8,7 @@
 
 > `const` **map**: \<`E`, `A`, `B`\>(`f`) => (`fa`) => [`Task`](../interfaces/Task.md)\<`E`, `B`\> = `TaskModule.map`
 
-Defined in: [adt/task.ts:177](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/task.ts#L177)
+Defined in: [adt/task.ts:177](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/task.ts#L177)
 
 ## Type Parameters
 

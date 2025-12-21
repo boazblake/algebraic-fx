@@ -8,7 +8,7 @@
 
 > **wsTask**\<`E`\>(`url`, `onError?`): [`Reader`](../namespaces/Reader/interfaces/Reader.md)\<[`WebSocketEnv`](../type-aliases/WebSocketEnv.md), [`Task`](../namespaces/Task/interfaces/Task.md)\<`E`, `WebSocket`\>\>
 
-Defined in: [helpers/ws-task.ts:44](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/helpers/ws-task.ts#L44)
+Defined in: [helpers/ws-task.ts:44](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/helpers/ws-task.ts#L44)
 
 Construct a Task that opens a WebSocket connection.
 

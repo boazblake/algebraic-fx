@@ -6,7 +6,7 @@
 
 # Interface: State\<S, A\>
 
-Defined in: [adt/state.ts:3](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/state.ts#L3)
+Defined in: [adt/state.ts:3](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/state.ts#L3)
 
 ## Type Parameters
 
@@ -24,7 +24,7 @@ Defined in: [adt/state.ts:3](https://github.com/boazblake/algebraic-fx/blob/826d
 
 > `readonly` **\_tag**: `"State"`
 
-Defined in: [adt/state.ts:4](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/state.ts#L4)
+Defined in: [adt/state.ts:4](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/state.ts#L4)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [adt/state.ts:4](https://github.com/boazblake/algebraic-fx/blob/826d
 
 > `readonly` **\[fl\_ap\]**: \<`B`\>(`sf`) => `State`\<`S`, `B`\>
 
-Defined in: [adt/state.ts:9](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/state.ts#L9)
+Defined in: [adt/state.ts:9](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/state.ts#L9)
 
 #### Type Parameters
 
@@ -56,7 +56,7 @@ Defined in: [adt/state.ts:9](https://github.com/boazblake/algebraic-fx/blob/826d
 
 > `readonly` **\[fl\_chain\]**: \<`B`\>(`f`) => `State`\<`S`, `B`\>
 
-Defined in: [adt/state.ts:8](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/state.ts#L8)
+Defined in: [adt/state.ts:8](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/state.ts#L8)
 
 #### Type Parameters
 
@@ -80,7 +80,7 @@ Defined in: [adt/state.ts:8](https://github.com/boazblake/algebraic-fx/blob/826d
 
 > `readonly` **\[fl\_map\]**: \<`B`\>(`f`) => `State`\<`S`, `B`\>
 
-Defined in: [adt/state.ts:7](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/state.ts#L7)
+Defined in: [adt/state.ts:7](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/state.ts#L7)
 
 #### Type Parameters
 
@@ -104,7 +104,7 @@ Defined in: [adt/state.ts:7](https://github.com/boazblake/algebraic-fx/blob/826d
 
 > `readonly` **run**: (`s`) => \[`A`, `S`\]
 
-Defined in: [adt/state.ts:5](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/state.ts#L5)
+Defined in: [adt/state.ts:5](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/state.ts#L5)
 
 #### Parameters
 

@@ -8,7 +8,7 @@
 
 > **Listener**\<`A`\> = (`value`) => `void`
 
-Defined in: [adt/stream.ts:4](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/stream.ts#L4)
+Defined in: [adt/stream.ts:4](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/stream.ts#L4)
 
 ## Type Parameters
 

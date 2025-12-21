@@ -8,7 +8,7 @@
 
 > **match**\<`E`, `A`, `B`\>(`onLeft`, `onRight`): (`fa`) => `B`
 
-Defined in: [adt/either.ts:108](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/either.ts#L108)
+Defined in: [adt/either.ts:108](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/either.ts#L108)
 
 Pattern match.
 

@@ -8,11 +8,7 @@
 
 > **HttpEnv** = `object`
 
-Defined in: [helpers/http-task.ts:35](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/helpers/http-task.ts#L35)
-
-Environment required by httpTask.
-
-This is intentionally minimal and must be supplied by the application.
+Defined in: [helpers/http-task.ts:13](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/helpers/http-task.ts#L13)
 
 ## Properties
 
@@ -20,9 +16,7 @@ This is intentionally minimal and must be supplied by the application.
 
 > **baseUrl**: `string`
 
-Defined in: [helpers/http-task.ts:37](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/helpers/http-task.ts#L37)
-
-Base URL prepended to all request paths.
+Defined in: [helpers/http-task.ts:14](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/helpers/http-task.ts#L14)
 
 ***
 
@@ -30,6 +24,4 @@ Base URL prepended to all request paths.
 
 > **fetch**: *typeof* `fetch`
 
-Defined in: [helpers/http-task.ts:39](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/helpers/http-task.ts#L39)
-
-Fetch implementation (usually window.fetch).
+Defined in: [helpers/http-task.ts:15](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/helpers/http-task.ts#L15)

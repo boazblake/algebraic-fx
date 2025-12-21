@@ -6,7 +6,7 @@
 
 # Interface: Effect\<Env, Msg\>
 
-Defined in: [core/effects.ts:33](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/effects.ts#L33)
+Defined in: [core/effects.ts:33](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/effects.ts#L33)
 
 Long-lived effect (subscriptions, streams, listeners, etc).
 
@@ -31,7 +31,7 @@ Cleanup functions are invoked when the effect is disposed.
 
 > `readonly` **\[EffectBrand\]**: `true`
 
-Defined in: [core/effects.ts:34](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/effects.ts#L34)
+Defined in: [core/effects.ts:34](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/effects.ts#L34)
 
 ## Methods
 
@@ -39,7 +39,7 @@ Defined in: [core/effects.ts:34](https://github.com/boazblake/algebraic-fx/blob/
 
 > **run**(`env`, `dispatch`): `void` \| () => `void`
 
-Defined in: [core/effects.ts:35](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/effects.ts#L35)
+Defined in: [core/effects.ts:35](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/effects.ts#L35)
 
 #### Parameters
 

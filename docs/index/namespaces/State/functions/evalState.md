@@ -8,7 +8,7 @@
 
 > **evalState**\<`S`, `A`\>(`sa`, `s`): `A`
 
-Defined in: [adt/state.ts:77](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/adt/state.ts#L77)
+Defined in: [adt/state.ts:77](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/state.ts#L77)
 
 ## Type Parameters
 

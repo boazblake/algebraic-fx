@@ -8,7 +8,7 @@
 
 > **Props** = `Record`\<`string`, `any`\> & `object`
 
-Defined in: [core/types.ts:36](https://github.com/boazblake/algebraic-fx/blob/826d02590af9eca22bdc84de6a66e66b29df7b7d/src/core/types.ts#L36)
+Defined in: [core/types.ts:36](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/types.ts#L36)
 
 Element attributes and properties.
 
