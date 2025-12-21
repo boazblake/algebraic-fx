@@ -8,7 +8,7 @@
 
 > **bimap**\<`E`, `A`, `F`, `B`\>(`fa`, `f`, `g`): [`Either`](../type-aliases/Either.md)\<`F`, `B`\>
 
-Defined in: [adt/either.ts:64](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/either.ts#L64)
+Defined in: [adt/either.ts:64](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/adt/either.ts#L64)
 
 Bimap over both sides.
 

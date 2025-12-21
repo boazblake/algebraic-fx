@@ -8,7 +8,7 @@
 
 > **of**\<`A`\>(`a`): [`IO`](../interfaces/IO.md)\<`A`\>
 
-Defined in: [adt/io.ts:40](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/io.ts#L40)
+Defined in: [adt/io.ts:40](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/adt/io.ts#L40)
 
 ## Type Parameters
 

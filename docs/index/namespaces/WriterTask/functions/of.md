@@ -8,7 +8,7 @@
 
 > **of**\<`W`, `E`, `A`\>(`m`, `a`, `w?`): [`WriterTask`](../type-aliases/WriterTask.md)\<`W`, `E`, `A`\>
 
-Defined in: [adt/writer-task.ts:19](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/writer-task.ts#L19)
+Defined in: [adt/writer-task.ts:19](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/adt/writer-task.ts#L19)
 
 ## Type Parameters
 

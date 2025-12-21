@@ -8,7 +8,7 @@
 
 > **isID**(`u`): `u is Identity<unknown>`
 
-Defined in: [adt/id.ts:66](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/id.ts#L66)
+Defined in: [adt/id.ts:66](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/adt/id.ts#L66)
 
 ## Parameters
 

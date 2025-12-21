@@ -8,7 +8,7 @@
 
 > `const` **ap**: \<`E`, `A`, `B`\>(`tf`) => (`tv`) => [`Task`](../interfaces/Task.md)\<`E`, `B`\> = `TaskModule.ap`
 
-Defined in: [adt/task.ts:179](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/task.ts#L179)
+Defined in: [adt/task.ts:179](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/adt/task.ts#L179)
 
 Applicative ap:
   ap(tf)(tv) ≡ tv.ap(tf)

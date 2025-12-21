@@ -6,7 +6,7 @@
 
 # Interface: Effect\<Env, Msg\>
 
-Defined in: [core/effects.ts:63](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/effects.ts#L63)
+Defined in: [core/effects.ts:63](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L63)
 
 Effect<Env, Msg>
 
@@ -41,7 +41,7 @@ They are returned as descriptions from `init` or `update`.
 
 > `readonly` **\[EffectBrand\]**: `true`
 
-Defined in: [core/effects.ts:64](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/effects.ts#L64)
+Defined in: [core/effects.ts:64](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L64)
 
 ## Methods
 
@@ -49,7 +49,7 @@ Defined in: [core/effects.ts:64](https://github.com/boazblake/algebraic-fx/blob/
 
 > **run**(`env`, `dispatch`): `void` \| () => `void`
 
-Defined in: [core/effects.ts:73](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/effects.ts#L73)
+Defined in: [core/effects.ts:73](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L73)
 
 Start the effect.
 

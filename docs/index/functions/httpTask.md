@@ -8,7 +8,7 @@
 
 > **httpTask**\<`E`, `A`\>(`path`, `decode?`, `mapError?`): [`Reader`](../namespaces/Reader/interfaces/Reader.md)\<[`HttpEnv`](../type-aliases/HttpEnv.md), [`Task`](../namespaces/Task/interfaces/Task.md)\<[`DefaultHttpError`](../type-aliases/DefaultHttpError.md) \| `E`, `A`\>\>
 
-Defined in: [helpers/http-task.ts:59](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/helpers/http-task.ts#L59)
+Defined in: [helpers/http-task.ts:59](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/helpers/http-task.ts#L59)
 
 HTTP helper producing Reader<HttpEnv, Task<E | DefaultHttpError, A>>
 

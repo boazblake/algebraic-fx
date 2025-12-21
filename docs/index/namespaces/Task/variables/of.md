@@ -8,7 +8,7 @@
 
 > `const` **of**: \<`E`, `A`\>(`a`) => [`Task`](../interfaces/Task.md)\<`E`, `A`\> = `TaskModule.of`
 
-Defined in: [adt/task.ts:175](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/task.ts#L175)
+Defined in: [adt/task.ts:175](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/adt/task.ts#L175)
 
 ## Type Parameters
 

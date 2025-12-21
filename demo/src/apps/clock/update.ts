@@ -1,57 +1,23 @@
+import type { Dispatch } from "algebraic-fx/core/types";
 import type { RawEffect } from "algebraic-fx/core/effects";
-import { sub } from "algebraic-fx/core/effects";
 import type { AppEnv } from "../../env";
-
-export type Msg =
-  | { type: "clock.start" }
-  | { type: "clock.stop" }
-  | { type: "clock.tick"; ms: number };
-
-export type Model = {
-  running: boolean;
-  nowMs: number;
-};
-
-const clockSub = (): RawEffect<AppEnv, Msg> =>
-  sub("clock", (env, dispatch) => {
-    let id = env.window.setInterval(() => {
-      dispatch({ type: "clock.tick", ms: env.now() });
-    }, 250);
-    return () => {
-      env.window.clearInterval(id);
-    };
-  });
+import type { Model, Msg } from "./model";
 
 export const update = (
   msg: Msg,
-  model: Model
+  model: Model,
+  _dispatch: Dispatch<Msg>
 ): { model: Model; effects: RawEffect<AppEnv, Msg>[] } => {
   switch (msg.type) {
-    case "clock.start": {
+    case "clock.start":
       if (model.running) return { model, effects: [] };
+      return { model: { ...model, running: true }, effects: [] };
 
-      const next = { ...model, running: true };
-      return {
-        model: next,
-        effects: [clockSub()],
-      };
-    }
+    case "clock.stop":
+      if (!model.running) return { model, effects: [] };
+      return { model: { ...model, running: false }, effects: [] };
 
-    case "clock.stop": {
-      const next = { ...model, running: false };
-      return {
-        model: next,
-        effects: [],
-      };
-    }
-
-    case "clock.tick": {
-      const next = { ...model, nowMs: msg.ms };
-
-      return {
-        model: next,
-        effects: model.running ? [clockSub()] : [],
-      };
-    }
+    case "clock.tick":
+      return { model: { ...model, nowMs: msg.ms }, effects: [] };
   }
 };

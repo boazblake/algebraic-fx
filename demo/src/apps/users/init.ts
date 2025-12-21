@@ -4,12 +4,7 @@ import type { RawEffect } from "algebraic-fx/core/effects";
 import type { AppEnv } from "../../env";
 import type { Msg } from "./update";
 
-export type User = {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-};
+export type User = string;
 
 export type Model = {
   users: User[];

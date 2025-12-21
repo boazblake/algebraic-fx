@@ -14,7 +14,7 @@
 
 import type { IO } from "../adt/io.js";
 import type { Reader } from "../adt/reader.js";
-import type { RawEffect } from "./effects.js";
+import type { RawEffect, Subscription } from "./effects.js";
 
 /* ============================================================================
  * Virtual DOM
@@ -90,21 +90,99 @@ export type Payload<T extends string, M extends object = {}> = {
  *
  * A pure description of an application.
  *
- * A Program consists of:
+ * A Program is **not** executed directly. It is a declarative specification
+ * that is interpreted by the algebraic-fx runtime (`renderApp`).
  *
- *  - init:
- *      An IO that produces the initial model and initial effects.
+ * A Program consists of four parts:
  *
- *  - update:
- *      A pure function that transforms (Msg, Model) into:
- *        - a new Model
- *        - a list of RawEffect values
+ * ---------------------------------------------------------------------------
+ * init
+ * ---------------------------------------------------------------------------
  *
- *  - view:
- *      A pure function that renders the Model into a virtual DOM tree.
+ * An `IO` action that produces:
+ *  - the initial application model
+ *  - an initial list of one-shot effects
  *
- * Programs do not perform effects directly.
- * All effects are described as data and interpreted by the runtime.
+ * `init` is executed exactly once by the runtime at application startup.
+ *
+ * It must be pure and deterministic.
+ *
+ * ---------------------------------------------------------------------------
+ * update
+ * ---------------------------------------------------------------------------
+ *
+ * A pure state transition function:
+ *
+ *   (msg, model, dispatch) -> { model, effects }
+ *
+ * Given:
+ *  - a message (`Msg`)
+ *  - the current model (`M`)
+ *  - a dispatch function (for advanced coordination cases)
+ *
+ * it returns:
+ *  - a new model
+ *  - a list of **one-shot effects** (`RawEffect`)
+ *
+ * Important:
+ *  - `update` MUST NOT perform side effects directly
+ *  - it only *describes* effects as data
+ *  - returned effects are interpreted by the runtime
+ *
+ * ---------------------------------------------------------------------------
+ * view
+ * ---------------------------------------------------------------------------
+ *
+ * A pure rendering function:
+ *
+ *   (model, dispatch) -> VNode
+ *
+ * It transforms the current model into a virtual DOM tree.
+ *
+ * The runtime is responsible for reconciling this tree into the real DOM.
+ *
+ * ---------------------------------------------------------------------------
+ * subs (optional)
+ * ---------------------------------------------------------------------------
+ *
+ * A pure function that describes **long-lived subscriptions**:
+ *
+ *   (model) -> Subscription[]
+ *
+ * Subscriptions are:
+ *  - persistent over time
+ *  - keyed by identity
+ *  - started and stopped automatically by the runtime
+ *
+ * This mirrors Elm’s `subscriptions`:
+ *
+ *  - When a subscription appears, the runtime starts it
+ *  - When it disappears, the runtime cleans it up
+ *  - Re-rendering does NOT restart subscriptions
+ *
+ * `subs` must:
+ *  - depend only on the model
+ *  - return the same keys for logically identical subscriptions
+ *
+ * ---------------------------------------------------------------------------
+ * Semantics Summary
+ * ---------------------------------------------------------------------------
+ *
+ *  - `init`  → initial Cmd-like effects
+ *  - `update` → one-shot Cmd-like effects
+ *  - `subs`  → long-lived Sub-like effects
+ *  - `view`  → pure rendering
+ *
+ * Programs never run effects themselves.
+ * The runtime owns:
+ *  - effect execution
+ *  - subscription lifetimes
+ *  - cleanup
+ *
+ * This separation guarantees:
+ *  - determinism
+ *  - testability
+ *  - correct subscription behavior
  */
 export type Program<M, Msg, Env> = {
   init: IO<{ model: M; effects: RawEffect<Env, Msg>[] }>;
@@ -116,4 +194,12 @@ export type Program<M, Msg, Env> = {
   ) => { model: M; effects: RawEffect<Env, Msg>[] };
 
   view: (model: M, dispatch: Dispatch<Msg>) => VChild | VChild[];
+
+  /**
+   * Describe long-lived subscriptions derived from the current model.
+   *
+   * This function is optional.
+   * If omitted, the program has no subscriptions.
+   */
+  subs?: (model: M) => Subscription<Env, Msg>[];
 };

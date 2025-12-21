@@ -2,11 +2,7 @@ import type { RawEffect } from "algebraic-fx/core/effects";
 import { fx } from "algebraic-fx";
 import type { AppEnv } from "../../env";
 
-export type User = {
-  id: number;
-  name: string;
-  email: string;
-};
+export type User = string;
 
 export type Msg =
   | { type: "users.fetch" }

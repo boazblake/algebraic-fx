@@ -8,7 +8,7 @@
 
 > **Subscription**\<`Env`, `Msg`\> = `object`
 
-Defined in: [core/effects.ts:115](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/effects.ts#L115)
+Defined in: [core/effects.ts:115](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L115)
 
 Subscription<Env, Msg>
 
@@ -41,7 +41,7 @@ Subscriptions are DECLARED here but INTERPRETED by the runtime.
 
 > `readonly` **\_tag**: `"Subscription"`
 
-Defined in: [core/effects.ts:116](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/effects.ts#L116)
+Defined in: [core/effects.ts:116](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L116)
 
 ***
 
@@ -49,7 +49,7 @@ Defined in: [core/effects.ts:116](https://github.com/boazblake/algebraic-fx/blob
 
 > `readonly` **effect**: [`Effect`](../interfaces/Effect.md)\<`Env`, `Msg`\>
 
-Defined in: [core/effects.ts:118](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/effects.ts#L118)
+Defined in: [core/effects.ts:118](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L118)
 
 ***
 
@@ -57,4 +57,4 @@ Defined in: [core/effects.ts:118](https://github.com/boazblake/algebraic-fx/blob
 
 > `readonly` **key**: `string`
 
-Defined in: [core/effects.ts:117](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/effects.ts#L117)
+Defined in: [core/effects.ts:117](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L117)

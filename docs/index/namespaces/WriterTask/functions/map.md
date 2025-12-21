@@ -8,7 +8,7 @@
 
 > **map**\<`W`, `E`, `A`, `B`\>(`wa`, `f`): [`WriterTask`](../type-aliases/WriterTask.md)\<`W`, `E`, `B`\>
 
-Defined in: [adt/writer-task.ts:31](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/writer-task.ts#L31)
+Defined in: [adt/writer-task.ts:31](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/adt/writer-task.ts#L31)
 
 ## Type Parameters
 

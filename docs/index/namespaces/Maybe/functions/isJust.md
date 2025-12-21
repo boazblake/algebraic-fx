@@ -8,7 +8,7 @@
 
 > **isJust**\<`A`\>(`m`): `m is Just<A>`
 
-Defined in: [adt/maybe.ts:22](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/maybe.ts#L22)
+Defined in: [adt/maybe.ts:22](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/adt/maybe.ts#L22)
 
 ## Type Parameters
 

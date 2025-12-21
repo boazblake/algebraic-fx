@@ -8,7 +8,7 @@
 
 > **chain**\<`A`, `B`\>(`f`): \<`R`\>(`fa`) => [`Reader`](../interfaces/Reader.md)\<`R`, `B`\>
 
-Defined in: [adt/reader.ts:121](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/reader.ts#L121)
+Defined in: [adt/reader.ts:121](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/adt/reader.ts#L121)
 
 ## Type Parameters
 

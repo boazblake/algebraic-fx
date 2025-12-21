@@ -19,7 +19,7 @@ export type Msg =
 export const update = (
   msg: Msg,
   model: Model,
-  _dispatch: Dispatch<Msg>
+  dispatch: Dispatch<Msg>
 ): { model: Model; effects: RawEffect<AppEnv, Msg>[] } => {
   switch (msg.type) {
     case "quotes.fetch":

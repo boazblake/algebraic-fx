@@ -8,7 +8,7 @@
 
 > **isState**(`u`): `u is State<any, any>`
 
-Defined in: [adt/state.ts:81](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/state.ts#L81)
+Defined in: [adt/state.ts:81](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/adt/state.ts#L81)
 
 ## Parameters
 
