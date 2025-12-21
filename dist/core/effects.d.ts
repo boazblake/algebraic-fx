@@ -3,102 +3,145 @@ import type { Reader } from "../adt/reader.js";
 import type { Task } from "../adt/task.js";
 import type { Dispatch } from "./types.js";
 /**
- * Effect interpreter and runtime side-effect model for algebraic-fx.
+ * Effect system for algebraic-fx.
  *
- * This module defines:
- *  - the Effect abstraction for long-lived subscriptions
- *  - the RawEffect union type accepted by Program.init and Program.update
- *  - the runtime interpreter for executing effects
+ * This module defines the **side-effect description layer** of the framework.
  *
- * Effects in algebraic-fx are *descriptions*, not executions.
- * They are returned as data from Programs and interpreted by the runtime.
+ * IMPORTANT ARCHITECTURAL RULES:
+ *
+ * - Effects are **data**, not executions
+ * - This module is **stateless**
+ * - Subscription lifecycle is NOT handled here
+ *
+ * Conceptual split (mirrors Elm):
+ *
+ *   Cmd  → runEffects (this file)
+ *   Sub  → renderApp runtime (stateful)
+ *
+ * This file:
+ *   ✔ defines Effect and Subscription
+ *   ✔ interprets one-shot effects
+ *   ✘ does NOT track subscriptions
  */
 /**
- * Brand for runtime managed Effect objects.
+ * Internal brand for Effect values.
+ *
+ * Prevents accidental structural matching.
  */
 declare const EffectBrand: unique symbol;
 /**
- * Long-lived effect (subscriptions, streams, listeners, etc).
+ * Effect<Env, Msg>
  *
- * Effects represent *ongoing* side effects that may produce messages over time.
- * They are executed by the runtime and may optionally return a cleanup function.
+ * A long-lived, runtime-managed side effect.
  *
- * Cleanup functions are invoked when the effect is disposed.
+ * Effects represent **ongoing processes** such as:
+ *  - timers
+ *  - event listeners
+ *  - polling loops
+ *
+ * Effects:
+ *  - are started by the runtime
+ *  - receive `env` and `dispatch`
+ *  - may return a cleanup function
+ *
+ * Effects are NOT executed immediately.
+ * They are returned as descriptions from `init` or `update`.
  */
 export interface Effect<Env, Msg> {
     readonly [EffectBrand]: true;
+    /**
+     * Start the effect.
+     *
+     * @param env Runtime environment
+     * @param dispatch Message dispatcher
+     * @returns Optional cleanup function
+     */
     run(env: Env, dispatch: Dispatch<Msg>): void | (() => void);
 }
 /**
  * Construct a branded Effect.
  *
- * This helper hides the internal Effect brand and provides a safe way
- * to define long-lived effects such as subscriptions or listeners.
+ * Hides the internal brand and provides a safe constructor
+ * for long-lived effects.
  *
- * The provided implementation is invoked with the runtime environment
- * and dispatch function.
+ * @example
+ * fx((env, dispatch) => {
+ *   const id = setInterval(() => dispatch({ type: "Tick" }), 1000)
+ *   return () => clearInterval(id)
+ * })
  */
 export declare const fx: <Env, Msg>(impl: (env: Env, dispatch: Dispatch<Msg>) => void | (() => void)) => Effect<Env, Msg>;
 /**
- * RawEffect represents any side-effect description a Program may emit.
+ * Subscription<Env, Msg>
  *
- * RawEffects are *data*, not executions.
- * They are interpreted by the runtime after each update and during init.
+ * A keyed, long-lived Effect whose lifecycle is managed
+ * by the runtime (`renderApp`).
  *
- * Supported forms:
+ * Subscriptions:
+ *  - persist across renders
+ *  - are started once per key
+ *  - are cleaned up automatically when removed
  *
+ * This mirrors Elm's `Sub`.
+ *
+ * NOTE:
+ * Subscriptions are DECLARED here but INTERPRETED by the runtime.
+ */
+export type Subscription<Env, Msg> = {
+    readonly _tag: "Subscription";
+    readonly key: string;
+    readonly effect: Effect<Env, Msg>;
+};
+/**
+ * Construct a Subscription.
+ *
+ * @param key Stable identity for the subscription
+ * @param impl Effect body (may return cleanup)
+ *
+ * @example
+ * sub("clock", (env, dispatch) => {
+ *   const id = setInterval(() => dispatch({ type: "Tick" }), 1000)
+ *   return () => clearInterval(id)
+ * })
+ */
+export declare const sub: <Env, Msg>(key: string, impl: (env: Env, dispatch: Dispatch<Msg>) => void | (() => void)) => Subscription<Env, Msg>;
+/**
+ * Type guard for Subscription.
+ */
+export declare const isSubscription: <Env, Msg>(u: unknown) => u is Subscription<Env, Msg>;
+/**
+ * RawEffect<Env, Msg>
+ *
+ * The complete set of values that may be returned from `init` or `update`.
+ *
+ * RawEffects are **descriptions**, not executions.
+ *
+ * Categories:
+ *
+ * One-shot effects (Cmd-like):
  *  - Msg
- *      Dispatches the message immediately.
- *
  *  - IO<Msg | void>
- *      Executed synchronously.
- *      If a Msg is returned, it is dispatched.
- *
  *  - Reader<Env, IO<Msg | void>>
- *      Environment-dependent synchronous effect.
- *
  *  - Task<E, Msg | void>
- *      Fire-and-forget asynchronous computation.
- *      Only successful results are dispatched.
- *
  *  - Reader<Env, Task<E, Msg | void>>
- *      Environment-dependent asynchronous computation.
  *
+ * Long-lived effects (Sub-like):
  *  - Effect<Env, Msg>
- *      Long-lived subscription effect with optional cleanup.
+ *  - Subscription<Env, Msg>
  */
-export type RawEffect<Env, Msg> = Msg | IO<Msg | void> | Reader<Env, IO<Msg | void>> | Task<unknown, Msg | void> | Reader<Env, Task<unknown, Msg | void>> | Effect<Env, Msg>;
+export type RawEffect<Env, Msg> = Msg | IO<Msg | void> | Reader<Env, IO<Msg | void>> | Task<unknown, Msg | void> | Reader<Env, Task<unknown, Msg | void>> | Effect<Env, Msg> | Subscription<Env, Msg>;
 /**
- * Interpret a single RawEffect.
+ * Interpret one-shot RawEffects.
  *
- * Execution semantics:
- *  - Msg:
- *      Dispatched immediately.
+ * IMPORTANT:
+ * - Subscriptions are IGNORED here
+ * - This function is PURE and STATELESS
+ * - No lifecycle or diffing occurs
  *
- *  - IO / Reader<IO>:
- *      Executed synchronously.
- *      Any returned Msg is dispatched.
+ * Subscription lifecycle is handled by the runtime (`renderApp`).
  *
- *  - Task / Reader<Task>:
- *      Executed asynchronously (fire-and-forget).
- *      Only successful results are dispatched.
- *
- *  - Effect:
- *      Delegated to Effect.run.
- *      May return a cleanup function.
- *
- * Returns a cleanup function only for Effect cases.
+ * @returns Combined cleanup for Effect values only
  */
-export declare const interpretRawEffect: <Env, Msg>(env: Env, dispatch: Dispatch<Msg>, eff: RawEffect<Env, Msg>) => void | (() => void);
-/**
- * Interpret a list of RawEffects.
- *
- * All effects are executed in order.
- * Cleanup functions returned by Effect values are collected and
- * combined into a single disposer function.
- *
- * The returned disposer invokes all cleanups safely.
- */
-export declare const runEffects: <Env, Msg>(env: Env, dispatch: Dispatch<Msg>, effects: RawEffect<Env, Msg>[] | undefined) => (() => void);
+export declare const runEffects: <Env, Msg>(env: Env, dispatch: Dispatch<Msg>, effects: readonly RawEffect<Env, Msg>[] | undefined) => (() => void);
 export {};
 //# sourceMappingURL=effects.d.ts.map

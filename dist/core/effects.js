@@ -1,35 +1,77 @@
 // src/core/effects.ts
+/* ============================================================================
+ * Effect system (Cmd + Sub layer)
+ * ========================================================================== */
 /**
- * Effect interpreter and runtime side-effect model for algebraic-fx.
+ * Effect system for algebraic-fx.
  *
- * This module defines:
- *  - the Effect abstraction for long-lived subscriptions
- *  - the RawEffect union type accepted by Program.init and Program.update
- *  - the runtime interpreter for executing effects
+ * This module defines the **side-effect description layer** of the framework.
  *
- * Effects in algebraic-fx are *descriptions*, not executions.
- * They are returned as data from Programs and interpreted by the runtime.
+ * IMPORTANT ARCHITECTURAL RULES:
+ *
+ * - Effects are **data**, not executions
+ * - This module is **stateless**
+ * - Subscription lifecycle is NOT handled here
+ *
+ * Conceptual split (mirrors Elm):
+ *
+ *   Cmd  → runEffects (this file)
+ *   Sub  → renderApp runtime (stateful)
+ *
+ * This file:
+ *   ✔ defines Effect and Subscription
+ *   ✔ interprets one-shot effects
+ *   ✘ does NOT track subscriptions
  */
+/* ============================================================================
+ * Effect
+ * ========================================================================== */
 /**
- * Brand for runtime managed Effect objects.
+ * Internal brand for Effect values.
+ *
+ * Prevents accidental structural matching.
  */
 const EffectBrand = Symbol("EffectBrand");
 /**
  * Construct a branded Effect.
  *
- * This helper hides the internal Effect brand and provides a safe way
- * to define long-lived effects such as subscriptions or listeners.
+ * Hides the internal brand and provides a safe constructor
+ * for long-lived effects.
  *
- * The provided implementation is invoked with the runtime environment
- * and dispatch function.
+ * @example
+ * fx((env, dispatch) => {
+ *   const id = setInterval(() => dispatch({ type: "Tick" }), 1000)
+ *   return () => clearInterval(id)
+ * })
  */
 export const fx = (impl) => ({
     [EffectBrand]: true,
     run: impl,
 });
-/* ------------------------------------------------------------------------- */
-/* Type guards                                                               */
-/* ------------------------------------------------------------------------- */
+/**
+ * Construct a Subscription.
+ *
+ * @param key Stable identity for the subscription
+ * @param impl Effect body (may return cleanup)
+ *
+ * @example
+ * sub("clock", (env, dispatch) => {
+ *   const id = setInterval(() => dispatch({ type: "Tick" }), 1000)
+ *   return () => clearInterval(id)
+ * })
+ */
+export const sub = (key, impl) => ({
+    _tag: "Subscription",
+    key,
+    effect: fx(impl),
+});
+/**
+ * Type guard for Subscription.
+ */
+export const isSubscription = (u) => !!u && typeof u === "object" && u._tag === "Subscription";
+/* ============================================================================
+ * Type guards
+ * ========================================================================== */
 const isEffect = (u) => !!u && typeof u === "object" && u[EffectBrand] === true;
 const isTask = (u) => !!u &&
     typeof u === "object" &&
@@ -45,84 +87,20 @@ const isIO = (u) => !!u &&
     typeof u.run === "function" &&
     u.run.length === 0 &&
     typeof u.runWith !== "function";
-/* ------------------------------------------------------------------------- */
-/* Interpreter                                                               */
-/* ------------------------------------------------------------------------- */
+/* ============================================================================
+ * runEffects (Cmd interpreter)
+ * ========================================================================== */
 /**
- * Interpret a single RawEffect.
+ * Interpret one-shot RawEffects.
  *
- * Execution semantics:
- *  - Msg:
- *      Dispatched immediately.
+ * IMPORTANT:
+ * - Subscriptions are IGNORED here
+ * - This function is PURE and STATELESS
+ * - No lifecycle or diffing occurs
  *
- *  - IO / Reader<IO>:
- *      Executed synchronously.
- *      Any returned Msg is dispatched.
+ * Subscription lifecycle is handled by the runtime (`renderApp`).
  *
- *  - Task / Reader<Task>:
- *      Executed asynchronously (fire-and-forget).
- *      Only successful results are dispatched.
- *
- *  - Effect:
- *      Delegated to Effect.run.
- *      May return a cleanup function.
- *
- * Returns a cleanup function only for Effect cases.
- */
-export const interpretRawEffect = (env, dispatch, eff) => {
-    if (eff == null)
-        return;
-    // Subscriptions
-    if (isEffect(eff)) {
-        return eff.run(env, dispatch);
-    }
-    // Task<E, Msg | void>
-    if (isTask(eff)) {
-        eff.run().then((ea) => {
-            if (ea && ea._tag === "Right" && ea.right !== undefined) {
-                dispatch(ea.right);
-            }
-        });
-        return;
-    }
-    // Reader<Env, IO | Task>
-    if (isReader(eff)) {
-        const inner = eff.run(env);
-        if (isIO(inner)) {
-            const msg = inner.run();
-            if (msg !== undefined)
-                dispatch(msg);
-            return;
-        }
-        if (isTask(inner)) {
-            inner.run().then((ea) => {
-                if (ea && ea._tag === "Right" && ea.right !== undefined) {
-                    dispatch(ea.right);
-                }
-            });
-            return;
-        }
-        // anything else is ignored
-        return;
-    }
-    // IO<Msg | void>
-    if (isIO(eff)) {
-        const msg = eff.run();
-        if (msg !== undefined)
-            dispatch(msg);
-        return;
-    }
-    // Fallback: treat as plain Msg
-    dispatch(eff);
-};
-/**
- * Interpret a list of RawEffects.
- *
- * All effects are executed in order.
- * Cleanup functions returned by Effect values are collected and
- * combined into a single disposer function.
- *
- * The returned disposer invokes all cleanups safely.
+ * @returns Combined cleanup for Effect values only
  */
 export const runEffects = (env, dispatch, effects) => {
     if (!effects || effects.length === 0) {
@@ -130,9 +108,56 @@ export const runEffects = (env, dispatch, effects) => {
     }
     const cleanups = [];
     for (const eff of effects) {
-        const c = interpretRawEffect(env, dispatch, eff);
-        if (typeof c === "function")
-            cleanups.push(c);
+        if (!eff)
+            continue;
+        // Subscriptions are ignored at this layer
+        if (isSubscription(eff)) {
+            continue;
+        }
+        // Effect
+        if (isEffect(eff)) {
+            const c = eff.run(env, dispatch);
+            if (typeof c === "function")
+                cleanups.push(c);
+            continue;
+        }
+        // Task
+        if (isTask(eff)) {
+            eff.run().then((ea) => {
+                if (ea && ea._tag === "Right" && ea.right !== undefined) {
+                    dispatch(ea.right);
+                }
+            });
+            continue;
+        }
+        // Reader
+        if (isReader(eff)) {
+            const inner = eff.run(env);
+            if (isIO(inner)) {
+                const msg = inner.run();
+                if (msg !== undefined)
+                    dispatch(msg);
+                continue;
+            }
+            if (isTask(inner)) {
+                inner.run().then((ea) => {
+                    if (ea && ea._tag === "Right" && ea.right !== undefined) {
+                        dispatch(ea.right);
+                    }
+                });
+                continue;
+            }
+            continue;
+        }
+        // IO
+        if (isIO(eff)) {
+            const msg = eff.run();
+            if (msg !== undefined)
+                dispatch(msg);
+            continue;
+        }
+        // Plain Msg
+        dispatch(eff);
     }
     return () => {
         for (const c of cleanups) {
@@ -140,7 +165,7 @@ export const runEffects = (env, dispatch, effects) => {
                 c();
             }
             catch {
-                // swallow cleanup errors
+                /* swallow */
             }
         }
     };

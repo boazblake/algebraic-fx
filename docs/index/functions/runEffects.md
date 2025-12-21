@@ -8,15 +8,16 @@
 
 > **runEffects**\<`Env`, `Msg`\>(`env`, `dispatch`, `effects`): () => `void`
 
-Defined in: [core/effects.ts:207](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/effects.ts#L207)
+Defined in: [core/effects.ts:226](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/effects.ts#L226)
 
-Interpret a list of RawEffects.
+Interpret one-shot RawEffects.
 
-All effects are executed in order.
-Cleanup functions returned by Effect values are collected and
-combined into a single disposer function.
+IMPORTANT:
+- Subscriptions are IGNORED here
+- This function is PURE and STATELESS
+- No lifecycle or diffing occurs
 
-The returned disposer invokes all cleanups safely.
+Subscription lifecycle is handled by the runtime (`renderApp`).
 
 ## Type Parameters
 
@@ -40,9 +41,11 @@ The returned disposer invokes all cleanups safely.
 
 ### effects
 
-[`RawEffect`](../type-aliases/RawEffect.md)\<`Env`, `Msg`\>[] | `undefined`
+readonly [`RawEffect`](../type-aliases/RawEffect.md)\<`Env`, `Msg`\>[] | `undefined`
 
 ## Returns
+
+Combined cleanup for Effect values only
 
 > (): `void`
 

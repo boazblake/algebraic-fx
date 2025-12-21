@@ -8,7 +8,7 @@
 
 > **mapLeft**\<`E`, `A`, `F`\>(`fa`, `f`): [`Either`](../type-aliases/Either.md)\<`F`, `A`\>
 
-Defined in: [adt/either.ts:53](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/either.ts#L53)
+Defined in: [adt/either.ts:53](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/either.ts#L53)
 
 Map over the Left side.
 

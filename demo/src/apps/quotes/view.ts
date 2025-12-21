@@ -33,12 +33,15 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) => {
     m("div.row", [
       m(
         "button",
-        { onclick: () => dispatch({ type: "Fetch" }), disabled: model.loading },
+        {
+          onclick: () => dispatch({ type: "qoutes.fetch" }),
+          disabled: model.loading,
+        },
         model.loading ? "Loading..." : "Refresh"
       ),
       m(
         "button",
-        { onclick: () => dispatch({ type: "TogglePolling" }) },
+        { onclick: () => dispatch({ type: "quotes.togglePolling" }) },
         model.pollOn ? "Polling: ON" : "Polling: OFF"
       ),
     ]),
@@ -50,23 +53,23 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) => {
         placeholder: "filter (e.g. bit)",
         oninput: (e: InputEvent) =>
           dispatch({
-            type: "SetFilter",
+            type: "quotes.setFilter",
             value: (e.target as HTMLInputElement).value,
           }),
       }),
       m(
         "button",
-        { onclick: () => dispatch({ type: "SetSort", key: "usd" }) },
+        { onclick: () => dispatch({ type: "quotes.setSort", key: "usd" }) },
         `Sort: usd${model.sortKey === "usd" ? "*" : ""}`
       ),
       m(
         "button",
-        { onclick: () => dispatch({ type: "SetSort", key: "name" }) },
+        { onclick: () => dispatch({ type: "quotes.setSort", key: "name" }) },
         `Sort: name${model.sortKey === "name" ? "*" : ""}`
       ),
       m(
         "button",
-        { onclick: () => dispatch({ type: "ToggleSortDir" }) },
+        { onclick: () => dispatch({ type: "quotes.toggleSortDir" }) },
         `Dir: ${model.sortDir}`
       ),
     ]),
@@ -77,7 +80,7 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) => {
         onkeydown: (e: KeyboardEvent) => {
           if (e.key !== "Enter") return;
           const el = e.target as HTMLInputElement;
-          dispatch({ type: "AddSymbol", id: el.value });
+          dispatch({ type: "quotes.addSymbol", id: el.value });
           el.value = "";
         },
       }),
@@ -106,7 +109,7 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) => {
                     "button.small",
                     {
                       onclick: () =>
-                        dispatch({ type: "RemoveSymbol", id: q.id }),
+                        dispatch({ type: "quotes.removeSymbol", id: q.id }),
                     },
                     "remove"
                   )

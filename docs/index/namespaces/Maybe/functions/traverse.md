@@ -8,7 +8,7 @@
 
 > **traverse**\<`F`, `A`, `B`\>(`ofF`, `mapF`, `apF`, `f`): (`ma`) => `F`
 
-Defined in: [adt/maybe.ts:104](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/maybe.ts#L104)
+Defined in: [adt/maybe.ts:104](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/maybe.ts#L104)
 
 ## Type Parameters
 

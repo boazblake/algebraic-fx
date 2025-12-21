@@ -6,14 +6,24 @@
 
 # Interface: Effect\<Env, Msg\>
 
-Defined in: [core/effects.ts:33](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/effects.ts#L33)
+Defined in: [core/effects.ts:63](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/effects.ts#L63)
 
-Long-lived effect (subscriptions, streams, listeners, etc).
+Effect<Env, Msg>
 
-Effects represent *ongoing* side effects that may produce messages over time.
-They are executed by the runtime and may optionally return a cleanup function.
+A long-lived, runtime-managed side effect.
 
-Cleanup functions are invoked when the effect is disposed.
+Effects represent **ongoing processes** such as:
+ - timers
+ - event listeners
+ - polling loops
+
+Effects:
+ - are started by the runtime
+ - receive `env` and `dispatch`
+ - may return a cleanup function
+
+Effects are NOT executed immediately.
+They are returned as descriptions from `init` or `update`.
 
 ## Type Parameters
 
@@ -31,7 +41,7 @@ Cleanup functions are invoked when the effect is disposed.
 
 > `readonly` **\[EffectBrand\]**: `true`
 
-Defined in: [core/effects.ts:34](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/effects.ts#L34)
+Defined in: [core/effects.ts:64](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/effects.ts#L64)
 
 ## Methods
 
@@ -39,7 +49,9 @@ Defined in: [core/effects.ts:34](https://github.com/boazblake/algebraic-fx/blob/
 
 > **run**(`env`, `dispatch`): `void` \| () => `void`
 
-Defined in: [core/effects.ts:35](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/effects.ts#L35)
+Defined in: [core/effects.ts:73](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/effects.ts#L73)
+
+Start the effect.
 
 #### Parameters
 
@@ -47,10 +59,16 @@ Defined in: [core/effects.ts:35](https://github.com/boazblake/algebraic-fx/blob/
 
 `Env`
 
+Runtime environment
+
 ##### dispatch
 
 [`Dispatch`](../type-aliases/Dispatch.md)\<`Msg`\>
 
+Message dispatcher
+
 #### Returns
 
 `void` \| () => `void`
+
+Optional cleanup function

@@ -8,7 +8,7 @@
 
 > **isIO**(`u`): `u is IO<unknown>`
 
-Defined in: [adt/io.ts:57](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/io.ts#L57)
+Defined in: [adt/io.ts:57](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/io.ts#L57)
 
 ## Parameters
 

@@ -1,19 +1,22 @@
-import type { Dispatch } from "algebraic-fx/core/types";
 import type { RawEffect } from "algebraic-fx/core/effects";
 import type { AppEnv } from "../../env";
-import type { Model } from "./init";
 
-export type Msg = { type: "Inc" } | { type: "Dec" };
+export type Msg = { type: "counter.increment" } | { type: "counter.decrement" };
+
+export type Model = {
+  count: number;
+};
 
 export const update = (
   msg: Msg,
-  model: Model,
-  _dispatch: Dispatch<Msg>
+  model: Model
 ): { model: Model; effects: RawEffect<AppEnv, Msg>[] } => {
+  console.log(msg, model);
   switch (msg.type) {
-    case "Inc":
+    case "counter.increment":
       return { model: { count: model.count + 1 }, effects: [] };
-    case "Dec":
+
+    case "counter.decrement":
       return { model: { count: model.count - 1 }, effects: [] };
     default:
       return { model, effects: [] };

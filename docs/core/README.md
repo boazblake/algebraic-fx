@@ -26,9 +26,9 @@ Re-exports [fx](../index/functions/fx.md)
 
 ***
 
-### interpretRawEffect
+### isSubscription
 
-Re-exports [interpretRawEffect](../index/functions/interpretRawEffect.md)
+Re-exports [isSubscription](../index/functions/isSubscription.md)
 
 ***
 
@@ -89,6 +89,18 @@ Re-exports [renderToString](../index/functions/renderToString.md)
 ### runEffects
 
 Re-exports [runEffects](../index/functions/runEffects.md)
+
+***
+
+### sub
+
+Re-exports [sub](../index/functions/sub.md)
+
+***
+
+### Subscription
+
+Re-exports [Subscription](../index/type-aliases/Subscription.md)
 
 ***
 

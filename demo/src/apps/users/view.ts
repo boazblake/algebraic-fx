@@ -9,7 +9,10 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) =>
     m("div.row", [
       m(
         "button",
-        { onclick: () => dispatch({ type: "Fetch" }), disabled: model.loading },
+        {
+          onclick: () => dispatch({ type: "users.fetch" }),
+          disabled: model.loading,
+        },
         model.loading ? "Loading..." : "Load users"
       ),
     ]),

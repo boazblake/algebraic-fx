@@ -1,99 +1,113 @@
 // src/helpers/http-task.ts
 
 import type { Reader as ReaderT } from "../adt/reader.js";
-import { ReaderModule as Reader } from "../adt/reader.js";
+import { Reader } from "../adt/reader.js";
 
 import type { Task as TaskT } from "../adt/task.js";
 import { TaskModule as Task } from "../adt/task.js";
+
+import type { Either } from "../adt/either.js";
+import { left, right, isLeft } from "../adt/either.js";
 
 /* ============================================================================
  * Types
  * ========================================================================== */
 
-export type HttpEnv = {
-  baseUrl: string;
-  fetch: typeof fetch;
-};
-
-export type HttpError = {
-  _tag: "HttpError";
+export type DefaultHttpError = {
+  _tag: "DefaultHttpError";
   status: number | null;
   message: string;
   url: string;
   cause?: unknown;
 };
 
+export type HttpEnv = {
+  baseUrl: string;
+  fetch: typeof fetch;
+};
+
+/* ============================================================================
+ * Helpers
+ * ========================================================================== */
+
+const makeError = (
+  url: string,
+  status: number | null,
+  message: string,
+  cause?: unknown
+): DefaultHttpError => ({
+  _tag: "DefaultHttpError",
+  status,
+  message,
+  url,
+  cause,
+});
+
 /* ============================================================================
  * httpTask
  * ========================================================================== */
 
 /**
- * HTTP effect that ALWAYS resolves to a Msg.
+ * HTTP helper producing Reader<HttpEnv, Task<E | DefaultHttpError, A>>
  *
+ * Semantics:
  * - Reader injects HttpEnv
- * - Task NEVER fails (E = never)
- * - All failures are mapped into Msg in the Promise itself
+ * - Task MAY fail
+ * - Errors are DATA (not Msg)
+ * - No dispatching here
  */
-export const httpTask = <Msg>(
+export const httpTask = <E = never, A = never>(
   path: string,
-  onSuccess: (data: unknown) => Msg,
-  onError: (err: HttpError) => Msg
-): ReaderT<HttpEnv, TaskT<never, Msg>> =>
-  Reader.of(
-    Task.fromPromise<never, Msg>(
-      () => fetchPromise(path, onSuccess, onError),
-      unreachable
-    )
-  );
+  decode?: (data: unknown) => Either<E, A>,
+  mapError: (err: DefaultHttpError | E) => DefaultHttpError | E = (e) => e
+): ReaderT<HttpEnv, TaskT<DefaultHttpError | E, A>> =>
+  Reader((env: HttpEnv) => {
+    const url = env.baseUrl + path;
 
-/* ============================================================================
- * Internal helpers
- * ========================================================================== */
+    return Task.fromPromise<DefaultHttpError | E, A>(
+      async () => {
+        const res = await env.fetch(url);
 
-const unreachable = (_: unknown): never => {
-  throw new Error("Unreachable: Task<never, Msg> rejected");
-};
+        if (!res.ok) {
+          throw makeError(
+            url,
+            res.status,
+            `HTTP ${res.status} ${res.statusText}`
+          );
+        }
 
-const fetchPromise = async <Msg>(
-  path: string,
-  onSuccess: (data: unknown) => Msg,
-  onError: (err: HttpError) => Msg
-): Promise<Msg> => {
-  const url = path;
+        let json: unknown;
+        try {
+          json = await res.json();
+        } catch (e) {
+          throw makeError(url, res.status, "Failed to parse JSON response", e);
+        }
 
-  try {
-    const res = await fetch(url);
+        if (!decode) {
+          return json as A;
+        }
 
-    if (!res.ok) {
-      return onError({
-        _tag: "HttpError",
-        status: res.status,
-        message: `HTTP ${res.status} ${res.statusText}`,
-        url,
-      });
-    }
+        const decoded = decode(json);
+        if (isLeft(decoded)) {
+          throw decoded.left;
+        }
 
-    let json: unknown;
-    try {
-      json = await res.json();
-    } catch (e) {
-      return onError({
-        _tag: "HttpError",
-        status: res.status,
-        message: "Failed to parse JSON response",
-        url,
-        cause: e,
-      });
-    }
+        return decoded.right;
+      },
 
-    return onSuccess(json);
-  } catch (e) {
-    return onError({
-      _tag: "HttpError",
-      status: null,
-      message: e instanceof Error ? e.message : String(e),
-      url,
-      cause: e,
-    });
-  }
-};
+      (err: unknown) => {
+        if (err && (err as any)._tag === "DefaultHttpError") {
+          return mapError(err as DefaultHttpError);
+        }
+
+        return mapError(
+          makeError(
+            url,
+            null,
+            err instanceof Error ? err.message : String(err),
+            err
+          )
+        );
+      }
+    );
+  });

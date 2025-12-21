@@ -11,9 +11,9 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) =>
   m("div.app", [
     m("header", [m("h1", "algebraic-fx finance multi-app demo")]),
     m("div.grid", [
-      counterView(model.counter, (msg) => dispatch({ type: "Counter", msg })),
-      usersView(model.users, (msg) => dispatch({ type: "Users", msg })),
-      quotesView(model.quotes, (msg) => dispatch({ type: "Quotes", msg })),
-      clockView(model.clock, (msg) => dispatch({ type: "Clock", msg })),
+      counterView(model.counter, (msg) => dispatch({ type: "counter.", msg })),
+      usersView(model.users, (msg) => dispatch({ type: "users.", msg })),
+      quotesView(model.quotes, (msg) => dispatch({ type: "quotes.", msg })),
+      clockView(model.clock, (msg) => dispatch({ type: "clock.", msg })),
     ]),
   ]);

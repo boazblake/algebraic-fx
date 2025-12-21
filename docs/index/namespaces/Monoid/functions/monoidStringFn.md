@@ -8,7 +8,7 @@
 
 > **monoidStringFn**(): [`Monoid`](../type-aliases/Monoid.md)\<`string`\>
 
-Defined in: [adt/monoid.ts:39](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/monoid.ts#L39)
+Defined in: [adt/monoid.ts:39](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/monoid.ts#L39)
 
 ## Returns
 

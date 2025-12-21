@@ -8,7 +8,7 @@
 
 > **renderToString**(`node`): `string`
 
-Defined in: [core/render-to-string.ts:86](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/render-to-string.ts#L86)
+Defined in: [core/render-to-string.ts:86](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/render-to-string.ts#L86)
 
 Convert a mithril-lite vnode tree into an escaped HTML string.
 

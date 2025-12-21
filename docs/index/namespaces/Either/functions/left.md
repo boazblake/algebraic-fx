@@ -8,7 +8,7 @@
 
 > **left**\<`E`, `A`\>(`e`): [`Either`](../type-aliases/Either.md)\<`E`, `A`\>
 
-Defined in: [adt/either.ts:22](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/either.ts#L22)
+Defined in: [adt/either.ts:22](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/either.ts#L22)
 
 ## Type Parameters
 

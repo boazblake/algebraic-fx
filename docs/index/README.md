@@ -27,15 +27,16 @@
 
 ## Type Aliases
 
+- [DefaultHttpError](type-aliases/DefaultHttpError.md)
 - [Dispatch](type-aliases/Dispatch.md)
 - [DomEnv](type-aliases/DomEnv.md)
 - [HttpEnv](type-aliases/HttpEnv.md)
-- [HttpError](type-aliases/HttpError.md)
 - [Payload](type-aliases/Payload.md)
 - [Program](type-aliases/Program.md)
 - [Props](type-aliases/Props.md)
 - [RawEffect](type-aliases/RawEffect.md)
 - [Renderer](type-aliases/Renderer.md)
+- [Subscription](type-aliases/Subscription.md)
 - [VChild](type-aliases/VChild.md)
 - [Vnode](type-aliases/Vnode.md)
 - [VNode](type-aliases/VNode-1.md)
@@ -52,11 +53,12 @@
 
 - [fx](functions/fx.md)
 - [httpTask](functions/httpTask.md)
-- [interpretRawEffect](functions/interpretRawEffect.md)
+- [isSubscription](functions/isSubscription.md)
 - [m](functions/m.md)
 - [render](functions/render.md)
 - [renderApp](functions/renderApp.md)
 - [renderToString](functions/renderToString.md)
 - [runEffects](functions/runEffects.md)
+- [sub](functions/sub.md)
 - [Vnode](functions/Vnode.md)
 - [wsTask](functions/wsTask.md)

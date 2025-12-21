@@ -8,15 +8,15 @@
 
 ## References
 
-### HttpEnv
+### DefaultHttpError
 
-Re-exports [HttpEnv](../index/type-aliases/HttpEnv.md)
+Re-exports [DefaultHttpError](../index/type-aliases/DefaultHttpError.md)
 
 ***
 
-### HttpError
+### HttpEnv
 
-Re-exports [HttpError](../index/type-aliases/HttpError.md)
+Re-exports [HttpEnv](../index/type-aliases/HttpEnv.md)
 
 ***
 

@@ -8,7 +8,7 @@
 
 > **ap**\<`R`, `A`, `B`\>(`fab`): (`fa`) => [`Reader`](../interfaces/Reader.md)\<`R`, `B`\>
 
-Defined in: [adt/reader.ts:126](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/reader.ts#L126)
+Defined in: [adt/reader.ts:126](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/reader.ts#L126)
 
 ## Type Parameters
 

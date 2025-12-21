@@ -1,35 +1,58 @@
-import { fx } from "algebraic-fx";
-import type { Dispatch } from "algebraic-fx/core/types";
 import type { RawEffect } from "algebraic-fx/core/effects";
+import { sub } from "algebraic-fx/core/effects";
 import type { AppEnv } from "../../env";
-import type { Model } from "./init";
 
 export type Msg =
-  | { type: "Start" }
-  | { type: "Stop" }
-  | { type: "Tick"; ms: number };
+  | { type: "clock.start" }
+  | { type: "clock.stop" }
+  | { type: "clock.tick"; ms: number };
 
-const tickEffect = (): RawEffect<AppEnv, Msg> =>
-  fx<AppEnv, Msg>((env, dispatch) => {
-    const id = env.window.setInterval(
-      () => dispatch({ type: "Tick", ms: env.now() }),
-      250
-    );
-    return () => env.window.clearInterval(id);
+export type Model = {
+  running: boolean;
+  nowMs: number;
+};
+
+const clockSub = (): RawEffect<AppEnv, Msg> =>
+  sub("clock", (env, dispatch) => {
+    let id = env.window.setInterval(() => {
+      dispatch({ type: "clock.", msg: { type: "clock.tick", ms: env.now() } });
+    }, 250);
+    return (cont = true) => {
+      env.window.clearInterval(id);
+      if (cont) {
+        id = env.window.setInterval(() => {
+          dispatch({
+            type: "clock.",
+            msg: { type: "clock.tick", ms: env.now() },
+          });
+        }, 250);
+      }
+    };
   });
 
 export const update = (
   msg: Msg,
-  model: Model,
-  _dispatch: Dispatch<Msg>
+  model: Model
 ): { model: Model; effects: RawEffect<AppEnv, Msg>[] } => {
-  console.log("wtf", msg);
+  console.log(msg);
   switch (msg.type) {
-    case "Start":
-      return { model, effects: [tickEffect()] };
-    case "Stop":
+    case "clock.start":
+      if (model.running) return { model, effects: [] };
+      const subFx = clockSub();
+      if (model.stop) {
+        subFx();
+      }
+      return {
+        model: { ...model, running: true },
+        effects: [subFx],
+      };
+
+    case "clock.stop":
+      return { model: { ...model, running: false, stop: true }, effects: [] };
+
+    case "clock.tick":
+      return { model: { ...model, nowMs: msg.ms }, effects: [] };
+    default:
       return { model, effects: [] };
-    case "Tick":
-      return { model: { nowMs: msg.ms }, effects: [] };
   }
 };

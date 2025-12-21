@@ -8,4 +8,4 @@
 
 > **Reader**: [`ReaderConstructor`](../interfaces/ReaderConstructor.md)
 
-Defined in: [adt/reader.ts:8](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/adt/reader.ts#L8)
+Defined in: [adt/reader.ts:8](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/adt/reader.ts#L8)

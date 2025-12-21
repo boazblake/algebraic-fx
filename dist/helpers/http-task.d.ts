@@ -1,22 +1,25 @@
 import type { Reader as ReaderT } from "../adt/reader.js";
 import type { Task as TaskT } from "../adt/task.js";
-export type HttpEnv = {
-    baseUrl: string;
-    fetch: typeof fetch;
-};
-export type HttpError = {
-    _tag: "HttpError";
+import type { Either } from "../adt/either.js";
+export type DefaultHttpError = {
+    _tag: "DefaultHttpError";
     status: number | null;
     message: string;
     url: string;
     cause?: unknown;
 };
+export type HttpEnv = {
+    baseUrl: string;
+    fetch: typeof fetch;
+};
 /**
- * HTTP effect that ALWAYS resolves to a Msg.
+ * HTTP helper producing Reader<HttpEnv, Task<E | DefaultHttpError, A>>
  *
+ * Semantics:
  * - Reader injects HttpEnv
- * - Task NEVER fails (E = never)
- * - All failures are mapped into Msg in the Promise itself
+ * - Task MAY fail
+ * - Errors are DATA (not Msg)
+ * - No dispatching here
  */
-export declare const httpTask: <Msg>(path: string, onSuccess: (data: unknown) => Msg, onError: (err: HttpError) => Msg) => ReaderT<HttpEnv, TaskT<never, Msg>>;
+export declare const httpTask: <E = never, A = never>(path: string, decode?: (data: unknown) => Either<E, A>, mapError?: (err: DefaultHttpError | E) => DefaultHttpError | E) => ReaderT<HttpEnv, TaskT<DefaultHttpError | E, A>>;
 //# sourceMappingURL=http-task.d.ts.map

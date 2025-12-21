@@ -8,19 +8,28 @@
 
 > **renderApp**\<`M`, `Msg`, `Env`\>(`root`, `program`, `env`, `renderer`): `void`
 
-Defined in: [core/render.ts:53](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/render.ts#L53)
+Defined in: [core/render.ts:120](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/render.ts#L120)
 
 Start an algebraic-fx application.
 
-This function wires together:
- - a Program (init / update / view)
- - a renderer
- - an environment value
+This is the **only imperative runtime loop** in the framework.
+
+Responsibilities:
+ - execute `Program.init` exactly once
+ - render the initial view
+ - handle `dispatch(msg)` → update → view
+ - interpret one-shot effects (Cmd)
+ - manage subscription lifecycle (Sub)
 
 IMPORTANT SEMANTICS:
- - This function is NOT curried.
- - This function does NOT return an IO.
- - The runtime starts immediately.
+ - `renderApp` is NOT curried
+ - `renderApp` does NOT return an IO
+ - the runtime starts immediately
+
+Subscription semantics (Elm-style):
+ - subscriptions are keyed
+ - started once per key
+ - cleaned up automatically when removed
 
 ## Type Parameters
 
@@ -42,7 +51,7 @@ IMPORTANT SEMANTICS:
 
 `Element`
 
-Root DOM element to render into
+Root DOM element
 
 ### program
 
@@ -54,7 +63,7 @@ Application Program definition
 
 `Env`
 
-Environment value passed to effects
+Runtime environment
 
 ### renderer
 
@@ -65,7 +74,3 @@ Virtual DOM renderer
 ## Returns
 
 `void`
-
-## Throws
-
-TypeError if any required argument is missing or invalid

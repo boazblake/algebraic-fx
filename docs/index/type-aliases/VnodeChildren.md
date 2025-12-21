@@ -8,4 +8,4 @@
 
 > **VnodeChildren** = [`VnodeChild`](VnodeChild.md)[]
 
-Defined in: [core/mithril-lite.ts:49](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/mithril-lite.ts#L49)
+Defined in: [core/mithril-lite.ts:49](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/mithril-lite.ts#L49)

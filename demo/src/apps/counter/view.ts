@@ -7,8 +7,16 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) =>
   m("section.card", [
     m("h2", "Counter"),
     m("div.row", [
-      m("button", { onclick: () => dispatch({ type: "Dec" }) }, "-"),
+      m(
+        "button",
+        { onclick: () => dispatch({ type: "counter.decrement" }) },
+        "-"
+      ),
       m("div.big", String(model.count)),
-      m("button", { onclick: () => dispatch({ type: "Inc" }) }, "+"),
+      m(
+        "button",
+        { onclick: () => dispatch({ type: "counter.increment" }) },
+        "+"
+      ),
     ]),
   ]);

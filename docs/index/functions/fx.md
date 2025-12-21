@@ -8,15 +8,12 @@
 
 > **fx**\<`Env`, `Msg`\>(`impl`): [`Effect`](../interfaces/Effect.md)\<`Env`, `Msg`\>
 
-Defined in: [core/effects.ts:47](https://github.com/boazblake/algebraic-fx/blob/4887601557b375132fe7b7efada4cf0a15edcce2/src/core/effects.ts#L47)
+Defined in: [core/effects.ts:88](https://github.com/boazblake/algebraic-fx/blob/96ac42bffe971bb25eb7eeea668977cd2b16bacd/src/core/effects.ts#L88)
 
 Construct a branded Effect.
 
-This helper hides the internal Effect brand and provides a safe way
-to define long-lived effects such as subscriptions or listeners.
-
-The provided implementation is invoked with the runtime environment
-and dispatch function.
+Hides the internal brand and provides a safe constructor
+for long-lived effects.
 
 ## Type Parameters
 
@@ -37,3 +34,12 @@ and dispatch function.
 ## Returns
 
 [`Effect`](../interfaces/Effect.md)\<`Env`, `Msg`\>
+
+## Example
+
+```ts
+fx((env, dispatch) => {
+  const id = setInterval(() => dispatch({ type: "Tick" }), 1000)
+  return () => clearInterval(id)
+})
+```

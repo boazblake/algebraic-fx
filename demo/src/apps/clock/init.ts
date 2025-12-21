@@ -8,6 +8,9 @@ export type Model = { nowMs: number };
 
 export const init: IOType<{ model: Model; effects: RawEffect<AppEnv, Msg>[] }> =
   IO.of({
-    model: { nowMs: 0 },
+    model: {
+      running: false,
+      nowMs: new Date(),
+    },
     effects: [],
   });
