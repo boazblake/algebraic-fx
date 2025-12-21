@@ -15,18 +15,10 @@ export type Model = {
 const clockSub = (): RawEffect<AppEnv, Msg> =>
   sub("clock", (env, dispatch) => {
     let id = env.window.setInterval(() => {
-      dispatch({ type: "clock.", msg: { type: "clock.tick", ms: env.now() } });
+      dispatch({ type: "clock.tick", ms: env.now() });
     }, 250);
-    return (cont = true) => {
+    return () => {
       env.window.clearInterval(id);
-      if (cont) {
-        id = env.window.setInterval(() => {
-          dispatch({
-            type: "clock.",
-            msg: { type: "clock.tick", ms: env.now() },
-          });
-        }, 250);
-      }
     };
   });
 
@@ -34,25 +26,32 @@ export const update = (
   msg: Msg,
   model: Model
 ): { model: Model; effects: RawEffect<AppEnv, Msg>[] } => {
-  console.log(msg);
   switch (msg.type) {
-    case "clock.start":
+    case "clock.start": {
       if (model.running) return { model, effects: [] };
-      const subFx = clockSub();
-      if (model.stop) {
-        subFx();
-      }
+
+      const next = { ...model, running: true };
       return {
-        model: { ...model, running: true },
-        effects: [subFx],
+        model: next,
+        effects: [clockSub()],
       };
+    }
 
-    case "clock.stop":
-      return { model: { ...model, running: false, stop: true }, effects: [] };
+    case "clock.stop": {
+      const next = { ...model, running: false };
+      return {
+        model: next,
+        effects: [],
+      };
+    }
 
-    case "clock.tick":
-      return { model: { ...model, nowMs: msg.ms }, effects: [] };
-    default:
-      return { model, effects: [] };
+    case "clock.tick": {
+      const next = { ...model, nowMs: msg.ms };
+
+      return {
+        model: next,
+        effects: model.running ? [clockSub()] : [],
+      };
+    }
   }
 };

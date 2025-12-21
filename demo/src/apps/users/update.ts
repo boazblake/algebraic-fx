@@ -25,7 +25,7 @@ const fetchUsers = (): RawEffect<AppEnv, Msg> =>
       const res = await env.window.fetch(`${env.usersBaseUrl}/users`);
       if (!res.ok) throw new Error(res.statusText);
       const users = (await res.json()) as User[];
-      dispatch({ type: "users.", msg: { type: "users.loaded", users } });
+      dispatch({ type: "users.loaded", users });
     } catch (e) {
       dispatch({
         type: "users.",
@@ -41,7 +41,6 @@ export const update = (
   msg: Msg,
   model: Model
 ): { model: Model; effects: RawEffect<AppEnv, Msg>[] } => {
-  console.log(msg);
   switch (msg.type) {
     case "users.fetch":
       return {

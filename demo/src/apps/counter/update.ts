@@ -11,7 +11,6 @@ export const update = (
   msg: Msg,
   model: Model
 ): { model: Model; effects: RawEffect<AppEnv, Msg>[] } => {
-  console.log(msg, model);
   switch (msg.type) {
     case "counter.increment":
       return { model: { count: model.count + 1 }, effects: [] };

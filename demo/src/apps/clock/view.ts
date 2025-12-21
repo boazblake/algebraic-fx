@@ -15,8 +15,7 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) =>
       m(
         "button",
         {
-          onclick: () =>
-            dispatch({ type: "clock.", msg: { type: "clock.stop" } }),
+          onclick: () => dispatch({ type: "clock.stop" }),
         },
         "Stop"
       ),
