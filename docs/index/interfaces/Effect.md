@@ -6,11 +6,11 @@
 
 # Interface: Effect\<Env, Msg\>
 
-Defined in: [core/effects.ts:58](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/effects.ts#L58)
+Defined in: [core/effects.ts:62](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/effects.ts#L62)
 
 Effect<Env, Msg>
 
-A long-lived, runtime-managed side effect.
+A long-lived, runtime-invoked side effect.
 
 Effects represent ongoing processes such as:
  - timers
@@ -21,6 +21,10 @@ Effects:
  - are started by the runtime
  - receive `env` and `dispatch`
  - may return a cleanup function
+
+NOTE:
+`Effect` values are allowed as Cmd-like results from `init`/`update`.
+If you want keyed lifecycle management, wrap an Effect in a `Subscription`.
 
 ## Type Parameters
 
@@ -38,7 +42,7 @@ Effects:
 
 > `readonly` **\[EffectBrand\]**: `true`
 
-Defined in: [core/effects.ts:59](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/effects.ts#L59)
+Defined in: [core/effects.ts:63](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/effects.ts#L63)
 
 ## Methods
 
@@ -46,7 +50,7 @@ Defined in: [core/effects.ts:59](https://github.com/boazblake/algebraic-fx/blob/
 
 > **run**(`env`, `dispatch`): `void` \| () => `void`
 
-Defined in: [core/effects.ts:60](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/effects.ts#L60)
+Defined in: [core/effects.ts:64](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/effects.ts#L64)
 
 #### Parameters
 

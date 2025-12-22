@@ -1,88 +1,68 @@
 // src/core/render.ts
-import { runEffects, isSubscription, } from "./effects.js";
+import { runEffects } from "./effects.js";
 /* ============================================================================
- * Subscription reconciliation
+ * Subscription reconciliation (stateful, runtime-only)
  * ========================================================================== */
 /**
- * Reconcile subscription effects.
+ * reconcileSubscriptions
  *
- * This function:
- *  - starts new subscriptions
- *  - keeps existing subscriptions with the same key
- *  - cleans up removed subscriptions
+ * Start/stop keyed subscriptions based on the latest list.
  *
- * IMPORTANT:
- * - This function is IMPERATIVE and STATEFUL
- * - It is ONLY called from the runtime
- * - It must NOT execute one-shot effects
+ * - starts new subscriptions
+ * - keeps existing subscriptions with the same key
+ * - stops subscriptions whose keys disappeared
  *
- * @param env Runtime environment
- * @param dispatch Message dispatcher
- * @param effects Effects returned from init/update
- * @param active Map of currently active subscriptions
+ * This is the ONLY place subscription lifecycle is managed.
  */
-const reconcileSubscriptions = (env, dispatch, effects, active) => {
+const reconcileSubscriptions = (env, dispatch, subs, active) => {
     const next = new Map();
-    for (const eff of effects) {
-        if (!isSubscription(eff))
-            continue;
-        const prev = active.get(eff.key);
-        // Subscription already active → keep it
+    for (const s of subs) {
+        const prev = active.get(s.key);
+        // already active, keep existing cleanup
         if (prev) {
-            next.set(eff.key, prev);
+            next.set(s.key, prev);
             continue;
         }
-        // New subscription → start it
-        const cleanup = eff.effect.run(env, dispatch);
-        if (typeof cleanup === "function") {
-            next.set(eff.key, cleanup);
-        }
+        // new subscription, start it
+        const cleanup = s.effect.run(env, dispatch);
+        if (typeof cleanup === "function")
+            next.set(s.key, cleanup);
     }
-    // Stop subscriptions that disappeared
+    // stop removed
     for (const [key, cleanup] of active) {
-        if (!next.has(key)) {
+        if (!next.has(key))
             cleanup();
-        }
     }
     active.clear();
     for (const [k, v] of next)
         active.set(k, v);
 };
 /* ============================================================================
- * renderApp
+ * renderApp (runtime)
  * ========================================================================== */
 /**
- * Start an algebraic-fx application.
+ * renderApp
  *
- * This is the **only imperative runtime loop** in the framework.
+ * Start an algebraic-fx application runtime loop.
  *
  * Responsibilities:
- *  - execute `Program.init` exactly once
- *  - render the initial view
- *  - handle `dispatch(msg)` → update → view
- *  - interpret one-shot effects (Cmd)
- *  - manage subscription lifecycle (Sub)
+ * - run init once
+ * - render view on init and after every update
+ * - run Cmd effects returned by init/update via runEffects
+ * - manage subscription lifecycle via Program.subs(model)
  *
- * IMPORTANT SEMANTICS:
- *  - `renderApp` is NOT curried
- *  - `renderApp` does NOT return an IO
- *  - the runtime starts immediately
- *
- * Subscription semantics (Elm-style):
- *  - subscriptions are keyed
- *  - started once per key
- *  - cleaned up automatically when removed
- *
- * @param root Root DOM element
- * @param program Application Program definition
- * @param env Runtime environment
- * @param renderer Virtual DOM renderer
+ * IMPORTANT:
+ * - update must be pure (no direct side effects)
+ * - all side effects must be described as Cmd effects (init/update)
+ * - all long-lived behavior must be described as Subscriptions (subs)
  */
 export const renderApp = (root, program, env, renderer) => {
     if (!root)
         throw new TypeError("renderApp: root element is required");
     if (!program)
         throw new TypeError("renderApp: program is required");
+    if (!renderer)
+        throw new TypeError("renderApp: renderer is required");
     if (!program.init || typeof program.init.run !== "function") {
         throw new TypeError("renderApp: program.init must be an IO");
     }
@@ -92,41 +72,26 @@ export const renderApp = (root, program, env, renderer) => {
     if (!program.view || typeof program.view !== "function") {
         throw new TypeError("renderApp: program.view must be a function");
     }
-    if (!renderer || typeof renderer !== "function") {
-        throw new TypeError("renderApp: renderer must be a function");
-    }
     let currentModel;
-    // Active subscriptions keyed by id
     const activeSubs = new Map();
-    /**
-     * Dispatch a message into the runtime.
-     *
-     * This function:
-     *  - runs update
-     *  - updates the model
-     *  - renders the view
-     *  - reconciles subscriptions
-     *  - runs one-shot effects
-     */
-    const dispatch = (msg) => {
-        const { model, effects } = program.update(msg, currentModel, dispatch);
-        currentModel = model;
-        // Render view
+    const render = () => {
         renderer(root, program.view(currentModel, dispatch));
-        // 1) Reconcile subscriptions (stateful)
-        reconcileSubscriptions(env, dispatch, effects, activeSubs);
-        // 2) Run one-shot effects (stateless)
-        const oneShots = effects.filter((e) => !isSubscription(e));
-        runEffects(env, dispatch, oneShots);
     };
-    /* ------------------------------------------------------------------------
-     * Initialization
-     * ---------------------------------------------------------------------- */
+    const getSubs = () => program.subs ? program.subs(currentModel) : [];
+    const dispatch = (msg) => {
+        const next = program.update(msg, currentModel, dispatch);
+        currentModel = next.model;
+        render();
+        reconcileSubscriptions(env, dispatch, getSubs(), activeSubs);
+        // runEffects signature is (env, effects, dispatch)
+        runEffects(env, next.effects, dispatch);
+    };
+    // init
     const initResult = program.init.run();
     currentModel = initResult.model;
-    renderer(root, program.view(currentModel, dispatch));
-    reconcileSubscriptions(env, dispatch, initResult.effects, activeSubs);
-    const initOneShots = initResult.effects.filter((e) => !isSubscription(e));
-    runEffects(env, dispatch, initOneShots);
+    render();
+    reconcileSubscriptions(env, dispatch, getSubs(), activeSubs);
+    // runEffects signature is (env, effects, dispatch)
+    runEffects(env, initResult.effects, dispatch);
 };
 //# sourceMappingURL=render.js.map

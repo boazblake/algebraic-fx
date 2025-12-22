@@ -8,93 +8,20 @@
 
 > **Program**\<`M`, `Msg`, `Env`\> = `object`
 
-Defined in: [core/types.ts:187](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/types.ts#L187)
+Defined in: [core/types.ts:111](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L111)
 
 Program<M, Msg, Env>
 
 A pure description of an application.
 
-A Program is **not** executed directly. It is a declarative specification
-that is interpreted by the algebraic-fx runtime (`renderApp`).
+A Program is not executed directly. It is a declarative specification
+interpreted by the algebraic-fx runtime (`renderApp`).
 
-A Program consists of four parts:
-
----------------------------------------------------------------------------
-init
----------------------------------------------------------------------------
-
-An `IO` action that produces:
- - the initial application model
- - an initial list of one-shot effects
-
-`init` is executed exactly once by the runtime at application startup.
-
-It must be pure and deterministic.
-
----------------------------------------------------------------------------
-update
----------------------------------------------------------------------------
-
-A pure state transition function:
-
-  (msg, model, dispatch) -> { model, effects }
-
-Given:
- - a message (`Msg`)
- - the current model (`M`)
- - a dispatch function (for advanced coordination cases)
-
-it returns:
- - a new model
- - a list of **one-shot effects** (`RawEffect`)
-
-Important:
- - `update` MUST NOT perform side effects directly
- - it only *describes* effects as data
- - returned effects are interpreted by the runtime
-
----------------------------------------------------------------------------
-view
----------------------------------------------------------------------------
-
-A pure rendering function:
-
-  (model, dispatch) -> VNode
-
-It transforms the current model into a virtual DOM tree.
-
-The runtime is responsible for reconciling this tree into the real DOM.
-
----------------------------------------------------------------------------
-subs (optional)
----------------------------------------------------------------------------
-
-A pure function that describes **long-lived subscriptions**:
-
-  (model) -> Subscription[]
-
-Subscriptions are:
- - persistent over time
- - keyed by identity
- - started and stopped automatically by the runtime
-
-This mirrors Elm’s `subscriptions`:
-
- - When a subscription appears, the runtime starts it
- - When it disappears, the runtime cleans it up
- - Re-rendering does NOT restart subscriptions
-
-`subs` must:
- - depend only on the model
- - return the same keys for logically identical subscriptions
-
----------------------------------------------------------------------------
-Semantics Summary
----------------------------------------------------------------------------
+Semantics Summary:
 
  - `init`  → initial Cmd-like effects
- - `update` → one-shot Cmd-like effects
- - `subs`  → long-lived Sub-like effects
+ - `update` → Cmd-like effects after each state transition
+ - `subs`  → long-lived Sub-like effects (keyed subscriptions)
  - `view`  → pure rendering
 
 Programs never run effects themselves.
@@ -102,11 +29,6 @@ The runtime owns:
  - effect execution
  - subscription lifetimes
  - cleanup
-
-This separation guarantees:
- - determinism
- - testability
- - correct subscription behavior
 
 ## Type Parameters
 
@@ -128,7 +50,15 @@ This separation guarantees:
 
 > **init**: [`IO`](../namespaces/IO/interfaces/IO.md)\<\{ `effects`: [`RawEffect`](RawEffect.md)\<`Env`, `Msg`\>[]; `model`: `M`; \}\>
 
-Defined in: [core/types.ts:188](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/types.ts#L188)
+Defined in: [core/types.ts:121](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L121)
+
+init
+
+Executed exactly once by the runtime at application startup.
+
+Returns:
+ - initial model
+ - initial Cmd effects
 
 ***
 
@@ -136,11 +66,17 @@ Defined in: [core/types.ts:188](https://github.com/boazblake/algebraic-fx/blob/0
 
 > `optional` **subs**: (`model`) => [`Subscription`](Subscription.md)\<`Env`, `Msg`\>[]
 
-Defined in: [core/types.ts:204](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/types.ts#L204)
+Defined in: [core/types.ts:160](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L160)
 
-Describe long-lived subscriptions derived from the current model.
+subs (optional)
 
-This function is optional.
+Declare long-lived subscriptions derived from the current model.
+
+Subscriptions:
+ - are keyed
+ - persist across renders
+ - are started/stopped by the runtime
+
 If omitted, the program has no subscriptions.
 
 #### Parameters
@@ -159,7 +95,16 @@ If omitted, the program has no subscriptions.
 
 > **update**: (`msg`, `model`, `dispatch`) => `object`
 
-Defined in: [core/types.ts:190](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/types.ts#L190)
+Defined in: [core/types.ts:133](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L133)
+
+update
+
+Pure state transition:
+
+  (msg, model, dispatch) -> { model, effects }
+
+MUST NOT perform side effects directly.
+Instead, it returns a list of Cmd-like `RawEffect` descriptions.
 
 #### Parameters
 
@@ -193,7 +138,13 @@ Defined in: [core/types.ts:190](https://github.com/boazblake/algebraic-fx/blob/0
 
 > **view**: (`model`, `dispatch`) => [`VChild`](VChild.md) \| [`VChild`](VChild.md)[]
 
-Defined in: [core/types.ts:196](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/types.ts#L196)
+Defined in: [core/types.ts:146](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L146)
+
+view
+
+Pure rendering:
+
+  (model, dispatch) -> VNode (or children)
 
 #### Parameters
 

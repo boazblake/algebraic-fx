@@ -8,7 +8,7 @@
 
 > **asks**\<`R`, `A`\>(`f`): [`Reader`](../interfaces/Reader.md)\<`R`, `A`\>
 
-Defined in: [adt/reader.ts:85](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/reader.ts#L85)
+Defined in: [adt/reader.ts:85](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/reader.ts#L85)
 
 ## Type Parameters
 

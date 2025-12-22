@@ -1,28 +1,19 @@
+// src/apps/clock/view.ts
+
 import { m } from "algebraic-fx";
 import type { Dispatch } from "algebraic-fx/core/types";
-import type { Model, Msg } from "./model";
+import type { Model, Msg } from "./types";
 
 export const view = (model: Model, dispatch: Dispatch<Msg>) =>
-  m("section.card", [
-    m("h2", "Clock (subscription)"),
+  m("div.card", [
+    m("h2", "Clock"),
+    m("div", `now: ${model.nowMs}`),
     m("div.row", [
       m(
         "button",
-        {
-          onclick: () => dispatch({ type: "clock.start" }),
-          disabled: model.running,
-        },
-        "Start"
+        { onclick: () => dispatch({ type: "clock.start" }) },
+        "start"
       ),
-      m(
-        "button",
-        {
-          onclick: () => dispatch({ type: "clock.stop" }),
-          disabled: !model.running,
-        },
-        "Stop"
-      ),
+      m("button", { onclick: () => dispatch({ type: "clock.stop" }) }, "stop"),
     ]),
-    m("div.muted", `running: ${String(model.running)}`),
-    m("div", `nowMs: ${model.nowMs}`),
   ]);

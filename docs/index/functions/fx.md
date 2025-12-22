@@ -8,7 +8,7 @@
 
 > **fx**\<`Env`, `Msg`\>(`impl`): [`Effect`](../interfaces/Effect.md)\<`Env`, `Msg`\>
 
-Defined in: [core/effects.ts:72](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/effects.ts#L72)
+Defined in: [core/effects.ts:78](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/effects.ts#L78)
 
 Construct a branded Effect.
 
@@ -35,8 +35,8 @@ Construct a branded Effect.
 ## Example
 
 ```ts
-fx((env, dispatch) => {
-  const id = setInterval(() => dispatch({ type: "tick" }), 1000)
-  return () => clearInterval(id)
-})
+const eff = fx((env, dispatch) => {
+  const id = env.window.setInterval(() => dispatch({ type: "tick" }), 1000);
+  return () => env.window.clearInterval(id);
+});
 ```

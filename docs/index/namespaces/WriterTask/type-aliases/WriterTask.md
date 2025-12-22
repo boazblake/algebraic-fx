@@ -8,7 +8,7 @@
 
 > **WriterTask**\<`W`, `E`, `A`\> = `object`
 
-Defined in: [adt/writer-task.ts:6](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/writer-task.ts#L6)
+Defined in: [adt/writer-task.ts:6](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/writer-task.ts#L6)
 
 ## Type Parameters
 
@@ -30,7 +30,7 @@ Defined in: [adt/writer-task.ts:6](https://github.com/boazblake/algebraic-fx/blo
 
 > `readonly` **monoid**: [`Monoid`](../../Monoid/type-aliases/Monoid.md)\<`W`\>
 
-Defined in: [adt/writer-task.ts:8](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/writer-task.ts#L8)
+Defined in: [adt/writer-task.ts:8](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/writer-task.ts#L8)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: [adt/writer-task.ts:8](https://github.com/boazblake/algebraic-fx/blo
 
 > `readonly` **runTask**: [`Task`](../../Task/interfaces/Task.md)\<`E`, \[`A`, `W`\]\>
 
-Defined in: [adt/writer-task.ts:7](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/writer-task.ts#L7)
+Defined in: [adt/writer-task.ts:7](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/writer-task.ts#L7)

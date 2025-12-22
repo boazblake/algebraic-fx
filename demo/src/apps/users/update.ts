@@ -2,61 +2,35 @@ import { fx } from "algebraic-fx/core/effects";
 import type { Dispatch } from "algebraic-fx/core/types";
 import type { RawEffect } from "algebraic-fx/core/effects";
 import type { AppEnv } from "../../env";
+import type { Model, Msg, User } from "./types";
 
-export type User = { name: string; email: string };
-
-export type Model = {
-  users: User[];
-  loading: boolean;
-  error: string | null;
-};
-
-export type Msg =
-  | { type: "users.fetch" }
-  | { type: "users.loaded"; users: User[] }
-  | { type: "users.failed"; error: string };
-
-const fetchUsersFx = (): RawEffect<AppEnv, Msg> =>
-  fx<AppEnv, Msg>((env, dispatch) => {
-    env.window
+const fetchUsers = (): RawEffect<AppEnv, Msg> =>
+  fx((env, dispatch) => {
+    env
       .fetch(`${env.usersBaseUrl}/users`)
       .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status} ${r.statusText}`);
-        return r.json() as Promise<unknown>;
+        if (!r.ok) throw new Error(r.statusText);
+        return r.json() as Promise<User[]>;
       })
-      .then((json) => {
-        const users = Array.isArray(json)
-          ? (json as any[]).map((u) => ({
-              name: String(u?.name ?? ""),
-              email: String(u?.email ?? ""),
-            }))
-          : [];
-        dispatch({ type: "users.loaded", users });
-      })
-      .catch((e) => {
-        dispatch({
-          type: "users.failed",
-          error: e instanceof Error ? e.message : String(e),
-        });
-      });
-
-    return;
+      .then((users) => dispatch({ type: "users.loaded", users }))
+      .catch((e) => dispatch({ type: "users.failed", error: String(e) }));
   });
 
 export const update = (
   msg: Msg,
-  model: Model
+  model: Model,
+  _dispatch: Dispatch<Msg>
 ): { model: Model; effects: RawEffect<AppEnv, Msg>[] } => {
   switch (msg.type) {
     case "users.fetch":
       return {
         model: { ...model, loading: true, error: null },
-        effects: [fetchUsersFx()],
+        effects: [fetchUsers()],
       };
 
     case "users.loaded":
       return {
-        model: { ...model, loading: false, users: msg.users, error: null },
+        model: { users: msg.users, loading: false, error: null },
         effects: [],
       };
 
@@ -65,5 +39,8 @@ export const update = (
         model: { ...model, loading: false, error: msg.error },
         effects: [],
       };
+
+    default:
+      return { model, effects: [] };
   }
 };

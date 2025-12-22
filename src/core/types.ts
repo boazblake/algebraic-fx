@@ -8,17 +8,17 @@
  *  - message dispatch
  *  - the Program interface
  *
- * These types describe *pure data and functions* only.
+ * These types describe pure data and functions only.
  * No runtime behavior is defined here.
  */
 
 import type { IO } from "../adt/io.js";
-import type { Reader } from "../adt/reader.js";
 import type { RawEffect, Subscription } from "./effects.js";
 
 /* ============================================================================
  * Virtual DOM
  * ==========================================================================*/
+
 /**
  * A virtual DOM child node.
  *
@@ -28,6 +28,7 @@ import type { RawEffect, Subscription } from "./effects.js";
  *  - boolean, null, or undefined (ignored by the renderer)
  */
 export type VChild = VNode | string | number | boolean | null | undefined;
+
 /**
  * Element attributes and properties.
  *
@@ -52,7 +53,6 @@ export type Props = Record<string, any> & {
  *  - key: optional stable identity for keyed diffing
  *  - dom: renderer-managed reference to the real DOM node
  */
-
 export type VNode = {
   tag: string;
   props?: Props | null;
@@ -64,17 +64,19 @@ export type VNode = {
 /* ============================================================================
  * Dispatch & Payload
  * ==========================================================================*/
+
 /**
  * Dispatch function used to send messages into the runtime.
  *
  * Calling dispatch schedules a state transition via Program.update.
  */
 export type Dispatch<Msg> = (msg: Msg) => void;
+
 /**
  * Optional helper shape for tagged messages.
  *
- * This type is not required by the runtime, but can be used
- * by applications that prefer structured message envelopes.
+ * This type is not required by the runtime, but can be used by applications
+ * that prefer structured message envelopes.
  */
 export type Payload<T extends string, M extends object = {}> = {
   type: T;
@@ -90,87 +92,14 @@ export type Payload<T extends string, M extends object = {}> = {
  *
  * A pure description of an application.
  *
- * A Program is **not** executed directly. It is a declarative specification
- * that is interpreted by the algebraic-fx runtime (`renderApp`).
+ * A Program is not executed directly. It is a declarative specification
+ * interpreted by the algebraic-fx runtime (`renderApp`).
  *
- * A Program consists of four parts:
- *
- * ---------------------------------------------------------------------------
- * init
- * ---------------------------------------------------------------------------
- *
- * An `IO` action that produces:
- *  - the initial application model
- *  - an initial list of one-shot effects
- *
- * `init` is executed exactly once by the runtime at application startup.
- *
- * It must be pure and deterministic.
- *
- * ---------------------------------------------------------------------------
- * update
- * ---------------------------------------------------------------------------
- *
- * A pure state transition function:
- *
- *   (msg, model, dispatch) -> { model, effects }
- *
- * Given:
- *  - a message (`Msg`)
- *  - the current model (`M`)
- *  - a dispatch function (for advanced coordination cases)
- *
- * it returns:
- *  - a new model
- *  - a list of **one-shot effects** (`RawEffect`)
- *
- * Important:
- *  - `update` MUST NOT perform side effects directly
- *  - it only *describes* effects as data
- *  - returned effects are interpreted by the runtime
- *
- * ---------------------------------------------------------------------------
- * view
- * ---------------------------------------------------------------------------
- *
- * A pure rendering function:
- *
- *   (model, dispatch) -> VNode
- *
- * It transforms the current model into a virtual DOM tree.
- *
- * The runtime is responsible for reconciling this tree into the real DOM.
- *
- * ---------------------------------------------------------------------------
- * subs (optional)
- * ---------------------------------------------------------------------------
- *
- * A pure function that describes **long-lived subscriptions**:
- *
- *   (model) -> Subscription[]
- *
- * Subscriptions are:
- *  - persistent over time
- *  - keyed by identity
- *  - started and stopped automatically by the runtime
- *
- * This mirrors Elm’s `subscriptions`:
- *
- *  - When a subscription appears, the runtime starts it
- *  - When it disappears, the runtime cleans it up
- *  - Re-rendering does NOT restart subscriptions
- *
- * `subs` must:
- *  - depend only on the model
- *  - return the same keys for logically identical subscriptions
- *
- * ---------------------------------------------------------------------------
- * Semantics Summary
- * ---------------------------------------------------------------------------
+ * Semantics Summary:
  *
  *  - `init`  → initial Cmd-like effects
- *  - `update` → one-shot Cmd-like effects
- *  - `subs`  → long-lived Sub-like effects
+ *  - `update` → Cmd-like effects after each state transition
+ *  - `subs`  → long-lived Sub-like effects (keyed subscriptions)
  *  - `view`  → pure rendering
  *
  * Programs never run effects themselves.
@@ -178,27 +107,54 @@ export type Payload<T extends string, M extends object = {}> = {
  *  - effect execution
  *  - subscription lifetimes
  *  - cleanup
- *
- * This separation guarantees:
- *  - determinism
- *  - testability
- *  - correct subscription behavior
  */
 export type Program<M, Msg, Env> = {
+  /**
+   * init
+   *
+   * Executed exactly once by the runtime at application startup.
+   *
+   * Returns:
+   *  - initial model
+   *  - initial Cmd effects
+   */
   init: IO<{ model: M; effects: RawEffect<Env, Msg>[] }>;
 
+  /**
+   * update
+   *
+   * Pure state transition:
+   *
+   *   (msg, model, dispatch) -> { model, effects }
+   *
+   * MUST NOT perform side effects directly.
+   * Instead, it returns a list of Cmd-like `RawEffect` descriptions.
+   */
   update: (
     msg: Msg,
     model: M,
     dispatch: Dispatch<Msg>
   ) => { model: M; effects: RawEffect<Env, Msg>[] };
 
+  /**
+   * view
+   *
+   * Pure rendering:
+   *
+   *   (model, dispatch) -> VNode (or children)
+   */
   view: (model: M, dispatch: Dispatch<Msg>) => VChild | VChild[];
 
   /**
-   * Describe long-lived subscriptions derived from the current model.
+   * subs (optional)
    *
-   * This function is optional.
+   * Declare long-lived subscriptions derived from the current model.
+   *
+   * Subscriptions:
+   *  - are keyed
+   *  - persist across renders
+   *  - are started/stopped by the runtime
+   *
    * If omitted, the program has no subscriptions.
    */
   subs?: (model: M) => Subscription<Env, Msg>[];

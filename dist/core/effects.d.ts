@@ -11,7 +11,7 @@ declare const EffectBrand: unique symbol;
 /**
  * Effect<Env, Msg>
  *
- * A long-lived, runtime-managed side effect.
+ * A long-lived, runtime-invoked side effect.
  *
  * Effects represent ongoing processes such as:
  *  - timers
@@ -22,6 +22,10 @@ declare const EffectBrand: unique symbol;
  *  - are started by the runtime
  *  - receive `env` and `dispatch`
  *  - may return a cleanup function
+ *
+ * NOTE:
+ * `Effect` values are allowed as Cmd-like results from `init`/`update`.
+ * If you want keyed lifecycle management, wrap an Effect in a `Subscription`.
  */
 export interface Effect<Env, Msg> {
     readonly [EffectBrand]: true;
@@ -31,17 +35,18 @@ export interface Effect<Env, Msg> {
  * Construct a branded Effect.
  *
  * @example
- * fx((env, dispatch) => {
- *   const id = setInterval(() => dispatch({ type: "tick" }), 1000)
- *   return () => clearInterval(id)
- * })
+ * ```ts
+ * const eff = fx((env, dispatch) => {
+ *   const id = env.window.setInterval(() => dispatch({ type: "tick" }), 1000);
+ *   return () => env.window.clearInterval(id);
+ * });
+ * ```
  */
 export declare const fx: <Env, Msg>(impl: (env: Env, dispatch: Dispatch<Msg>) => void | (() => void)) => Effect<Env, Msg>;
 /**
  * Subscription<Env, Msg>
  *
- * A keyed, long-lived Effect whose lifecycle is managed
- * by the runtime (`renderApp`).
+ * A keyed, long-lived Effect whose lifecycle is managed by the runtime.
  *
  * Subscriptions:
  *  - persist across renders
@@ -58,7 +63,7 @@ export type Subscription<Env, Msg> = {
 /**
  * Construct a Subscription.
  *
- * @param key Stable identity for the subscription
+ * @param key Stable identity for the subscription.
  */
 export declare const sub: <Env, Msg>(key: string, impl: (env: Env, dispatch: Dispatch<Msg>) => void | (() => void)) => Subscription<Env, Msg>;
 /**
@@ -78,28 +83,41 @@ export declare const isSubscription: <Env, Msg>(u: unknown) => u is Subscription
  *  - Reader<Env, IO<Msg | void>>
  *  - Task<E, Msg | void>
  *  - Reader<Env, Task<E, Msg | void>>
- *
- * Sub-like (long-lived):
  *  - Effect<Env, Msg>
+ *
+ * Sub-like (long-lived, runtime-managed):
  *  - Subscription<Env, Msg>
  */
 export type RawEffect<Env, Msg> = Msg | IO<Msg | void> | Reader<Env, IO<Msg | void>> | Task<unknown, Msg | void> | Reader<Env, Task<unknown, Msg | void>> | Effect<Env, Msg> | Subscription<Env, Msg>;
 /**
- * Interpret one-shot RawEffects.
+ * Interpret Cmd-like RawEffects.
  *
  * IMPORTANT:
  * - Subscriptions are IGNORED here
  * - This function is PURE and STATELESS
+ * - Subscription lifecycle is handled by the runtime (`renderApp`)
  *
- * Subscription lifecycle is handled by the runtime (`renderApp`).
+ * Canonical call form:
+ *   runEffects(env, dispatch, effects)
+ *
+ * @returns A disposer that runs all collected cleanup functions from Effects.
  */
-export declare const runEffects: <Env, Msg>(env: Env, dispatch: Dispatch<Msg>, effects: readonly RawEffect<Env, Msg>[] | undefined) => (() => void);
+export declare function runEffects<Env, Msg>(env: Env, dispatch: Dispatch<Msg>, effects: readonly RawEffect<Env, Msg>[] | undefined): () => void;
 /**
- * Lift a one-shot effect from message type A to B.
+ * Compatibility overload:
+ *   runEffects(env, effects, dispatch)
+ *
+ * This keeps older call sites/benchmarks working without changing semantics.
+ */
+export declare function runEffects<Env, Msg>(env: Env, effects: readonly RawEffect<Env, Msg>[] | undefined, dispatch: Dispatch<Msg>): () => void;
+/**
+ * Lift a one-shot (Cmd-like) RawEffect from message type A to B.
  *
  * Equivalent to Elm's `Cmd.map`.
  *
- * MUST NOT be used for Subscriptions.
+ * IMPORTANT:
+ * - Subscriptions MUST NOT be passed here.
+ * - For subscriptions, use `mapSub` / `mapSubs`.
  */
 export declare const mapCmd: <Env, A, B>(eff: RawEffect<Env, A>, lift: (a: A) => B) => RawEffect<Env, B>;
 /**
@@ -111,7 +129,7 @@ export declare const mapCmds: <Env, A, B>(effects: readonly RawEffect<Env, A>[],
  *
  * Subscription identity (key) is preserved.
  */
-export declare const mapSub: <Env, A, B>(sub: Subscription<Env, A>, lift: (a: A) => B) => Subscription<Env, B>;
+export declare const mapSub: <Env, A, B>(s: Subscription<Env, A>, lift: (a: A) => B) => Subscription<Env, B>;
 /**
  * Map a list of Subscriptions.
  */

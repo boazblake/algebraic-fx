@@ -24,7 +24,7 @@ import type { Dispatch } from "./types.js";
  *
  * This file:
  *   ✔ defines Effect and Subscription
- *   ✔ interprets one-shot effects
+ *   ✔ interprets one-shot effects (Cmd)
  *   ✔ provides Cmd.map / Sub.map equivalents
  *   ✘ does NOT track subscriptions
  */
@@ -43,7 +43,7 @@ const EffectBrand = Symbol("EffectBrand");
 /**
  * Effect<Env, Msg>
  *
- * A long-lived, runtime-managed side effect.
+ * A long-lived, runtime-invoked side effect.
  *
  * Effects represent ongoing processes such as:
  *  - timers
@@ -54,6 +54,10 @@ const EffectBrand = Symbol("EffectBrand");
  *  - are started by the runtime
  *  - receive `env` and `dispatch`
  *  - may return a cleanup function
+ *
+ * NOTE:
+ * `Effect` values are allowed as Cmd-like results from `init`/`update`.
+ * If you want keyed lifecycle management, wrap an Effect in a `Subscription`.
  */
 export interface Effect<Env, Msg> {
   readonly [EffectBrand]: true;
@@ -64,10 +68,12 @@ export interface Effect<Env, Msg> {
  * Construct a branded Effect.
  *
  * @example
- * fx((env, dispatch) => {
- *   const id = setInterval(() => dispatch({ type: "tick" }), 1000)
- *   return () => clearInterval(id)
- * })
+ * ```ts
+ * const eff = fx((env, dispatch) => {
+ *   const id = env.window.setInterval(() => dispatch({ type: "tick" }), 1000);
+ *   return () => env.window.clearInterval(id);
+ * });
+ * ```
  */
 export const fx = <Env, Msg>(
   impl: (env: Env, dispatch: Dispatch<Msg>) => void | (() => void)
@@ -83,8 +89,7 @@ export const fx = <Env, Msg>(
 /**
  * Subscription<Env, Msg>
  *
- * A keyed, long-lived Effect whose lifecycle is managed
- * by the runtime (`renderApp`).
+ * A keyed, long-lived Effect whose lifecycle is managed by the runtime.
  *
  * Subscriptions:
  *  - persist across renders
@@ -102,7 +107,7 @@ export type Subscription<Env, Msg> = {
 /**
  * Construct a Subscription.
  *
- * @param key Stable identity for the subscription
+ * @param key Stable identity for the subscription.
  */
 export const sub = <Env, Msg>(
   key: string,
@@ -119,7 +124,9 @@ export const sub = <Env, Msg>(
 export const isSubscription = <Env, Msg>(
   u: unknown
 ): u is Subscription<Env, Msg> =>
-  !!u && typeof u === "object" && (u as any)._tag === "Subscription";
+  !!u &&
+  typeof u === "object" &&
+  (u as { _tag?: unknown })._tag === "Subscription";
 
 /* ============================================================================
  * RawEffect
@@ -138,9 +145,9 @@ export const isSubscription = <Env, Msg>(
  *  - Reader<Env, IO<Msg | void>>
  *  - Task<E, Msg | void>
  *  - Reader<Env, Task<E, Msg | void>>
- *
- * Sub-like (long-lived):
  *  - Effect<Env, Msg>
+ *
+ * Sub-like (long-lived, runtime-managed):
  *  - Subscription<Env, Msg>
  */
 export type RawEffect<Env, Msg> =
@@ -153,7 +160,7 @@ export type RawEffect<Env, Msg> =
   | Subscription<Env, Msg>;
 
 /* ============================================================================
- * Type guards
+ * Type guards (private)
  * ========================================================================== */
 
 const isEffect = <Env, Msg>(u: unknown): u is Effect<Env, Msg> =>
@@ -184,60 +191,65 @@ const isIO = (u: unknown): u is IO<unknown> =>
  * ========================================================================== */
 
 /**
- * Interpret one-shot RawEffects.
+ * Interpret Cmd-like RawEffects.
  *
  * IMPORTANT:
  * - Subscriptions are IGNORED here
  * - This function is PURE and STATELESS
+ * - Subscription lifecycle is handled by the runtime (`renderApp`)
  *
- * Subscription lifecycle is handled by the runtime (`renderApp`).
+ * Canonical call form:
+ *   runEffects(env, dispatch, effects)
+ *
+ * @returns A disposer that runs all collected cleanup functions from Effects.
  */
-export const runEffects = <Env, Msg>(
+export function runEffects<Env, Msg>(
   env: Env,
   dispatch: Dispatch<Msg>,
   effects: readonly RawEffect<Env, Msg>[] | undefined
-): (() => void) => {
-  if (!effects || effects.length === 0) {
-    return () => {};
-  }
+): () => void;
 
-  const cleanups: (() => void)[] = [];
+/**
+ * Compatibility overload:
+ *   runEffects(env, effects, dispatch)
+ *
+ * This keeps older call sites/benchmarks working without changing semantics.
+ */
+export function runEffects<Env, Msg>(
+  env: Env,
+  effects: readonly RawEffect<Env, Msg>[] | undefined,
+  dispatch: Dispatch<Msg>
+): () => void;
 
-  for (const eff of effects) {
-    if (!eff) continue;
+export function runEffects<Env, Msg>(
+  env: Env,
+  a: Dispatch<Msg> | readonly RawEffect<Env, Msg>[] | undefined,
+  b: readonly RawEffect<Env, Msg>[] | undefined | Dispatch<Msg>
+): () => void {
+  const dispatch: Dispatch<Msg> =
+    typeof a === "function" ? (a as Dispatch<Msg>) : (b as Dispatch<Msg>);
+  const effects: readonly RawEffect<Env, Msg>[] | undefined =
+    typeof a === "function" ? (b as any) : (a as any);
 
-    // Subscriptions are ignored here
-    if (isSubscription(eff)) continue;
+  const cleanups: Array<() => void> = [];
 
-    // Effect
-    if (isEffect<Env, Msg>(eff)) {
-      const c = eff.run(env, dispatch);
-      if (typeof c === "function") cleanups.push(c);
-      continue;
-    }
+  if (effects && effects.length > 0) {
+    for (const eff of effects) {
+      if (!eff) continue;
 
-    // Task
-    if (isTask(eff)) {
-      eff.run().then((ea: any) => {
-        if (ea && ea._tag === "Right" && ea.right !== undefined) {
-          dispatch(ea.right as Msg);
-        }
-      });
-      continue;
-    }
+      // Subscriptions are ignored at this layer.
+      if (isSubscription(eff)) continue;
 
-    // Reader
-    if (isReader(eff)) {
-      const inner = (eff as Reader<Env, unknown>).run(env) as any;
-
-      if (isIO(inner)) {
-        const msg = inner.run();
-        if (msg !== undefined) dispatch(msg as Msg);
+      // Effect (unkeyed)
+      if (isEffect<Env, Msg>(eff)) {
+        const c = eff.run(env, dispatch);
+        if (typeof c === "function") cleanups.push(c);
         continue;
       }
 
-      if (isTask(inner)) {
-        inner.run().then((ea: any) => {
+      // Task
+      if (isTask(eff)) {
+        eff.run().then((ea: any) => {
           if (ea && ea._tag === "Right" && ea.right !== undefined) {
             dispatch(ea.right as Msg);
           }
@@ -245,18 +257,38 @@ export const runEffects = <Env, Msg>(
         continue;
       }
 
-      continue;
-    }
+      // Reader<IO> | Reader<Task>
+      if (isReader(eff)) {
+        const inner = (eff as Reader<Env, unknown>).run(env) as unknown;
 
-    // IO
-    if (isIO(eff)) {
-      const msg = (eff as IO<Msg | void>).run();
-      if (msg !== undefined) dispatch(msg as Msg);
-      continue;
-    }
+        if (isIO(inner)) {
+          const msg = (inner as IO<Msg | void>).run();
+          if (msg !== undefined) dispatch(msg as Msg);
+          continue;
+        }
 
-    // Plain Msg
-    dispatch(eff as Msg);
+        if (isTask(inner)) {
+          (inner as Task<unknown, Msg | void>).run().then((ea: any) => {
+            if (ea && ea._tag === "Right" && ea.right !== undefined) {
+              dispatch(ea.right as Msg);
+            }
+          });
+          continue;
+        }
+
+        continue;
+      }
+
+      // IO
+      if (isIO(eff)) {
+        const msg = (eff as IO<Msg | void>).run();
+        if (msg !== undefined) dispatch(msg as Msg);
+        continue;
+      }
+
+      // Plain Msg
+      dispatch(eff as Msg);
+    }
   }
 
   return () => {
@@ -268,46 +300,53 @@ export const runEffects = <Env, Msg>(
       }
     }
   };
-};
+}
 
 /* ============================================================================
  * Cmd mapping (Elm Cmd.map)
  * ========================================================================== */
 
 /**
- * Lift a one-shot effect from message type A to B.
+ * Lift a one-shot (Cmd-like) RawEffect from message type A to B.
  *
  * Equivalent to Elm's `Cmd.map`.
  *
- * MUST NOT be used for Subscriptions.
+ * IMPORTANT:
+ * - Subscriptions MUST NOT be passed here.
+ * - For subscriptions, use `mapSub` / `mapSubs`.
  */
 export const mapCmd = <Env, A, B>(
   eff: RawEffect<Env, A>,
   lift: (a: A) => B
 ): RawEffect<Env, B> => {
-  // Plain message
+  if (isSubscription(eff)) {
+    throw new Error("mapCmd: Subscription is not a Cmd. Use mapSub/mapSubs.");
+  }
+
+  // Plain message (assumes common `{ type: string }` shape)
   if (typeof eff === "object" && eff !== null && "type" in eff) {
     return lift(eff as A);
   }
 
   // IO
-  if ((eff as any)?.run && (eff as any).run.length === 0) {
+  if (isIO(eff)) {
+    const io = eff as IO<A | void>;
     return {
-      ...(eff as any),
+      ...(io as any),
       run: () => {
-        const v = (eff as any).run();
+        const v = io.run();
         return v === undefined ? undefined : lift(v);
       },
-    } as any;
+    } as unknown as IO<B | void>;
   }
 
-  // Effect (fx)
-  if ((eff as any)?.run) {
-    return fx<Env, B>((env, dispatch) =>
-      (eff as Effect<Env, A>).run(env, (a) => dispatch(lift(a)))
-    );
+  // Effect
+  if (isEffect<Env, A>(eff)) {
+    const e = eff as Effect<Env, A>;
+    return fx<Env, B>((env, dispatch) => e.run(env, (a) => dispatch(lift(a))));
   }
 
+  // Reader / Task: mapping is applied when they resolve to a Msg in runEffects.
   return eff as unknown as RawEffect<Env, B>;
 };
 
@@ -330,12 +369,12 @@ export const mapCmds = <Env, A, B>(
  * Subscription identity (key) is preserved.
  */
 export const mapSub = <Env, A, B>(
-  sub: Subscription<Env, A>,
+  s: Subscription<Env, A>,
   lift: (a: A) => B
 ): Subscription<Env, B> => ({
   _tag: "Subscription",
-  key: sub.key,
-  effect: fx((env, dispatch) => sub.effect.run(env, (a) => dispatch(lift(a)))),
+  key: s.key,
+  effect: fx((env, dispatch) => s.effect.run(env, (a) => dispatch(lift(a)))),
 });
 
 /**

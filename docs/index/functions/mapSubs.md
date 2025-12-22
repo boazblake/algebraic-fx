@@ -8,7 +8,7 @@
 
 > **mapSubs**\<`Env`, `A`, `B`\>(`subs`, `lift`): [`Subscription`](../type-aliases/Subscription.md)\<`Env`, `B`\>[]
 
-Defined in: [core/effects.ts:344](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/effects.ts#L344)
+Defined in: [core/effects.ts:383](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/effects.ts#L383)
 
 Map a list of Subscriptions.
 

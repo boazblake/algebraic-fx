@@ -8,7 +8,7 @@
 
 > **RawEffect**\<`Env`, `Msg`\> = `Msg` \| [`IO`](../namespaces/IO/interfaces/IO.md)\<`Msg` \| `void`\> \| [`Reader`](../namespaces/Reader/interfaces/Reader.md)\<`Env`, [`IO`](../namespaces/IO/interfaces/IO.md)\<`Msg` \| `void`\>\> \| [`Task`](../namespaces/Task/interfaces/Task.md)\<`unknown`, `Msg` \| `void`\> \| [`Reader`](../namespaces/Reader/interfaces/Reader.md)\<`Env`, [`Task`](../namespaces/Task/interfaces/Task.md)\<`unknown`, `Msg` \| `void`\>\> \| [`Effect`](../interfaces/Effect.md)\<`Env`, `Msg`\> \| [`Subscription`](Subscription.md)\<`Env`, `Msg`\>
 
-Defined in: [core/effects.ts:146](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/effects.ts#L146)
+Defined in: [core/effects.ts:153](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/effects.ts#L153)
 
 RawEffect<Env, Msg>
 
@@ -22,9 +22,9 @@ Cmd-like (one-shot):
  - Reader<Env, IO<Msg | void>>
  - Task<E, Msg | void>
  - Reader<Env, Task<E, Msg | void>>
-
-Sub-like (long-lived):
  - Effect<Env, Msg>
+
+Sub-like (long-lived, runtime-managed):
  - Subscription<Env, Msg>
 
 ## Type Parameters

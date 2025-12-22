@@ -6,7 +6,7 @@
 
 # Interface: Task\<E, A\>
 
-Defined in: [adt/task.ts:11](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/task.ts#L11)
+Defined in: [adt/task.ts:11](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/task.ts#L11)
 
 Task<E, A> represents an async computation that can fail with E or succeed with A.
 It always resolves to Either<E, A>.
@@ -27,7 +27,7 @@ It always resolves to Either<E, A>.
 
 > `readonly` **\_tag**: `"Task"`
 
-Defined in: [adt/task.ts:12](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/task.ts#L12)
+Defined in: [adt/task.ts:12](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/task.ts#L12)
 
 ***
 
@@ -35,7 +35,7 @@ Defined in: [adt/task.ts:12](https://github.com/boazblake/algebraic-fx/blob/0d62
 
 > `readonly` **\[fl\_ap\]**: \<`B`\>(`fab`) => `Task`\<`E`, `B`\>
 
-Defined in: [adt/task.ts:22](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/task.ts#L22)
+Defined in: [adt/task.ts:22](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/task.ts#L22)
 
 #### Type Parameters
 
@@ -59,7 +59,7 @@ Defined in: [adt/task.ts:22](https://github.com/boazblake/algebraic-fx/blob/0d62
 
 > `readonly` **\[fl\_chain\]**: \<`B`\>(`f`) => `Task`\<`E`, `B`\>
 
-Defined in: [adt/task.ts:21](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/task.ts#L21)
+Defined in: [adt/task.ts:21](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/task.ts#L21)
 
 #### Type Parameters
 
@@ -83,7 +83,7 @@ Defined in: [adt/task.ts:21](https://github.com/boazblake/algebraic-fx/blob/0d62
 
 > `readonly` **\[fl\_map\]**: \<`B`\>(`f`) => `Task`\<`E`, `B`\>
 
-Defined in: [adt/task.ts:20](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/task.ts#L20)
+Defined in: [adt/task.ts:20](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/task.ts#L20)
 
 #### Type Parameters
 
@@ -107,7 +107,7 @@ Defined in: [adt/task.ts:20](https://github.com/boazblake/algebraic-fx/blob/0d62
 
 > `readonly` **run**: () => `Promise`\<[`Either`](../../Either/type-aliases/Either.md)\<`E`, `A`\>\>
 
-Defined in: [adt/task.ts:13](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/task.ts#L13)
+Defined in: [adt/task.ts:13](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/task.ts#L13)
 
 #### Returns
 
@@ -119,7 +119,7 @@ Defined in: [adt/task.ts:13](https://github.com/boazblake/algebraic-fx/blob/0d62
 
 > `readonly` **runWith**: \<`R`\>(`onError`, `onSuccess`) => `Promise`\<`R`\>
 
-Defined in: [adt/task.ts:14](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/task.ts#L14)
+Defined in: [adt/task.ts:14](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/task.ts#L14)
 
 #### Type Parameters
 

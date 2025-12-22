@@ -6,7 +6,7 @@
 
 # Interface: Stream\<A\>
 
-Defined in: [adt/stream.ts:7](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/stream.ts#L7)
+Defined in: [adt/stream.ts:7](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/stream.ts#L7)
 
 ## Type Parameters
 
@@ -20,7 +20,7 @@ Defined in: [adt/stream.ts:7](https://github.com/boazblake/algebraic-fx/blob/0d6
 
 > `readonly` **\_tag**: `"Stream"`
 
-Defined in: [adt/stream.ts:8](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/stream.ts#L8)
+Defined in: [adt/stream.ts:8](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/stream.ts#L8)
 
 ## Methods
 
@@ -28,7 +28,7 @@ Defined in: [adt/stream.ts:8](https://github.com/boazblake/algebraic-fx/blob/0d6
 
 > **\[fl\_map\]**\<`B`\>(`f`): `Stream`\<`B`\>
 
-Defined in: [adt/stream.ts:15](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/stream.ts#L15)
+Defined in: [adt/stream.ts:15](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/stream.ts#L15)
 
 #### Type Parameters
 
@@ -52,7 +52,7 @@ Defined in: [adt/stream.ts:15](https://github.com/boazblake/algebraic-fx/blob/0d
 
 > **filter**(`pred`): `Stream`\<`A`\>
 
-Defined in: [adt/stream.ts:12](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/stream.ts#L12)
+Defined in: [adt/stream.ts:12](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/stream.ts#L12)
 
 #### Parameters
 
@@ -70,7 +70,7 @@ Defined in: [adt/stream.ts:12](https://github.com/boazblake/algebraic-fx/blob/0d
 
 > **map**\<`B`\>(`f`): `Stream`\<`B`\>
 
-Defined in: [adt/stream.ts:11](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/stream.ts#L11)
+Defined in: [adt/stream.ts:11](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/stream.ts#L11)
 
 #### Type Parameters
 
@@ -94,7 +94,7 @@ Defined in: [adt/stream.ts:11](https://github.com/boazblake/algebraic-fx/blob/0d
 
 > **scan**\<`B`\>(`f`, `initial`): `Stream`\<`B`\>
 
-Defined in: [adt/stream.ts:13](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/stream.ts#L13)
+Defined in: [adt/stream.ts:13](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/stream.ts#L13)
 
 #### Type Parameters
 
@@ -122,7 +122,7 @@ Defined in: [adt/stream.ts:13](https://github.com/boazblake/algebraic-fx/blob/0d
 
 > **subscribe**(`listener`): [`Unsubscribe`](../type-aliases/Unsubscribe.md)
 
-Defined in: [adt/stream.ts:9](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/stream.ts#L9)
+Defined in: [adt/stream.ts:9](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/stream.ts#L9)
 
 #### Parameters
 
