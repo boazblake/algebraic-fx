@@ -6,7 +6,7 @@
 
 # Interface: Just\<A\>
 
-Defined in: [adt/maybe.ts:13](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/maybe.ts#L13)
+Defined in: [adt/maybe.ts:13](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/maybe.ts#L13)
 
 ## Extends
 
@@ -24,7 +24,7 @@ Defined in: [adt/maybe.ts:13](https://github.com/boazblake/algebraic-fx/blob/a47
 
 > `readonly` **\_tag**: `"Just"`
 
-Defined in: [adt/maybe.ts:14](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/maybe.ts#L14)
+Defined in: [adt/maybe.ts:14](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/maybe.ts#L14)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [adt/maybe.ts:14](https://github.com/boazblake/algebraic-fx/blob/a47
 
 > `readonly` **\[fl\_ap\]**: \<`B`\>(`mf`) => [`Maybe`](../type-aliases/Maybe.md)\<`B`\>
 
-Defined in: [adt/maybe.ts:9](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/maybe.ts#L9)
+Defined in: [adt/maybe.ts:9](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/maybe.ts#L9)
 
 #### Type Parameters
 
@@ -60,7 +60,7 @@ Defined in: [adt/maybe.ts:9](https://github.com/boazblake/algebraic-fx/blob/a47c
 
 > `readonly` **\[fl\_chain\]**: \<`B`\>(`f`) => [`Maybe`](../type-aliases/Maybe.md)\<`B`\>
 
-Defined in: [adt/maybe.ts:8](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/maybe.ts#L8)
+Defined in: [adt/maybe.ts:8](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/maybe.ts#L8)
 
 #### Type Parameters
 
@@ -88,7 +88,7 @@ Defined in: [adt/maybe.ts:8](https://github.com/boazblake/algebraic-fx/blob/a47c
 
 > `readonly` **\[fl\_map\]**: \<`B`\>(`f`) => [`Maybe`](../type-aliases/Maybe.md)\<`B`\>
 
-Defined in: [adt/maybe.ts:7](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/maybe.ts#L7)
+Defined in: [adt/maybe.ts:7](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/maybe.ts#L7)
 
 #### Type Parameters
 
@@ -116,7 +116,7 @@ Defined in: [adt/maybe.ts:7](https://github.com/boazblake/algebraic-fx/blob/a47c
 
 > `readonly` **\[fl\_of\]**: \<`B`\>(`b`) => [`Maybe`](../type-aliases/Maybe.md)\<`B`\>
 
-Defined in: [adt/maybe.ts:10](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/maybe.ts#L10)
+Defined in: [adt/maybe.ts:10](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/maybe.ts#L10)
 
 #### Type Parameters
 
@@ -144,4 +144,4 @@ Defined in: [adt/maybe.ts:10](https://github.com/boazblake/algebraic-fx/blob/a47
 
 > `readonly` **value**: `A`
 
-Defined in: [adt/maybe.ts:15](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/maybe.ts#L15)
+Defined in: [adt/maybe.ts:15](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/maybe.ts#L15)

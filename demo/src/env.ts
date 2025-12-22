@@ -12,6 +12,7 @@ export const makeEnv = (): AppEnv => {
   return {
     window: w,
     storage: w.localStorage,
+    fetch: fetch,
     now: () => Date.now(),
     usersBaseUrl: "https://jsonplaceholder.typicode.com",
     quotesBaseUrl: "https://api.coingecko.com/api/v3",

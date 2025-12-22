@@ -8,7 +8,7 @@
 
 > **tell**\<`W`\>(`m`, `w`): [`Writer`](../type-aliases/Writer.md)\<`W`, `void`\>
 
-Defined in: [adt/writer.ts:49](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/writer.ts#L49)
+Defined in: [adt/writer.ts:49](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/writer.ts#L49)
 
 tell: append a log value, with void result.
 

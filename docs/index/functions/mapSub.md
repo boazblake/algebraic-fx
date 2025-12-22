@@ -8,7 +8,7 @@
 
 > **mapSub**\<`Env`, `A`, `B`\>(`s`, `lift`): [`Subscription`](../type-aliases/Subscription.md)\<`Env`, `B`\>
 
-Defined in: [core/effects.ts:371](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/effects.ts#L371)
+Defined in: [core/effects.ts:371](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/effects.ts#L371)
 
 Lift a Subscription from message type A to B.
 

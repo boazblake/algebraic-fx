@@ -8,7 +8,7 @@
 
 > **VNode** = `object`
 
-Defined in: [core/types.ts:56](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L56)
+Defined in: [core/types.ts:56](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L56)
 
 Virtual DOM node representation.
 
@@ -28,7 +28,7 @@ Fields:
 
 > **children**: [`VChild`](VChild.md)[] \| `null`
 
-Defined in: [core/types.ts:59](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L59)
+Defined in: [core/types.ts:59](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L59)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [core/types.ts:59](https://github.com/boazblake/algebraic-fx/blob/a4
 
 > `optional` **dom**: `Node` \| `null`
 
-Defined in: [core/types.ts:61](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L61)
+Defined in: [core/types.ts:61](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L61)
 
 ***
 
@@ -44,7 +44,7 @@ Defined in: [core/types.ts:61](https://github.com/boazblake/algebraic-fx/blob/a4
 
 > `optional` **key**: `string` \| `number`
 
-Defined in: [core/types.ts:60](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L60)
+Defined in: [core/types.ts:60](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L60)
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: [core/types.ts:60](https://github.com/boazblake/algebraic-fx/blob/a4
 
 > `optional` **props**: [`Props`](Props.md) \| `null`
 
-Defined in: [core/types.ts:58](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L58)
+Defined in: [core/types.ts:58](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L58)
 
 ***
 
@@ -60,4 +60,4 @@ Defined in: [core/types.ts:58](https://github.com/boazblake/algebraic-fx/blob/a4
 
 > **tag**: `string`
 
-Defined in: [core/types.ts:57](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L57)
+Defined in: [core/types.ts:57](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L57)

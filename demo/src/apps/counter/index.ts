@@ -4,8 +4,10 @@ import type { AppEnv } from "../../env";
 import { init } from "./init";
 import { update } from "./update";
 import { view } from "./view";
-
 import type { Model, Msg } from "./types";
 
-export const counterApp: Program<Model, Msg, AppEnv> = { init, update, view };
-export type { Model, Msg };
+export const counterApp: Program<Model, Msg, AppEnv> = {
+  init,
+  update,
+  view,
+};

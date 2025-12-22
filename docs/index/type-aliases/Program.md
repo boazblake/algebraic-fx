@@ -8,7 +8,7 @@
 
 > **Program**\<`M`, `Msg`, `Env`\> = `object`
 
-Defined in: [core/types.ts:111](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L111)
+Defined in: [core/types.ts:111](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L111)
 
 Program<M, Msg, Env>
 
@@ -50,7 +50,7 @@ The runtime owns:
 
 > **init**: [`IO`](../namespaces/IO/interfaces/IO.md)\<\{ `effects`: [`RawEffect`](RawEffect.md)\<`Env`, `Msg`\>[]; `model`: `M`; \}\>
 
-Defined in: [core/types.ts:121](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L121)
+Defined in: [core/types.ts:121](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L121)
 
 init
 
@@ -66,7 +66,7 @@ Returns:
 
 > `optional` **subs**: (`model`) => [`Subscription`](Subscription.md)\<`Env`, `Msg`\>[]
 
-Defined in: [core/types.ts:160](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L160)
+Defined in: [core/types.ts:160](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L160)
 
 subs (optional)
 
@@ -95,7 +95,7 @@ If omitted, the program has no subscriptions.
 
 > **update**: (`msg`, `model`, `dispatch`) => `object`
 
-Defined in: [core/types.ts:133](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L133)
+Defined in: [core/types.ts:133](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L133)
 
 update
 
@@ -138,7 +138,7 @@ Instead, it returns a list of Cmd-like `RawEffect` descriptions.
 
 > **view**: (`model`, `dispatch`) => [`VChild`](VChild.md) \| [`VChild`](VChild.md)[]
 
-Defined in: [core/types.ts:146](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/core/types.ts#L146)
+Defined in: [core/types.ts:146](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L146)
 
 view
 

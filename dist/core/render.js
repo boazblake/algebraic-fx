@@ -83,15 +83,15 @@ export const renderApp = (root, program, env, renderer) => {
         currentModel = next.model;
         render();
         reconcileSubscriptions(env, dispatch, getSubs(), activeSubs);
-        // runEffects signature is (env, effects, dispatch)
-        runEffects(env, next.effects, dispatch);
+        // canonical runEffects call form: (env, dispatch, effects)
+        runEffects(env, dispatch, next.effects);
     };
     // init
     const initResult = program.init.run();
     currentModel = initResult.model;
     render();
     reconcileSubscriptions(env, dispatch, getSubs(), activeSubs);
-    // runEffects signature is (env, effects, dispatch)
-    runEffects(env, initResult.effects, dispatch);
+    // canonical runEffects call form: (env, dispatch, effects)
+    runEffects(env, dispatch, initResult.effects);
 };
 //# sourceMappingURL=render.js.map

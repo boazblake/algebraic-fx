@@ -1,5 +1,3 @@
-// src/apps/clock/types.ts
-
 export type Msg =
   | { type: "clock.start" }
   | { type: "clock.stop" }

@@ -1,8 +1,7 @@
 // src/core/render.ts
 
 import type { Program, Dispatch } from "./types.js";
-import type { Subscription, RawEffect } from "./effects.js";
-import { runEffects } from "./effects.js";
+import { runEffects, type Subscription } from "./effects.js";
 
 /* ============================================================================
  * Renderer
@@ -125,8 +124,8 @@ export const renderApp = <M, Msg, Env>(
 
     reconcileSubscriptions(env, dispatch, getSubs(), activeSubs);
 
-    // runEffects signature is (env, effects, dispatch)
-    runEffects(env, next.effects, dispatch);
+    // canonical runEffects call form: (env, dispatch, effects)
+    runEffects(env, dispatch, next.effects);
   };
 
   // init
@@ -137,6 +136,6 @@ export const renderApp = <M, Msg, Env>(
 
   reconcileSubscriptions(env, dispatch, getSubs(), activeSubs);
 
-  // runEffects signature is (env, effects, dispatch)
-  runEffects(env, initResult.effects, dispatch);
+  // canonical runEffects call form: (env, dispatch, effects)
+  runEffects(env, dispatch, initResult.effects);
 };

@@ -8,7 +8,7 @@
 
 > **Failure**\<`E`\> = `object`
 
-Defined in: [adt/validation.ts:4](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/validation.ts#L4)
+Defined in: [adt/validation.ts:4](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/validation.ts#L4)
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ Defined in: [adt/validation.ts:4](https://github.com/boazblake/algebraic-fx/blob
 
 > `readonly` **\_tag**: `"Failure"`
 
-Defined in: [adt/validation.ts:5](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/validation.ts#L5)
+Defined in: [adt/validation.ts:5](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/validation.ts#L5)
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: [adt/validation.ts:5](https://github.com/boazblake/algebraic-fx/blob
 
 > `readonly` **left**: `E`
 
-Defined in: [adt/validation.ts:6](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/validation.ts#L6)
+Defined in: [adt/validation.ts:6](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/validation.ts#L6)

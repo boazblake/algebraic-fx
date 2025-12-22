@@ -8,7 +8,7 @@
 
 > **Success**\<`A`\> = `object`
 
-Defined in: [adt/validation.ts:9](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/validation.ts#L9)
+Defined in: [adt/validation.ts:9](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/validation.ts#L9)
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ Defined in: [adt/validation.ts:9](https://github.com/boazblake/algebraic-fx/blob
 
 > `readonly` **\_tag**: `"Success"`
 
-Defined in: [adt/validation.ts:10](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/validation.ts#L10)
+Defined in: [adt/validation.ts:10](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/validation.ts#L10)
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: [adt/validation.ts:10](https://github.com/boazblake/algebraic-fx/blo
 
 > `readonly` **right**: `A`
 
-Defined in: [adt/validation.ts:11](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/validation.ts#L11)
+Defined in: [adt/validation.ts:11](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/validation.ts#L11)

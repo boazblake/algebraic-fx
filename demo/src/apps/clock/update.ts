@@ -1,24 +1,29 @@
-// src/apps/clock/update.ts
-
-import type { RawEffect } from "algebraic-fx/core/effects";
+import type { RawEffect, Subscription } from "algebraic-fx/core/effects";
+import { sub } from "algebraic-fx/core/effects";
 import type { AppEnv } from "../../env";
 import type { Model, Msg } from "./types";
+
+const clockSub = (): Subscription<AppEnv, Msg> =>
+  sub("clock", (env, dispatch) => {
+    const id = env.window.setInterval(() => {
+      dispatch({ type: "clock.tick", ms: env.now() });
+    }, 250);
+
+    return () => env.window.clearInterval(id);
+  });
 
 export const update = (
   msg: Msg,
   model: Model
 ): { model: Model; effects: RawEffect<AppEnv, Msg>[] } => {
-  console.log(msg, model);
   switch (msg.type) {
     case "clock.start":
-      if (model.running) return { model, effects: [] };
       return {
         model: { ...model, running: true },
         effects: [],
       };
 
     case "clock.stop":
-      if (!model.running) return { model, effects: [] };
       return {
         model: { ...model, running: false },
         effects: [],
@@ -31,3 +36,6 @@ export const update = (
       };
   }
 };
+
+export const subs = (model: Model): Subscription<AppEnv, Msg>[] =>
+  model.running ? [clockSub()] : [];

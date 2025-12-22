@@ -1,5 +1,3 @@
-// src/apps/clock/init.ts
-
 import { IO } from "algebraic-fx";
 import type { RawEffect } from "algebraic-fx/core/effects";
 import type { AppEnv } from "../../env";

@@ -1,25 +1,22 @@
 import { fx } from "algebraic-fx/core/effects";
-import type { Dispatch } from "algebraic-fx/core/types";
 import type { RawEffect } from "algebraic-fx/core/effects";
 import type { AppEnv } from "../../env";
-import type { Model, Msg, User } from "./types";
+import type { Model, Msg } from "./types";
 
 const fetchUsers = (): RawEffect<AppEnv, Msg> =>
-  fx((env, dispatch) => {
-    env
-      .fetch(`${env.usersBaseUrl}/users`)
-      .then((r) => {
-        if (!r.ok) throw new Error(r.statusText);
-        return r.json() as Promise<User[]>;
-      })
-      .then((users) => dispatch({ type: "users.loaded", users }))
-      .catch((e) => dispatch({ type: "users.failed", error: String(e) }));
+  fx(async (env, dispatch) => {
+    try {
+      const res = await env.fetch(`${env.apiBase}/users`);
+      const users = await res.json();
+      dispatch({ type: "users.loaded", users });
+    } catch (e) {
+      dispatch({ type: "users.failed", error: String(e) });
+    }
   });
 
 export const update = (
   msg: Msg,
-  model: Model,
-  _dispatch: Dispatch<Msg>
+  model: Model
 ): { model: Model; effects: RawEffect<AppEnv, Msg>[] } => {
   switch (msg.type) {
     case "users.fetch":
@@ -39,8 +36,5 @@ export const update = (
         model: { ...model, loading: false, error: msg.error },
         effects: [],
       };
-
-    default:
-      return { model, effects: [] };
   }
 };

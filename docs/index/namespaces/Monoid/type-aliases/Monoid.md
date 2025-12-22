@@ -8,7 +8,7 @@
 
 > **Monoid**\<`A`\> = `object`
 
-Defined in: [adt/monoid.ts:4](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/monoid.ts#L4)
+Defined in: [adt/monoid.ts:4](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/monoid.ts#L4)
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ Defined in: [adt/monoid.ts:4](https://github.com/boazblake/algebraic-fx/blob/a47
 
 > `readonly` `optional` **\[fl\_concat\]**: (`x`, `y`) => `A`
 
-Defined in: [adt/monoid.ts:8](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/monoid.ts#L8)
+Defined in: [adt/monoid.ts:8](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/monoid.ts#L8)
 
 #### Parameters
 
@@ -44,7 +44,7 @@ Defined in: [adt/monoid.ts:8](https://github.com/boazblake/algebraic-fx/blob/a47
 
 > `readonly` `optional` **\[fl\_empty\]**: `A`
 
-Defined in: [adt/monoid.ts:7](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/monoid.ts#L7)
+Defined in: [adt/monoid.ts:7](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/monoid.ts#L7)
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: [adt/monoid.ts:7](https://github.com/boazblake/algebraic-fx/blob/a47
 
 > `readonly` **concat**: (`x`, `y`) => `A`
 
-Defined in: [adt/monoid.ts:6](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/monoid.ts#L6)
+Defined in: [adt/monoid.ts:6](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/monoid.ts#L6)
 
 #### Parameters
 
@@ -74,4 +74,4 @@ Defined in: [adt/monoid.ts:6](https://github.com/boazblake/algebraic-fx/blob/a47
 
 > `readonly` **empty**: `A`
 
-Defined in: [adt/monoid.ts:5](https://github.com/boazblake/algebraic-fx/blob/a47c3d37eb78ea4c5c1854738db0836b7a8577e1/src/adt/monoid.ts#L5)
+Defined in: [adt/monoid.ts:5](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/monoid.ts#L5)
