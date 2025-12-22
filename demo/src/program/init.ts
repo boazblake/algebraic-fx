@@ -8,14 +8,15 @@ import { counterApp } from "../apps/counter";
 import { quotesApp } from "../apps/quotes";
 import { clockApp } from "../apps/clock";
 
-import type { Model } from "./update";
-import type { Msg } from "./update";
+import type { Model, Msg } from "./update";
+
 export const init: IOType<{ model: Model; effects: RawEffect<AppEnv, Msg>[] }> =
   IO.IO(() => {
     const u = usersApp.init.run();
     const c = counterApp.init.run();
     const q = quotesApp.init.run();
     const k = clockApp.init.run();
+
     return {
       model: {
         users: u.model,
@@ -23,6 +24,39 @@ export const init: IOType<{ model: Model; effects: RawEffect<AppEnv, Msg>[] }> =
         quotes: q.model,
         clock: k.model,
       },
-      effects: [...u.effects, ...c.effects, ...q.effects, ...k.effects],
+
+      effects: [
+        ...u.effects.map(
+          (eff) =>
+            ({
+              type: "users.effect",
+              eff,
+            }) satisfies Msg
+        ),
+
+        ...c.effects.map(
+          (eff) =>
+            ({
+              type: "counter.effect",
+              eff,
+            }) satisfies Msg
+        ),
+
+        ...q.effects.map(
+          (eff) =>
+            ({
+              type: "quotes.effect",
+              eff,
+            }) satisfies Msg
+        ),
+
+        ...k.effects.map(
+          (eff) =>
+            ({
+              type: "clock.effect",
+              eff,
+            }) satisfies Msg
+        ),
+      ],
     };
   });

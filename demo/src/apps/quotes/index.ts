@@ -1,7 +1,16 @@
 import type { Program } from "algebraic-fx/core/types";
 import type { AppEnv } from "../../env";
-import { init, type Model } from "./init";
-import { update, type Msg } from "./update";
-import { view } from "./view";
 
-export const quotesApp: Program<Model, Msg, AppEnv> = { init, update, view };
+import { init } from "./init";
+import { update, type Model, type Msg } from "./update";
+import { view } from "./view";
+import { subs } from "./subs";
+
+export const quotesApp: Program<Model, Msg, AppEnv> = {
+  init,
+  update,
+  view,
+  subs,
+};
+
+export type { Model, Msg };

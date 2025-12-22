@@ -8,7 +8,7 @@
 
 > **Subscription**\<`Env`, `Msg`\> = `object`
 
-Defined in: [core/effects.ts:115](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L115)
+Defined in: [core/effects.ts:96](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/effects.ts#L96)
 
 Subscription<Env, Msg>
 
@@ -20,10 +20,7 @@ Subscriptions:
  - are started once per key
  - are cleaned up automatically when removed
 
-This mirrors Elm's `Sub`.
-
-NOTE:
-Subscriptions are DECLARED here but INTERPRETED by the runtime.
+Mirrors Elm's `Sub`.
 
 ## Type Parameters
 
@@ -41,7 +38,7 @@ Subscriptions are DECLARED here but INTERPRETED by the runtime.
 
 > `readonly` **\_tag**: `"Subscription"`
 
-Defined in: [core/effects.ts:116](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L116)
+Defined in: [core/effects.ts:97](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/effects.ts#L97)
 
 ***
 
@@ -49,7 +46,7 @@ Defined in: [core/effects.ts:116](https://github.com/boazblake/algebraic-fx/blob
 
 > `readonly` **effect**: [`Effect`](../interfaces/Effect.md)\<`Env`, `Msg`\>
 
-Defined in: [core/effects.ts:118](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L118)
+Defined in: [core/effects.ts:99](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/effects.ts#L99)
 
 ***
 
@@ -57,4 +54,4 @@ Defined in: [core/effects.ts:118](https://github.com/boazblake/algebraic-fx/blob
 
 > `readonly` **key**: `string`
 
-Defined in: [core/effects.ts:117](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L117)
+Defined in: [core/effects.ts:98](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/effects.ts#L98)

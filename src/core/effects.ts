@@ -7,17 +7,14 @@ import type { Dispatch } from "./types.js";
 
 /* ============================================================================
  * Effect system (Cmd + Sub layer)
- * ========================================================================== */
-
-/**
- * Effect system for algebraic-fx.
+ * ============================================================================
  *
- * This module defines the **side-effect description layer** of the framework.
+ * This module defines the **side-effect description layer** of algebraic-fx.
  *
  * IMPORTANT ARCHITECTURAL RULES:
  *
- * - Effects are **data**, not executions
- * - This module is **stateless**
+ * - Effects are DATA, not executions
+ * - This module is STATELESS
  * - Subscription lifecycle is NOT handled here
  *
  * Conceptual split (mirrors Elm):
@@ -28,6 +25,7 @@ import type { Dispatch } from "./types.js";
  * This file:
  *   ✔ defines Effect and Subscription
  *   ✔ interprets one-shot effects
+ *   ✔ provides Cmd.map / Sub.map equivalents
  *   ✘ does NOT track subscriptions
  */
 
@@ -47,7 +45,7 @@ const EffectBrand = Symbol("EffectBrand");
  *
  * A long-lived, runtime-managed side effect.
  *
- * Effects represent **ongoing processes** such as:
+ * Effects represent ongoing processes such as:
  *  - timers
  *  - event listeners
  *  - polling loops
@@ -56,32 +54,18 @@ const EffectBrand = Symbol("EffectBrand");
  *  - are started by the runtime
  *  - receive `env` and `dispatch`
  *  - may return a cleanup function
- *
- * Effects are NOT executed immediately.
- * They are returned as descriptions from `init` or `update`.
  */
 export interface Effect<Env, Msg> {
   readonly [EffectBrand]: true;
-
-  /**
-   * Start the effect.
-   *
-   * @param env Runtime environment
-   * @param dispatch Message dispatcher
-   * @returns Optional cleanup function
-   */
   run(env: Env, dispatch: Dispatch<Msg>): void | (() => void);
 }
 
 /**
  * Construct a branded Effect.
  *
- * Hides the internal brand and provides a safe constructor
- * for long-lived effects.
- *
  * @example
  * fx((env, dispatch) => {
- *   const id = setInterval(() => dispatch({ type: "Tick" }), 1000)
+ *   const id = setInterval(() => dispatch({ type: "tick" }), 1000)
  *   return () => clearInterval(id)
  * })
  */
@@ -107,10 +91,7 @@ export const fx = <Env, Msg>(
  *  - are started once per key
  *  - are cleaned up automatically when removed
  *
- * This mirrors Elm's `Sub`.
- *
- * NOTE:
- * Subscriptions are DECLARED here but INTERPRETED by the runtime.
+ * Mirrors Elm's `Sub`.
  */
 export type Subscription<Env, Msg> = {
   readonly _tag: "Subscription";
@@ -122,13 +103,6 @@ export type Subscription<Env, Msg> = {
  * Construct a Subscription.
  *
  * @param key Stable identity for the subscription
- * @param impl Effect body (may return cleanup)
- *
- * @example
- * sub("clock", (env, dispatch) => {
- *   const id = setInterval(() => dispatch({ type: "Tick" }), 1000)
- *   return () => clearInterval(id)
- * })
  */
 export const sub = <Env, Msg>(
   key: string,
@@ -156,18 +130,16 @@ export const isSubscription = <Env, Msg>(
  *
  * The complete set of values that may be returned from `init` or `update`.
  *
- * RawEffects are **descriptions**, not executions.
- *
  * Categories:
  *
- * One-shot effects (Cmd-like):
+ * Cmd-like (one-shot):
  *  - Msg
  *  - IO<Msg | void>
  *  - Reader<Env, IO<Msg | void>>
  *  - Task<E, Msg | void>
  *  - Reader<Env, Task<E, Msg | void>>
  *
- * Long-lived effects (Sub-like):
+ * Sub-like (long-lived):
  *  - Effect<Env, Msg>
  *  - Subscription<Env, Msg>
  */
@@ -217,11 +189,8 @@ const isIO = (u: unknown): u is IO<unknown> =>
  * IMPORTANT:
  * - Subscriptions are IGNORED here
  * - This function is PURE and STATELESS
- * - No lifecycle or diffing occurs
  *
  * Subscription lifecycle is handled by the runtime (`renderApp`).
- *
- * @returns Combined cleanup for Effect values only
  */
 export const runEffects = <Env, Msg>(
   env: Env,
@@ -237,10 +206,8 @@ export const runEffects = <Env, Msg>(
   for (const eff of effects) {
     if (!eff) continue;
 
-    // Subscriptions are ignored at this layer
-    if (isSubscription(eff)) {
-      continue;
-    }
+    // Subscriptions are ignored here
+    if (isSubscription(eff)) continue;
 
     // Effect
     if (isEffect<Env, Msg>(eff)) {
@@ -302,3 +269,79 @@ export const runEffects = <Env, Msg>(
     }
   };
 };
+
+/* ============================================================================
+ * Cmd mapping (Elm Cmd.map)
+ * ========================================================================== */
+
+/**
+ * Lift a one-shot effect from message type A to B.
+ *
+ * Equivalent to Elm's `Cmd.map`.
+ *
+ * MUST NOT be used for Subscriptions.
+ */
+export const mapCmd = <Env, A, B>(
+  eff: RawEffect<Env, A>,
+  lift: (a: A) => B
+): RawEffect<Env, B> => {
+  // Plain message
+  if (typeof eff === "object" && eff !== null && "type" in eff) {
+    return lift(eff as A);
+  }
+
+  // IO
+  if ((eff as any)?.run && (eff as any).run.length === 0) {
+    return {
+      ...(eff as any),
+      run: () => {
+        const v = (eff as any).run();
+        return v === undefined ? undefined : lift(v);
+      },
+    } as any;
+  }
+
+  // Effect (fx)
+  if ((eff as any)?.run) {
+    return fx<Env, B>((env, dispatch) =>
+      (eff as Effect<Env, A>).run(env, (a) => dispatch(lift(a)))
+    );
+  }
+
+  return eff as unknown as RawEffect<Env, B>;
+};
+
+/**
+ * Map a list of Cmd-like effects.
+ */
+export const mapCmds = <Env, A, B>(
+  effects: readonly RawEffect<Env, A>[],
+  lift: (a: A) => B
+): RawEffect<Env, B>[] =>
+  effects.filter((e) => !isSubscription(e)).map((e) => mapCmd(e, lift));
+
+/* ============================================================================
+ * Sub mapping (Elm Sub.map)
+ * ========================================================================== */
+
+/**
+ * Lift a Subscription from message type A to B.
+ *
+ * Subscription identity (key) is preserved.
+ */
+export const mapSub = <Env, A, B>(
+  sub: Subscription<Env, A>,
+  lift: (a: A) => B
+): Subscription<Env, B> => ({
+  _tag: "Subscription",
+  key: sub.key,
+  effect: fx((env, dispatch) => sub.effect.run(env, (a) => dispatch(lift(a)))),
+});
+
+/**
+ * Map a list of Subscriptions.
+ */
+export const mapSubs = <Env, A, B>(
+  subs: readonly Subscription<Env, A>[],
+  lift: (a: A) => B
+): Subscription<Env, B>[] => subs.map((s) => mapSub(s, lift));

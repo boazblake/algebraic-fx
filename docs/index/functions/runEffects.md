@@ -8,14 +8,13 @@
 
 > **runEffects**\<`Env`, `Msg`\>(`env`, `dispatch`, `effects`): () => `void`
 
-Defined in: [core/effects.ts:226](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L226)
+Defined in: [core/effects.ts:195](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/effects.ts#L195)
 
 Interpret one-shot RawEffects.
 
 IMPORTANT:
 - Subscriptions are IGNORED here
 - This function is PURE and STATELESS
-- No lifecycle or diffing occurs
 
 Subscription lifecycle is handled by the runtime (`renderApp`).
 
@@ -44,8 +43,6 @@ Subscription lifecycle is handled by the runtime (`renderApp`).
 readonly [`RawEffect`](../type-aliases/RawEffect.md)\<`Env`, `Msg`\>[] | `undefined`
 
 ## Returns
-
-Combined cleanup for Effect values only
 
 > (): `void`
 

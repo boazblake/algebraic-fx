@@ -8,24 +8,22 @@
 
 > **RawEffect**\<`Env`, `Msg`\> = `Msg` \| [`IO`](../namespaces/IO/interfaces/IO.md)\<`Msg` \| `void`\> \| [`Reader`](../namespaces/Reader/interfaces/Reader.md)\<`Env`, [`IO`](../namespaces/IO/interfaces/IO.md)\<`Msg` \| `void`\>\> \| [`Task`](../namespaces/Task/interfaces/Task.md)\<`unknown`, `Msg` \| `void`\> \| [`Reader`](../namespaces/Reader/interfaces/Reader.md)\<`Env`, [`Task`](../namespaces/Task/interfaces/Task.md)\<`unknown`, `Msg` \| `void`\>\> \| [`Effect`](../interfaces/Effect.md)\<`Env`, `Msg`\> \| [`Subscription`](Subscription.md)\<`Env`, `Msg`\>
 
-Defined in: [core/effects.ts:174](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L174)
+Defined in: [core/effects.ts:146](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/effects.ts#L146)
 
 RawEffect<Env, Msg>
 
 The complete set of values that may be returned from `init` or `update`.
 
-RawEffects are **descriptions**, not executions.
-
 Categories:
 
-One-shot effects (Cmd-like):
+Cmd-like (one-shot):
  - Msg
  - IO<Msg | void>
  - Reader<Env, IO<Msg | void>>
  - Task<E, Msg | void>
  - Reader<Env, Task<E, Msg | void>>
 
-Long-lived effects (Sub-like):
+Sub-like (long-lived):
  - Effect<Env, Msg>
  - Subscription<Env, Msg>
 

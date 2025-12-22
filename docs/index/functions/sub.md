@@ -8,7 +8,7 @@
 
 > **sub**\<`Env`, `Msg`\>(`key`, `impl`): [`Subscription`](../type-aliases/Subscription.md)\<`Env`, `Msg`\>
 
-Defined in: [core/effects.ts:133](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/effects.ts#L133)
+Defined in: [core/effects.ts:107](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/effects.ts#L107)
 
 Construct a Subscription.
 
@@ -34,17 +34,6 @@ Stable identity for the subscription
 
 (`env`, `dispatch`) => `void` \| () => `void`
 
-Effect body (may return cleanup)
-
 ## Returns
 
 [`Subscription`](../type-aliases/Subscription.md)\<`Env`, `Msg`\>
-
-## Example
-
-```ts
-sub("clock", (env, dispatch) => {
-  const id = setInterval(() => dispatch({ type: "Tick" }), 1000)
-  return () => clearInterval(id)
-})
-```

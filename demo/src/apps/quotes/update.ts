@@ -1,25 +1,88 @@
 import type { Dispatch } from "algebraic-fx/core/types";
 import type { RawEffect } from "algebraic-fx/core/effects";
+import { fx } from "algebraic-fx/core/effects";
 import type { AppEnv } from "../../env";
-import type { Model } from "./init";
-import { fetchQuotesEffect, pollingSub } from "./subs";
-import type { Quote, SortKey } from "./types";
+
+/* ============================================================================
+ * Types
+ * ========================================================================== */
+
+export type Quote = {
+  id: string;
+  usd: number;
+  updatedMs: number;
+};
+
+export type Model = {
+  watchlist: string[];
+  quotes: Record<string, Quote>;
+  loading: boolean;
+  error: string | null;
+  polling: boolean;
+  pollEveryMs: number;
+};
 
 export type Msg =
   | { type: "quotes.fetch" }
   | { type: "quotes.loaded"; quotes: Record<string, Quote> }
   | { type: "quotes.failed"; error: string }
   | { type: "quotes.togglePolling" }
-  | { type: "quotes.setFilter"; value: string }
-  | { type: "quotes.setSort"; key: SortKey }
-  | { type: "quotes.toggleDir" }
   | { type: "quotes.add"; id: string }
   | { type: "quotes.remove"; id: string };
 
+/* ============================================================================
+ * Effects
+ * ========================================================================== */
+
+const fetchQuotesEffect = (ids: string[]): RawEffect<AppEnv, Msg> =>
+  fx<AppEnv, Msg>((env, dispatch) => {
+    if (ids.length === 0) {
+      dispatch({ type: "quotes.loaded", quotes: {} });
+      return;
+    }
+
+    const qs = new URLSearchParams({
+      ids: ids.join(","),
+      vs_currencies: "usd",
+    });
+
+    const url = `${env.quotesBaseUrl}/simple/price?${qs.toString()}`;
+
+    env.window
+      .fetch(url)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} ${res.statusText}`);
+        }
+        return res.json();
+      })
+      .then((json: Record<string, { usd: number }>) => {
+        const now = env.now();
+        const out: Record<string, Quote> = {};
+
+        for (const id of ids) {
+          const row = json[id];
+          if (!row || typeof row.usd !== "number") continue;
+          out[id] = { id, usd: row.usd, updatedMs: now };
+        }
+
+        dispatch({ type: "quotes.loaded", quotes: out });
+      })
+      .catch((e) => {
+        dispatch({
+          type: "quotes.failed",
+          error: e instanceof Error ? e.message : String(e),
+        });
+      });
+  });
+
+/* ============================================================================
+ * Update
+ * ========================================================================== */
+
 export const update = (
   msg: Msg,
-  model: Model,
-  dispatch: Dispatch<Msg>
+  model: Model
 ): { model: Model; effects: RawEffect<AppEnv, Msg>[] } => {
   switch (msg.type) {
     case "quotes.fetch":
@@ -33,6 +96,7 @@ export const update = (
         model: {
           ...model,
           loading: false,
+          error: null,
           quotes: { ...model.quotes, ...msg.quotes },
         },
         effects: [],
@@ -45,49 +109,33 @@ export const update = (
       };
 
     case "quotes.togglePolling":
-      return model.polling
-        ? { model: { ...model, polling: false }, effects: [] }
-        : {
-            model: { ...model, polling: true },
-            effects: [pollingSub(model.pollEveryMs)],
-          };
-
-    case "quotes.setFilter":
-      return { model: { ...model, filter: msg.value }, effects: [] };
-
-    case "quotes.setSort":
-      return { model: { ...model, sortKey: msg.key }, effects: [] };
-
-    case "quotes.toggleDir":
       return {
-        model: {
-          ...model,
-          sortDir: model.sortDir === "asc" ? "desc" : "asc",
-        },
+        model: { ...model, polling: !model.polling },
         effects: [],
       };
 
-    case "quotes.add":
-      if (model.watchlist.includes(msg.id)) return { model, effects: [] };
-      return {
-        model: {
-          ...model,
-          watchlist: [msg.id, ...model.watchlist],
-        },
-        effects: [],
-      };
+    case "quotes.add": {
+      const id = msg.id.trim().toLowerCase();
+      if (!id || model.watchlist.includes(id)) return { model, effects: [] };
 
-    case "quotes.remove": {
-      const next = { ...model.quotes };
-      delete next[msg.id];
       return {
-        model: {
-          ...model,
-          watchlist: model.watchlist.filter((x) => x !== msg.id),
-          quotes: next,
-        },
+        model: { ...model, watchlist: [id, ...model.watchlist] },
         effects: [],
       };
     }
+
+    case "quotes.remove": {
+      const watchlist = model.watchlist.filter((x) => x !== msg.id);
+      const quotes = { ...model.quotes };
+      delete quotes[msg.id];
+
+      return {
+        model: { ...model, watchlist, quotes },
+        effects: [],
+      };
+    }
+
+    default:
+      return { model, effects: [] };
   }
 };

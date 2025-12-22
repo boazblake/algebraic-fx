@@ -8,7 +8,7 @@
 
 > **isWriter**(`u`): `u is Writer<unknown, unknown>`
 
-Defined in: [adt/writer.ts:109](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/adt/writer.ts#L109)
+Defined in: [adt/writer.ts:109](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/adt/writer.ts#L109)
 
 Narrow type guard.
 

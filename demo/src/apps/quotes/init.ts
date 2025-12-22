@@ -1,37 +1,19 @@
 import { IO } from "algebraic-fx";
+import type { IO as IOType } from "algebraic-fx/adt/io";
 import type { RawEffect } from "algebraic-fx/core/effects";
-import { fetchQuotesEffect } from "./subs";
 import type { AppEnv } from "../../env";
-import type { Quote, SortKey, SortDir } from "./types";
 
-export type Model = {
-  watchlist: string[];
-  quotes: Record<string, Quote>;
-  loading: boolean;
-  error: string | null;
+import type { Model, Msg } from "./update";
 
-  filter: string;
-  sortKey: SortKey;
-  sortDir: SortDir;
-
-  polling: boolean;
-  pollEveryMs: number;
-};
-
-export const init = IO.of({
-  model: {
-    watchlist: ["bitcoin", "ethereum", "solana"],
-    quotes: {},
-    loading: false,
-    error: null,
-
-    filter: "",
-    sortKey: "usd",
-    sortDir: "desc",
-
-    polling: false,
-    pollEveryMs: 4000,
-  } satisfies Model,
-
-  effects: [] as RawEffect<AppEnv, any>[],
-});
+export const init: IOType<{ model: Model; effects: RawEffect<AppEnv, Msg>[] }> =
+  IO.IO((): { model: Model; effects: RawEffect<AppEnv, Msg>[] } => ({
+    model: {
+      watchlist: ["bitcoin", "ethereum", "solana"],
+      quotes: {},
+      loading: false,
+      error: null,
+      polling: false,
+      pollEveryMs: 4000,
+    },
+    effects: [],
+  }));

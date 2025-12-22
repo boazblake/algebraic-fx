@@ -1,11 +1,11 @@
 import { m } from "algebraic-fx";
 import type { Dispatch } from "algebraic-fx/core/types";
-import type { Msg } from "./update";
-import type { Model } from "./init";
-import { selectVisibleRows } from "./selectors";
+import type { Model, Msg, Quote } from "./update";
 
 export const view = (model: Model, dispatch: Dispatch<Msg>) => {
-  const rows = selectVisibleRows(model);
+  const rows: Quote[] = model.watchlist
+    .map((id) => model.quotes[id])
+    .filter((x): x is Quote => !!x);
 
   return m("section.card", [
     m("h2", "Quotes"),
@@ -13,7 +13,10 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) => {
     m("div.row", [
       m(
         "button",
-        { onclick: () => dispatch({ type: "quotes.fetch" }) },
+        {
+          onclick: () => dispatch({ type: "quotes.fetch" }),
+          disabled: model.loading,
+        },
         model.loading ? "Loading…" : "Refresh"
       ),
       m(
@@ -23,48 +26,29 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) => {
       ),
     ]),
 
-    m("input", {
-      value: model.filter,
-      placeholder: "filter…",
-      oninput: (e: InputEvent) =>
-        dispatch({
-          type: "quotes.setFilter",
-          value: (e.target as HTMLInputElement).value,
-        }),
-    }),
+    model.error && m("div.error", model.error),
 
-    m("table", [
-      m("thead", [
-        m("tr", [
-          m("th", "id"),
-          m("th", "usd"),
-          m("th", "updated"),
-          m("th", ""),
-        ]),
-      ]),
-      m(
-        "tbody",
-        rows.length
-          ? rows.map((r) =>
-              m("tr", [
-                m("td", r.id),
-                m("td", `$${r.usd}`),
-                m("td", r.updatedLabel),
-                m(
-                  "td",
-                  m(
-                    "button",
-                    {
-                      onclick: () =>
-                        dispatch({ type: "quotes.remove", id: r.id }),
-                    },
-                    "remove"
-                  )
-                ),
-              ])
-            )
-          : m("tr", [m("td", { colspan: 4 }, "No data")])
+    m("ul", [
+      ...rows.map((q) =>
+        m("li", [
+          `${q.id}: $${q.usd.toLocaleString()}`,
+          m(
+            "button.small",
+            { onclick: () => dispatch({ type: "quotes.remove", id: q.id }) },
+            "×"
+          ),
+        ])
       ),
     ]),
+
+    m("input", {
+      placeholder: "add symbol (coingecko id)",
+      onkeydown: (e: KeyboardEvent) => {
+        if (e.key !== "Enter") return;
+        const el = e.target as HTMLInputElement;
+        dispatch({ type: "quotes.add", id: el.value });
+        el.value = "";
+      },
+    }),
   ]);
 };

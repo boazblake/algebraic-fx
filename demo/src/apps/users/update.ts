@@ -1,13 +1,9 @@
+import { fx } from "algebraic-fx/core/effects";
+import type { Dispatch } from "algebraic-fx/core/types";
 import type { RawEffect } from "algebraic-fx/core/effects";
-import { fx } from "algebraic-fx";
 import type { AppEnv } from "../../env";
 
-export type User = string;
-
-export type Msg =
-  | { type: "users.fetch" }
-  | { type: "users.loaded"; users: User[] }
-  | { type: "users.failed"; error: string };
+export type User = { name: string; email: string };
 
 export type Model = {
   users: User[];
@@ -15,22 +11,36 @@ export type Model = {
   error: string | null;
 };
 
-const fetchUsers = (): RawEffect<AppEnv, Msg> =>
-  fx(async (env, dispatch) => {
-    try {
-      const res = await env.window.fetch(`${env.usersBaseUrl}/users`);
-      if (!res.ok) throw new Error(res.statusText);
-      const users = (await res.json()) as User[];
-      dispatch({ type: "users.loaded", users });
-    } catch (e) {
-      dispatch({
-        type: "users.",
-        msg: {
+export type Msg =
+  | { type: "users.fetch" }
+  | { type: "users.loaded"; users: User[] }
+  | { type: "users.failed"; error: string };
+
+const fetchUsersFx = (): RawEffect<AppEnv, Msg> =>
+  fx<AppEnv, Msg>((env, dispatch) => {
+    env.window
+      .fetch(`${env.usersBaseUrl}/users`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status} ${r.statusText}`);
+        return r.json() as Promise<unknown>;
+      })
+      .then((json) => {
+        const users = Array.isArray(json)
+          ? (json as any[]).map((u) => ({
+              name: String(u?.name ?? ""),
+              email: String(u?.email ?? ""),
+            }))
+          : [];
+        dispatch({ type: "users.loaded", users });
+      })
+      .catch((e) => {
+        dispatch({
           type: "users.failed",
           error: e instanceof Error ? e.message : String(e),
-        },
+        });
       });
-    }
+
+    return;
   });
 
 export const update = (
@@ -41,12 +51,12 @@ export const update = (
     case "users.fetch":
       return {
         model: { ...model, loading: true, error: null },
-        effects: [fetchUsers()],
+        effects: [fetchUsersFx()],
       };
 
     case "users.loaded":
       return {
-        model: { users: msg.users, loading: false, error: null },
+        model: { ...model, loading: false, users: msg.users, error: null },
         effects: [],
       };
 
@@ -55,7 +65,5 @@ export const update = (
         model: { ...model, loading: false, error: msg.error },
         effects: [],
       };
-    default:
-      return { model, effects: [] };
   }
 };

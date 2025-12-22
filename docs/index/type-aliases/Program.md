@@ -8,7 +8,7 @@
 
 > **Program**\<`M`, `Msg`, `Env`\> = `object`
 
-Defined in: [core/types.ts:187](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/types.ts#L187)
+Defined in: [core/types.ts:187](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/types.ts#L187)
 
 Program<M, Msg, Env>
 
@@ -128,7 +128,7 @@ This separation guarantees:
 
 > **init**: [`IO`](../namespaces/IO/interfaces/IO.md)\<\{ `effects`: [`RawEffect`](RawEffect.md)\<`Env`, `Msg`\>[]; `model`: `M`; \}\>
 
-Defined in: [core/types.ts:188](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/types.ts#L188)
+Defined in: [core/types.ts:188](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/types.ts#L188)
 
 ***
 
@@ -136,7 +136,7 @@ Defined in: [core/types.ts:188](https://github.com/boazblake/algebraic-fx/blob/3
 
 > `optional` **subs**: (`model`) => [`Subscription`](Subscription.md)\<`Env`, `Msg`\>[]
 
-Defined in: [core/types.ts:204](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/types.ts#L204)
+Defined in: [core/types.ts:204](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/types.ts#L204)
 
 Describe long-lived subscriptions derived from the current model.
 
@@ -159,7 +159,7 @@ If omitted, the program has no subscriptions.
 
 > **update**: (`msg`, `model`, `dispatch`) => `object`
 
-Defined in: [core/types.ts:190](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/types.ts#L190)
+Defined in: [core/types.ts:190](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/types.ts#L190)
 
 #### Parameters
 
@@ -193,7 +193,7 @@ Defined in: [core/types.ts:190](https://github.com/boazblake/algebraic-fx/blob/3
 
 > **view**: (`model`, `dispatch`) => [`VChild`](VChild.md) \| [`VChild`](VChild.md)[]
 
-Defined in: [core/types.ts:196](https://github.com/boazblake/algebraic-fx/blob/3bf06f7d7432389994fdd86192463b0719469de6/src/core/types.ts#L196)
+Defined in: [core/types.ts:196](https://github.com/boazblake/algebraic-fx/blob/0d629bd1fda6e2e1d0cce3c441beba4f01ce08b8/src/core/types.ts#L196)
 
 #### Parameters
 

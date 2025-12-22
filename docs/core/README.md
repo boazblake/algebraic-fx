@@ -38,6 +38,30 @@ Re-exports [m](../index/functions/m.md)
 
 ***
 
+### mapCmd
+
+Re-exports [mapCmd](../index/functions/mapCmd.md)
+
+***
+
+### mapCmds
+
+Re-exports [mapCmds](../index/functions/mapCmds.md)
+
+***
+
+### mapSub
+
+Re-exports [mapSub](../index/functions/mapSub.md)
+
+***
+
+### mapSubs
+
+Re-exports [mapSubs](../index/functions/mapSubs.md)
+
+***
+
 ### Payload
 
 Re-exports [Payload](../index/type-aliases/Payload.md)

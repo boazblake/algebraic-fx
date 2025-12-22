@@ -1,4 +1,5 @@
 export type Msg =
+  | { type: "clock.effect" }
   | { type: "clock.start" }
   | { type: "clock.stop" }
   | { type: "clock.tick"; ms: number };

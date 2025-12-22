@@ -1,7 +1,6 @@
 import { m } from "algebraic-fx";
 import type { Dispatch } from "algebraic-fx/core/types";
-import type { Model } from "./init";
-import type { Msg } from "./update";
+import type { Msg, Model } from "./update";
 
 export const view = (model: Model, dispatch: Dispatch<Msg>) =>
   m("section.card", [
