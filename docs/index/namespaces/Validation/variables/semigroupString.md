@@ -8,4 +8,4 @@
 
 > `const` **semigroupString**: [`Semigroup`](../interfaces/Semigroup.md)\<`string`\>
 
-Defined in: [adt/validation.ts:99](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/validation.ts#L99)
+Defined in: [adt/validation.ts:99](https://github.com/boazblake/algebraic-fx/blob/ae2b3a444c76c35d4d170caba72c8672abc39d40/src/adt/validation.ts#L99)

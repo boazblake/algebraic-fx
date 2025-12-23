@@ -8,7 +8,7 @@
 
 > **get**\<`S`\>(): [`State`](../interfaces/State.md)\<`S`, `S`\>
 
-Defined in: [adt/state.ts:70](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/state.ts#L70)
+Defined in: [adt/state.ts:70](https://github.com/boazblake/algebraic-fx/blob/ae2b3a444c76c35d4d170caba72c8672abc39d40/src/adt/state.ts#L70)
 
 ## Type Parameters
 

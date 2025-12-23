@@ -8,7 +8,7 @@
 
 > **ap**\<`W`, `A`, `B`\>(`wf`, `wa`): [`Writer`](../type-aliases/Writer.md)\<`W`, `B`\>
 
-Defined in: [adt/writer.ts:82](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/writer.ts#L82)
+Defined in: [adt/writer.ts:82](https://github.com/boazblake/algebraic-fx/blob/ae2b3a444c76c35d4d170caba72c8672abc39d40/src/adt/writer.ts#L82)
 
 ap: apply a Writer<W, (a -> b)> to a Writer<W, a>, combining logs.
 

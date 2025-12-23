@@ -8,7 +8,7 @@
 
 > **ap**\<`E`, `A`, `B`\>(`fab`, `fa`): [`Either`](../type-aliases/Either.md)\<`E`, `B`\>
 
-Defined in: [adt/either.ts:76](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/either.ts#L76)
+Defined in: [adt/either.ts:76](https://github.com/boazblake/algebraic-fx/blob/ae2b3a444c76c35d4d170caba72c8672abc39d40/src/adt/either.ts#L76)
 
 Apply. If either side is Left, it short circuits.
 

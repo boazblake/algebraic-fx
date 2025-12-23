@@ -6,11 +6,11 @@
 
 # Interface: ReaderConstructor()
 
-Defined in: [adt/reader.ts:30](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/reader.ts#L30)
+Defined in: [adt/reader.ts:30](https://github.com/boazblake/algebraic-fx/blob/ae2b3a444c76c35d4d170caba72c8672abc39d40/src/adt/reader.ts#L30)
 
 > **ReaderConstructor**\<`R`, `A`\>(`run`): [`Reader`](Reader.md)\<`R`, `A`\>
 
-Defined in: [adt/reader.ts:31](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/reader.ts#L31)
+Defined in: [adt/reader.ts:31](https://github.com/boazblake/algebraic-fx/blob/ae2b3a444c76c35d4d170caba72c8672abc39d40/src/adt/reader.ts#L31)
 
 ## Type Parameters
 
@@ -38,7 +38,7 @@ Defined in: [adt/reader.ts:31](https://github.com/boazblake/algebraic-fx/blob/bb
 
 > **ask**: \<`R`\>() => [`Reader`](Reader.md)\<`R`, `R`\>
 
-Defined in: [adt/reader.ts:33](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/reader.ts#L33)
+Defined in: [adt/reader.ts:33](https://github.com/boazblake/algebraic-fx/blob/ae2b3a444c76c35d4d170caba72c8672abc39d40/src/adt/reader.ts#L33)
 
 #### Type Parameters
 
@@ -56,7 +56,7 @@ Defined in: [adt/reader.ts:33](https://github.com/boazblake/algebraic-fx/blob/bb
 
 > **asks**: \<`R`, `A`\>(`f`) => [`Reader`](Reader.md)\<`R`, `A`\>
 
-Defined in: [adt/reader.ts:34](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/reader.ts#L34)
+Defined in: [adt/reader.ts:34](https://github.com/boazblake/algebraic-fx/blob/ae2b3a444c76c35d4d170caba72c8672abc39d40/src/adt/reader.ts#L34)
 
 #### Type Parameters
 
@@ -84,7 +84,7 @@ Defined in: [adt/reader.ts:34](https://github.com/boazblake/algebraic-fx/blob/bb
 
 > **of**: \<`R`, `A`\>(`a`) => [`Reader`](Reader.md)\<`R`, `A`\>
 
-Defined in: [adt/reader.ts:32](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/reader.ts#L32)
+Defined in: [adt/reader.ts:32](https://github.com/boazblake/algebraic-fx/blob/ae2b3a444c76c35d4d170caba72c8672abc39d40/src/adt/reader.ts#L32)
 
 #### Type Parameters
 
