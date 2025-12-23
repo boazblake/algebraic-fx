@@ -34,6 +34,8 @@ export const update = (
         model: { ...model, nowMs: msg.ms },
         effects: [],
       };
+    default:
+      return { model, effects: [] };
   }
 };
 

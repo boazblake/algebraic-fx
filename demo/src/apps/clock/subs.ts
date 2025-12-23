@@ -6,7 +6,6 @@ import type { AppEnv } from "../../env";
 import type { Model, Msg } from "./types";
 
 export const subs = (model: Model): Subscription<AppEnv, Msg>[] => {
-  console.log("subs", model);
   if (!model.running) return [];
 
   return [

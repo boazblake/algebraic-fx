@@ -8,7 +8,7 @@
 
 > **Writer**\<`W`, `A`\> = `object`
 
-Defined in: [adt/writer.ts:5](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/writer.ts#L5)
+Defined in: [adt/writer.ts:5](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/writer.ts#L5)
 
 ## Type Parameters
 
@@ -26,7 +26,7 @@ Defined in: [adt/writer.ts:5](https://github.com/boazblake/algebraic-fx/blob/ae6
 
 > `readonly` **run**: () => \[`A`, `W`\]
 
-Defined in: [adt/writer.ts:6](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/writer.ts#L6)
+Defined in: [adt/writer.ts:6](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/writer.ts#L6)
 
 #### Returns
 

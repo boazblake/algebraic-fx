@@ -8,7 +8,7 @@
 
 > **Payload**\<`T`, `M`\> = `object`
 
-Defined in: [core/types.ts:81](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L81)
+Defined in: [core/types.ts:81](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/core/types.ts#L81)
 
 Optional helper shape for tagged messages.
 
@@ -31,7 +31,7 @@ that prefer structured message envelopes.
 
 > **msg**: `M`
 
-Defined in: [core/types.ts:83](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L83)
+Defined in: [core/types.ts:83](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/core/types.ts#L83)
 
 ***
 
@@ -39,4 +39,4 @@ Defined in: [core/types.ts:83](https://github.com/boazblake/algebraic-fx/blob/ae
 
 > **type**: `T`
 
-Defined in: [core/types.ts:82](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/types.ts#L82)
+Defined in: [core/types.ts:82](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/core/types.ts#L82)

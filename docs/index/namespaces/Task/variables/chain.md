@@ -8,7 +8,7 @@
 
 > `const` **chain**: \<`E`, `A`, `B`\>(`f`) => (`fa`) => [`Task`](../interfaces/Task.md)\<`E`, `B`\> = `TaskModule.chain`
 
-Defined in: [adt/task.ts:178](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/task.ts#L178)
+Defined in: [adt/task.ts:178](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/task.ts#L178)
 
 ## Type Parameters
 

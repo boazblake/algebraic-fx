@@ -6,6 +6,5 @@ import type { Model, Msg } from "./types";
 import { clockApp } from "../apps/clock";
 
 export const subs = (model: Model): Subscription<AppEnv, Msg>[] => {
-  console.log("subs");
   return [...clockApp.subs!(model.clock)];
 };

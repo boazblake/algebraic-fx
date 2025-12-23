@@ -8,7 +8,7 @@
 
 > **Validation**\<`E`, `A`\> = [`Failure`](Failure.md)\<`E`\> \| [`Success`](Success.md)\<`A`\>
 
-Defined in: [adt/validation.ts:14](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/validation.ts#L14)
+Defined in: [adt/validation.ts:14](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/validation.ts#L14)
 
 ## Type Parameters
 

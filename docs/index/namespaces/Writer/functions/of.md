@@ -8,7 +8,7 @@
 
 > **of**\<`W`, `A`\>(`m`, `a`, `w?`): [`Writer`](../type-aliases/Writer.md)\<`W`, `A`\>
 
-Defined in: [adt/writer.ts:43](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/writer.ts#L43)
+Defined in: [adt/writer.ts:43](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/writer.ts#L43)
 
 of: construct a Writer with value and optional initial log.
 If log is omitted, uses the monoid empty.

@@ -6,7 +6,7 @@
 
 # Interface: Semigroup\<A\>
 
-Defined in: [adt/validation.ts:95](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/validation.ts#L95)
+Defined in: [adt/validation.ts:95](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/validation.ts#L95)
 
 ## Type Parameters
 
@@ -20,7 +20,7 @@ Defined in: [adt/validation.ts:95](https://github.com/boazblake/algebraic-fx/blo
 
 > **concat**: (`x`, `y`) => `A`
 
-Defined in: [adt/validation.ts:96](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/validation.ts#L96)
+Defined in: [adt/validation.ts:96](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/validation.ts#L96)
 
 #### Parameters
 

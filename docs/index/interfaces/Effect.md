@@ -6,7 +6,7 @@
 
 # Interface: Effect\<Env, Msg\>
 
-Defined in: [core/effects.ts:62](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/effects.ts#L62)
+Defined in: [core/effects.ts:62](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/core/effects.ts#L62)
 
 Effect<Env, Msg>
 
@@ -42,7 +42,7 @@ If you want keyed lifecycle management, wrap an Effect in a `Subscription`.
 
 > `readonly` **\[EffectBrand\]**: `true`
 
-Defined in: [core/effects.ts:63](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/effects.ts#L63)
+Defined in: [core/effects.ts:63](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/core/effects.ts#L63)
 
 ## Methods
 
@@ -50,7 +50,7 @@ Defined in: [core/effects.ts:63](https://github.com/boazblake/algebraic-fx/blob/
 
 > **run**(`env`, `dispatch`): `void` \| () => `void`
 
-Defined in: [core/effects.ts:64](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/core/effects.ts#L64)
+Defined in: [core/effects.ts:64](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/core/effects.ts#L64)
 
 #### Parameters
 

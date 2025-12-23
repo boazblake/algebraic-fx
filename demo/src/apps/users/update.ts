@@ -4,14 +4,14 @@ import type { AppEnv } from "../../env";
 import type { Model, Msg } from "./types";
 
 const fetchUsers = (): RawEffect<AppEnv, Msg> =>
-  fx(async (env, dispatch) => {
-    try {
-      const res = await env.fetch(`${env.apiBase}/users`);
-      const users = await res.json();
-      dispatch({ type: "users.loaded", users });
-    } catch (e) {
-      dispatch({ type: "users.failed", error: String(e) });
-    }
+  fx((env, dispatch) => {
+    env
+      .fetch(`${env.usersBaseUrl}/users`)
+      .then((r) => r.json())
+      .then(
+        (users) => dispatch({ type: "users.loaded", users }),
+        (e) => dispatch({ type: "users.failed", error: String(e) })
+      );
   });
 
 export const update = (
@@ -36,5 +36,8 @@ export const update = (
         model: { ...model, loading: false, error: msg.error },
         effects: [],
       };
+
+    default:
+      return { model, effects: [] };
   }
 };

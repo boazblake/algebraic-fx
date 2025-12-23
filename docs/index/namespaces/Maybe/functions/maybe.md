@@ -8,7 +8,7 @@
 
 > **maybe**\<`A`, `B`\>(`onNothing`, `onJust`): (`ma`) => `B`
 
-Defined in: [adt/maybe.ts:97](https://github.com/boazblake/algebraic-fx/blob/ae62c782888b279636452a51955670e5a37cc7d2/src/adt/maybe.ts#L97)
+Defined in: [adt/maybe.ts:97](https://github.com/boazblake/algebraic-fx/blob/bb776b25d1b0bcd63f947025b0a8c5be3c93c621/src/adt/maybe.ts#L97)
 
 ## Type Parameters
 

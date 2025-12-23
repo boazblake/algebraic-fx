@@ -1,5 +1,6 @@
 export type AppEnv = {
   window: Window & typeof globalThis;
+  fetch: typeof fetch;
   storage: Storage;
   now: () => number;
   usersBaseUrl: string;
@@ -12,7 +13,7 @@ export const makeEnv = (): AppEnv => {
   return {
     window: w,
     storage: w.localStorage,
-    fetch: fetch,
+    fetch: window.fetch.bind(window),
     now: () => Date.now(),
     usersBaseUrl: "https://jsonplaceholder.typicode.com",
     quotesBaseUrl: "https://api.coingecko.com/api/v3",

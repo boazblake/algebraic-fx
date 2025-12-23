@@ -12,5 +12,8 @@ export const update = (
 
     case "counter.decrement":
       return { model: { count: model.count - 1 }, effects: [] };
+
+    default:
+      return { model, effects: [] };
   }
 };
