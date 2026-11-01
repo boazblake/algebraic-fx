@@ -1,5 +1,7 @@
 # algebraic-fx
 
+Forked from [ebsi-bblake/effects-vdom](https://github.com/ebsi-bblake/effects-vdom).
+
 Deterministic UI and effect runtime for TypeScript.
 
 **You describe:**
