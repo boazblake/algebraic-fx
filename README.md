@@ -1,5 +1,9 @@
 # algebraic-fx
 
+> Status: parked. Personal experiment, no longer maintained. Not recommended for production use.
+>
+> [FoldKit](https://github.com/foldkit/foldkit) is an actively maintained alternative with the same TEA-style architecture.
+
 Forked from [ebsi-bblake/effects-vdom](https://github.com/ebsi-bblake/effects-vdom).
 
 Small TEA-style runtime experiment for TypeScript.
@@ -22,6 +26,7 @@ Small TEA-style runtime experiment for TypeScript.
 
 - [Installation](#installation)
 - [Core Idea](#core-idea)
+- [What This Was](#what-this-was)
 - [Program Structure](#program-structure)
 - [Effects](#effects)
 - [Runtime Loop](#runtime-loop)
@@ -30,6 +35,7 @@ Small TEA-style runtime experiment for TypeScript.
 - [Full Example](#full-example)
 - [Renderer Abstraction](#renderer-abstraction)
 - [Benchmarks](#benchmarks)
+- [Known Limitations](#known-limitations)
 - [Documentation](#documentation)
 
 ---
@@ -51,6 +57,14 @@ A `Program<Model, Msg, Env>` contains an initial `IO`, an `update` function, and
 The runtime interprets effect values after initialization and after each update. A successful `Task` result can dispatch a message. A failed `Task` result is ignored.
 
 `renderApp` takes a DOM `Element` and a renderer callback. This repository includes a DOM renderer and a separate vnode-to-HTML function.
+
+## What This Was
+
+This was a personal experiment in a TypeScript TEA-style runtime. It aimed to make model updates deterministic for a fixed message sequence. It also explored effects as values and a renderer callback boundary.
+
+The experiment demonstrated a small `Program` contract for initialization, updates, and views. It used `RawEffect` values for work. It let `renderApp` call a supplied renderer. The included renderer targets the DOM. The separate `renderToString` function serializes a vnode tree.
+
+Async task completion still depends on the host environment. The runtime does not schedule or batch dispatch calls.
 
 ---
 
@@ -207,6 +221,7 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) =>
 Each call to `dispatch(msg)` invokes `program.update` synchronously. The runtime stores the new model. It renders the new view. It then interprets the returned effects.
 
 A `Task` effect dispatches a resolved `Right` value when that value is not `undefined`. The interpreter ignores `Left` values. It does not map Task errors to messages.
+
 ---
 
 ## Full Example
@@ -370,6 +385,17 @@ These results come from one run of this repository's benchmark harness on 2026-1
 These are synthetic microbenchmarks. They are not cross-framework measurements. Each workload warms up 10,000 calls before timing. The vdom update workload uses `FakeDocument`, not a browser. The Task and Promise chain workloads do not await completion. They measure chain evaluation and Promise creation.
 
 Run the harness with `npm run bench`. See [benchmarks/README.md](benchmarks/README.md) for the workload details.
+
+---
+
+## Known Limitations
+
+- `RawEffect` uses `unknown` for the `Task` error type. The interpreter ignores `Left` values. It has no standard error-to-message mapping.
+- `Renderer` uses `any` for its vnode argument. `renderApp` requires an `Element` root. The repository has no NativeScript or React Native renderer.
+- The repository has no routing module.
+- `Effect` values can return cleanup functions. `renderApp` drops the disposer from `runEffects`. It has no application-level unsubscribe or unmount API.
+- `renderToString` serializes a vnode tree. The repository has no server-side `renderApp` runtime.
+- `dispatch` calls `update` synchronously. The runtime has no queue or batching scheduler.
 
 ---
 

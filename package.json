@@ -1,7 +1,7 @@
 {
   "name": "algebraic-fx",
-  "version": "0.0.2",
-  "description": "A tiny TEA-style runtime with explicit algebraic effects over a fast virtual DOM",
+  "version": "0.0.3",
+  "description": "PARKED: personal TEA-style experiment; no longer maintained or recommended for production use",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -45,16 +45,15 @@
   },
   "scripts": {
     "build": "tsc -p .",
-    "dev": "esbuild src/index.ts --bundle --servedir=public --outfile=public/app.js --sourcemap",
-    "serve": "serve public",
+    "typecheck": "tsc --noEmit -p .",
     "lint": "oxlint . && eslint . --ext .ts,.js",
     "lint:fix": "oxlint --fix . && eslint --fix . --ext .ts,.js",
     "format": "prettier --write .",
     "prepublishOnly": "npm run build",
-    "prepack": "npm run pack",
-    "prepare": "npm run bench; npm run docs;",
+    "prepack": "npm run build",
+    "prepare": "npm run build",
     "docs": "typedoc",
-    "test": "npx vitest --watch",
+    "test": "vitest run",
     "bench": "npm run build && node benchmarks/runner.js"
   },
   "devDependencies": {

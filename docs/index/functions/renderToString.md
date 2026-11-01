@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.2**](../../README.md)
+[**algebraic-fx v0.0.3**](../../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **renderToString**(`node`): `string`
 
-Defined in: [core/render-to-string.ts:86](https://github.com/boazblake/algebraic-fx/blob/eef3be67e120439e0d5ff83f9f2b060e0fd2dc15/src/core/render-to-string.ts#L86)
+Defined in: [core/render-to-string.ts:88](https://github.com/boazblake/algebraic-fx/blob/77da9da1ce3bde1e58fe28d609fbe1973d41180a/src/core/render-to-string.ts#L88)
 
 Convert a mithril-lite vnode tree into an escaped HTML string.
 

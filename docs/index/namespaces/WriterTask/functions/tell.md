@@ -1,4 +1,4 @@
-[**algebraic-fx v0.0.2**](../../../../README.md)
+[**algebraic-fx v0.0.3**](../../../../README.md)
 
 ***
 
