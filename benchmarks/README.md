@@ -1,119 +1,34 @@
-Performance Benchmarks
+# Benchmarks
 
-This library includes a minimal virtual DOM engine (mithril-lite) and a deterministic effect system.
-Below are synthetic microbenchmarks comparing algebraic-fx against the major frontend frameworks.
+This repository has a small microbenchmark harness. The harness does not compare frameworks.
 
-Throughput metric: ops/s — bigger is faster.
-Benchmarks run on Node 20, M1 Max.
+These results come from one run on 2026-11-01. The run used Node v24.11.1 on an Apple M4 (arm64, 10 logical CPUs, 16 GiB memory).
 
-⸻
+| Workload | Iterations | ops/s |
+|---|---:|---:|
+| vdom.create 10k | 10,000 | 141,771 |
+| vdom.update list 200 | 5,000 | 14,119 |
+| runEffects IO x1000 | 500 | 66,926 |
+| runEffects Reader x1000 | 500 | 3,122 |
+| runEffects custom x1000 | 500 | 272,337 |
+| Task chain 10k | 10,000 | 2,837,986 |
+| Promise chain 10k | 10,000 | 16,852,749 |
+| renderToString 5k | 5,000 | 25,897 |
 
-Consolidated Benchmark Table
+Each workload runs 10,000 warmup calls before timing. The reported `ops/s` value counts benchmark invocations. The effect workloads run a list of 1,000 effects per invocation.
 
-Framework	vdom.create 10k	vdom.update list 200	renderToString 5k	runEffects (IO)	Task chain 10k
-algebraic-fx (mithril-lite)	105,914	7,465	15,740	208,616	1,334,267
-Mithril	~80,000	~6,800	~13,000	n/a	n/a
-SolidJS	~65,000	~5,000	~10,500	n/a	n/a
-Svelte	~40,000	~3,000	~6,500	n/a	n/a
-Vue 3	~28,000	~2,200	~4,400	n/a	n/a
-React 18	~22,000	~1,700	~3,800	n/a	n/a
+The vdom update workload uses `FakeDocument`. It does not measure browser rendering. The Task and Promise chain workloads do not await completion. They measure chain evaluation and Promise creation.
 
-algebraic-fx consistently lands at or above Mithril, and well above the major VDOM frameworks in both create + update throughput.
+Run the harness with:
 
-⸻
-
-ASCII Charts
-
-Scaling each metric independently.
-
-⸻
-
-vdom.create (higher is better)
-
-algebraic-fx      ███████████████████████████████████████████████████ 105k
-Mithril           ██████████████████████████████████████ 80k
-SolidJS           ███████████████████████████ 65k
-Svelte            ████████████████ 40k
-Vue 3             ████████████ 28k
-React 18          █████████ 22k
-
-
-⸻
-
-vdom.update (higher is better)
-
-algebraic-fx      ███████████████████████████████████████████████████ 7465
-Mithril           ██████████████████████████████████████████████ 6800
-SolidJS           █████████████████████████████ 5000
-Svelte            ████████████████ 3000
-Vue 3             ████████████ 2200
-React 18          █████████ 1700
-
-
-⸻
-
-renderToString (higher is better)
-
-algebraic-fx      ██████████████████████████████████████████████████ 15740
-Mithril           ████████████████████████████████████████ 13000
-SolidJS           ████████████████████████████ 10500
-Svelte            ████████████████ 6500
-Vue 3             ████████████ 4400
-React 18          ██████████ 3800
-
-
-⸻
-
-runEffects IO (higher is better)
-
-algebraic-fx      ███████████████████████████████████████████████████ 208616
-Mithril           (not applicable)
-SolidJS           (not applicable)
-Svelte            (not applicable)
-Vue 3             (not applicable)
-React 18          (not applicable)
-
-
-⸻
-
-Task.chain (higher is better)
-
-algebraic-fx      ███████████████████████████████████████████████████ 1,334,267
-Promises          ██████████████████████████████████████████████████████████████ 8,390,726
-
-Note: Promises are a native primitive; Tasks wrap control flow explicitly and safely, so they are necessarily slower.
-algebraic-fx Task performance is still excellent.
-
-⸻
-
-Notes on Benchmark Validity
-	•	These are microbenchmarks, not real-world UI benchmarks.
-	•	They measure low-level operations: node creation, keyed diff, effect dispatch.
-	•	Solid results mirror those published publicly (js-framework-benchmark + lis-diff studies).
-
-These numbers do not claim superiority in application-level behavior, only in raw computational throughput.
-
-⸻
-
-Reproducing the Benchmarks
-
-All benchmark files live in:
-
-benchmarks/
-  runner.js
-  vdom.create.js
-  vdom.update.js
-  effects.run.js
-  task.combinators.js
-  render-to-string.js
-
-Run them:
-
+```sh
 npm run bench
+```
 
-This:
-	1.	Builds the library
-	2.	Runs each benchmark in a separate Node process
-	3.	Prints each result in a clean table
+The `benchmarks/runner.js` file starts these workloads in separate Node processes:
 
-
+- `vdom.create.js`
+- `vdom.update.js`
+- `effects.run.js`
+- `task.combinators.js`
+- `render-to-string.js`

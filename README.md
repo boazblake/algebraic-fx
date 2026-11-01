@@ -2,19 +2,19 @@
 
 Forked from [ebsi-bblake/effects-vdom](https://github.com/ebsi-bblake/effects-vdom).
 
-Deterministic UI and effect runtime for TypeScript.
+Small TEA-style runtime experiment for TypeScript.
 
 **You describe:**
 - `Model` as plain data
 - `Msg` as tagged unions
-- `Program` as a pure state machine that returns `(model, effects[])`
-- `Effects` as explicit `IO`, `Reader`, `Task` objects
+- `Program` with `init`, `update`, and `view`
+- `Effects` as `IO`, `Reader`, and `Task` values
 
 **algebraic-fx provides:**
-- A runtime loop that runs your `Program`
-- A renderer abstraction for DOM, NativeScript, or anything else
-- A minimal virtual DOM (`mithril-lite`) for browser UIs
-- A small, composable effect algebra
+- A runtime that starts a `Program` and interprets its effects
+- A renderer callback that accepts an `Element` root
+- A DOM renderer in `mithril-lite`
+- A separate function that serializes a vnode to HTML
 
 ---
 
@@ -26,7 +26,7 @@ Deterministic UI and effect runtime for TypeScript.
 - [Effects](#effects)
 - [Runtime Loop](#runtime-loop)
 - [mithril-lite Renderer](#mithril-lite-renderer)
-- [Informal Semantics](#informal-semantics)
+- [Runtime Behavior](#runtime-behavior)
 - [Full Example](#full-example)
 - [Renderer Abstraction](#renderer-abstraction)
 - [Benchmarks](#benchmarks)
@@ -46,14 +46,11 @@ TypeScript types are included.
 
 ## Core Idea
 
-A **Program** is a pure function that describes application behavior:
-- It owns a **Model**
-- It reacts to **Msg** values
-- It returns a new **Model** plus a list of **Effects** to run
+A `Program<Model, Msg, Env>` contains an initial `IO`, an `update` function, and a `view` function. The initial `IO` returns a model and effects. Each call to `update` returns a new model and effects.
 
-**Effects** are plain values that describe work. The runtime interprets those values with a supplied environment and dispatches resulting `Msg` back into the program.
+The runtime interprets effect values after initialization and after each update. A successful `Task` result can dispatch a message. A failed `Task` result is ignored.
 
-The **UI** is any renderer that can turn a virtual tree into a real UI tree. The runtime does not depend on the browser. `mithril-lite` is one renderer.
+`renderApp` takes a DOM `Element` and a renderer callback. This repository includes a DOM renderer and a separate vnode-to-HTML function.
 
 ---
 
@@ -94,7 +91,7 @@ algebraic-fx ships with lightweight effect constructors:
 - **`Reader<R, A>`** — describes a function from environment `R` to `A`
 - **`Task<E, A>`** — describes an async computation that may fail with `E` or succeed with `A`
 
-In the runtime, these combine into a single `RawEffect<Env, Msg>` type. Every effect is a value that, when interpreted, may schedule new `Msg` into the program.
+The runtime accepts these values through `RawEffect<Env, Msg>`. Some effects dispatch a message. A `Task` failure does not dispatch a message.
 
 ### Example: Read from storage and dispatch a message
 
@@ -168,15 +165,9 @@ const typedProgram: Program<Model, Msg, AppEnv> = program;
 renderApp(root, typedProgram, env, renderer);
 ```
 
-**`renderApp`:**
-1. Calls `program.init()` to get `[model, effects[]]`
-2. Renders `program.view(model, dispatch)` through the given renderer
-3. Interprets all effects using the environment
-4. Dispatches any resulting `Msg`
-5. Batches any dispatches that occur in the same frame
-6. Repeats
+`renderApp` starts immediately. It calls `program.init.run()` once. It renders the initial view, then it interprets the initial effects. Each `dispatch(msg)` call invokes `update` synchronously. The runtime then renders the new view and interprets the returned effects. It does not batch dispatch calls.
 
-You can plug any renderer that matches the signature `(root: Element, vnode: any) => void`.
+A `Renderer` receives an `Element` root and a vnode. The included `render` function accepts an `HTMLElement` root.
 
 ---
 
@@ -186,8 +177,7 @@ algebraic-fx includes a minimal virtual DOM tailored to the runtime:
 - Hyperscript function `m(tag, attrs?, ...children)`
 - Plain object vnodes
 - HTML and SVG support
-- Efficient unkeyed diffing
-- Optional keyed nodes
+- Unkeyed and keyed list diffing
 
 ### Example view
 
@@ -206,144 +196,17 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) =>
   );
 ```
 
-`createRenderer(root)` provided by `mithril-lite` turns vnodes into DOM and returns a `Renderer` that `renderApp` can use.
+`render` from `mithril-lite` updates an `HTMLElement`. Pass a renderer callback to `renderApp`.
 
 ---
 
-## Informal Semantics
+## Runtime Behavior
 
-This section describes the behavior as a deterministic pipeline:
+`renderApp` executes `program.init.run()` once. It stores the model. It renders the initial view. It then interprets the initial effects.
 
-```text
-Init → Render → Interpret Effects → Dispatch → Reduce → Render → ...
-```
+Each call to `dispatch(msg)` invokes `program.update` synchronously. The runtime stores the new model. It renders the new view. It then interprets the returned effects.
 
-### Terms
-
-- **M** — the Model type
-- **Msg** — the message type
-- **Eff** — the effect type `RawEffect<Env, Msg>`
-- **Env** — a user-supplied environment
-- **VNode** — an abstract UI tree understood by the renderer
-
-### Runtime State
-
-```typescript
-import type { RawEffect } from "algebraic-fx";
-
-type RuntimeState<M, Msg, Env> = {
-  model: M;
-  pending: RawEffect<Env, Msg>[];
-  queue: Msg[];
-};
-```
-
-### Functions
-
-```text
-
-- `init: () => [M, Eff[]]`
-- `update: (Msg, M) => [M, Eff[]]`
-- `view: (M, Dispatch<Msg>) => VNode`
-- `render: (VNode) => void`
-- `interpret: (Eff, Env, Dispatch<Msg>) => void`
-```
-
-The `interpret` function may call `Dispatch` zero or more times, possibly asynchronously.
-
-### 1. Init
-
-On startup:
-1. Call `init()` to get `[m0, effs0]`
-2. Set `state.model = m0`
-3. Set `state.pending = effs0`
-4. Set `state.queue = []`
-
-No `update` is called yet. Effects are scheduled for interpretation.
-
-### 2. Render
-
-For every state change of model:
-1. Construct a `Dispatch` function that enqueues messages
-2. Call `v = view(state.model, Dispatch)`
-3. Call `render(v)`
-
-The renderer may batch DOM updates internally but must behave as a pure function of `(root, vnode)` with respect to previous invocations.
-
-**Key invariant:** For a fixed model and a fixed `Dispatch` reference, `view` must be pure.
-
-### 3. Interpret Effects
-
-Effects are interpreted after rendering. For each `Eff` in `state.pending`:
-1. Remove `Eff` from `state.pending`
-2. Call `interpret(Eff, env, Dispatch)`
-
-`interpret` may:
-- Perform IO
-- Read from `env`
-- Start async work
-- Call `Dispatch(msg)` any number of times, immediately or later
-
-Dispatch calls do not run `update` directly. They only enqueue messages.
-
-**Key invariant:** `interpret` must not mutate model or UI directly. It can only interact via `Dispatch` and `env`.
-
-### 4. Dispatch
-
-The runtime provides a `Dispatch` of type `(msg: Msg) => void`.
-
-**Semantics:**
-- When an effect calls `Dispatch(msg)`, the runtime pushes `msg` into `state.queue`
-- The runtime may batch multiple dispatches and process them in a single turn
-
-**Guarantees:**
-- For a given sequence of `Msg` produced by effects, the runtime will process them in FIFO order
-- No `update` call is interleaved with another `update` call. The runtime processes the queue sequentially
-
-### 5. Reduce
-
-While `state.queue` is not empty:
-1. Pop `msg` from `state.queue`
-2. Compute `[modelNext, effs] = update(msg, state.model)`
-3. Set `state.model = modelNext`
-4. Append `effs` to `state.pending`
-
-The order of messages is preserved. Every `update` call is pure and synchronous.
-
-**Key invariant:**
-- `update` is the only function that changes the model
-- The model history is a pure function of the message history and `init`
-
-### 6. Render Again
-
-After the queue drains (or after a scheduling boundary such as `requestAnimationFrame`), the runtime triggers another render pass using the current `state.model`.
-
-This closes a single pipeline cycle:
-
-```
-(model, pending, queue)
-  → interpret pending
-  → dispatch messages
-  → reduce them
-  → compute new model and new pending
-  → render
-```
-
-The cycle repeats any time new effects or messages appear.
-
-### Determinism
-
-Given:
-- A fixed `init`
-- A fixed `update`
-- A fixed `interpret` function
-- A fixed `env`
-- A fixed scheduler order for async callbacks
-
-The sequence of `(model, vnode)` pairs across time is **deterministic**.
-
-If async work introduces non-deterministic ordering, it does so only through the timing of `Dispatch` calls. The runtime itself does not add additional nondeterminism.
-
+A `Task` effect dispatches a resolved `Right` value when that value is not `undefined`. The interpreter ignores `Left` values. It does not map Task errors to messages.
 ---
 
 ## Full Example
@@ -473,9 +336,9 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) =>
 
 ## Renderer Abstraction
 
-**Key design points:**
+`Renderer` is a callback that accepts an `Element` root and a vnode. The repository includes the DOM renderer below. It does not include a NativeScript or React Native renderer.
 
-The runtime does not assume a DOM. It only depends on a `Renderer`:
+You may supply another callback with the same signature. The runtime still passes an `Element` root.
 
 ```typescript
 import { render } from "algebraic-fx";
@@ -485,73 +348,34 @@ export const renderer: Renderer = (root, vnode) =>
   render(root as HTMLElement, vnode);
 ```
 
-**For NativeScript or React Native**, you can write an adapter that:
-- Interprets vnodes as a tree of native views
-- Applies props and event handlers
-- Diffs trees over time
-
-**For server-side rendering**, you can provide a renderer that produces strings instead of DOM, then wrap it in a small adapter that matches the `Renderer` type.
+`renderToString` converts a vnode tree to HTML. It is a separate helper. `renderApp` still requires an `Element` root. The repository does not include a server-side `renderApp` adapter.
 
 ---
 
 ## Benchmarks
 
-Synthetic microbenchmarks measured on Node 20, Apple M1 Max.  
-These measure the internal vdom and effect interpreter, not real-world apps.
+These results come from one run of this repository's benchmark harness on 2026-11-01. The run used Node v24.11.1 on an Apple M4 (arm64, 10 logical CPUs, 16 GiB memory).
 
-**Throughput metric:** ops/s (higher is better)
+| Workload | Iterations | ops/s |
+|---|---:|---:|
+| vdom.create 10k | 10,000 | 141,771 |
+| vdom.update list 200 | 5,000 | 14,119 |
+| runEffects IO x1000 | 500 | 66,926 |
+| runEffects Reader x1000 | 500 | 3,122 |
+| runEffects custom x1000 | 500 | 272,337 |
+| Task chain 10k | 10,000 | 2,837,986 |
+| Promise chain 10k | 10,000 | 16,852,749 |
+| renderToString 5k | 5,000 | 25,897 |
 
-| Framework                      | vdom.create 10k | vdom.update list 200 | renderToString 5k | runEffects (IO) Task chain 10k |
-|--------------------------------|-----------------|----------------------|-------------------|--------------------------------|
-| **algebraic-fx (mithril-lite)**| 105,914         | 7,465                | 15,740            | 208,616                        |
-| Mithril                        | ~80,000         | ~6,800               | ~13,000           | n/a                            |
-| SolidJS                        | ~65,000         | ~5,000               | ~10,500           | n/a                            |
-| Svelte                         | ~40,000         | ~3,000               | ~6,500            | n/a                            |
-| Vue 3                          | ~28,000         | ~2,200               | ~4,400            | n/a                            |
-| React 18                       | ~22,000         | ~1,700               | ~3,800            | n/a                            |
+These are synthetic microbenchmarks. They are not cross-framework measurements. Each workload warms up 10,000 calls before timing. The vdom update workload uses `FakeDocument`, not a browser. The Task and Promise chain workloads do not await completion. They measure chain evaluation and Promise creation.
 
-**These numbers indicate that:**
-- `mithril-lite` sits at or above Mithril in these microbenchmarks
-- algebraic-fx effect interpretation is cheap enough to use per message
-
-> **Note:** Benchmarks are synthetic and should be treated as relative indicators, not guarantees.
+Run the harness with `npm run bench`. See [benchmarks/README.md](benchmarks/README.md) for the workload details.
 
 ---
 
 ## Documentation
 
-For more detailed documentation, see:
-
-- **[docs/01-program.md](docs/01-program.md)** — Detailed Program design, Model, Msg, state transitions
-- **[docs/02-effects.md](docs/02-effects.md)** — Effect algebra, IO, Reader, Task, composition patterns
-- **[docs/03-runtime.md](docs/03-runtime.md)** — Runtime loop, scheduling, batching, dispatch semantics
-- **[docs/04-mithril-lite.md](docs/04-mithril-lite.md)** — Vnode format, keyed vs unkeyed lists, SSR notes
-- **[docs/05-native-renderers.md](docs/05-native-renderers.md)** — Guidelines for NativeScript or other non-DOM renderers
-- **[docs/06-testing.md](docs/06-testing.md)** — Testing Programs and Effects purely by driving messages and mocking environments
-- **[docs/07-benchmarks.md](docs/07-benchmarks.md)** — Benchmark harness, methodology, and how to run them
-
----
-
-## Project Layout
-
-Recommended layout:
-
-```
-src/
-  core/
-    io.ts
-    reader.ts
-    task.ts
-    runtime.ts
-  renderer/
-    mithril-lite.ts
-  examples/
-    counter/
-      types.ts
-      effects.ts
-      program.ts
-      view.ts
-```
+The generated API reference is at [docs/index/README.md](docs/index/README.md).
 
 ---
 
