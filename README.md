@@ -62,27 +62,24 @@ The **UI** is any renderer that can turn a virtual tree into a real UI tree. The
 A typical program looks like this:
 
 ```typescript
-import type { Dispatch, RawEffect } from "algebraic-fx";
+import { IO } from "algebraic-fx/adt/io";
+import { m } from "algebraic-fx";
+import type { Dispatch, Program, RawEffect } from "algebraic-fx";
 
-export type Model = {
-  count: number;
+type Model = { count: number };
+type Msg = { type: "INC" };
+type AppEnv = {};
+
+const program: Program<Model, Msg, AppEnv> = {
+  init: IO<{ model: Model; effects: RawEffect<AppEnv, Msg>[] }>(() => ({
+    model: { count: 0 },
+    effects: [],
+  })),
+  update: (_msg: Msg, model: Model) => ({ model, effects: [] }),
+  view: (model: Model, _dispatch: Dispatch<Msg>) =>
+    m("output", String(model.count)),
 };
 
-export type Msg =
-  | { type: "INC" }
-  | { type: "DEC" }
-  | { type: "SET_FROM_STORAGE"; value: number };
-
-export type AppEnv = {
-  loadCount: () => Promise<number>;
-  saveCount: (n: number) => Promise<void>;
-};
-
-export type Program = {
-  init: () => [Model, RawEffect<AppEnv, Msg>[]];
-  update: (msg: Msg, model: Model) => [Model, RawEffect<AppEnv, Msg>[]];
-  view: (model: Model, dispatch: Dispatch<Msg>) => any;
-};
 ```
 
 You keep `Model` and `Msg` fully typed. Effects are constructed with helpers such as `IO`, `Reader`, `Task` (described below).
@@ -102,30 +99,42 @@ In the runtime, these combine into a single `RawEffect<Env, Msg>` type. Every ef
 ### Example: Read from storage and dispatch a message
 
 ```typescript
-import { IO, Reader } from "algebraic-fx";
+import { Reader } from "algebraic-fx/adt/reader";
+import { TaskModule } from "algebraic-fx/adt/task";
 import type { RawEffect } from "algebraic-fx";
+import type { Task } from "algebraic-fx/adt/task";
 import type { AppEnv, Msg } from "./types";
 
 export const loadCountEffect = (): RawEffect<AppEnv, Msg> =>
-  Reader.from<AppEnv>()
-    .chain(env =>
-      IO.fromPromise(() => env.loadCount())
+  Reader<AppEnv, Task<unknown, Msg>>((env) =>
+    TaskModule.map<unknown, number, Msg>((value) => ({
+      type: "SET",
+      value,
+    }))(
+      TaskModule.fromPromise(() => env.loadCount(), (error) => error)
     )
-    .map<Msg>(value => ({ type: "SET_FROM_STORAGE", value }));
+  );
 ```
 
 ### Example: Save to storage and ignore the result
 
 ```typescript
+import { Reader } from "algebraic-fx/adt/reader";
+import { TaskModule } from "algebraic-fx/adt/task";
+import type { RawEffect } from "algebraic-fx";
+import type { Task } from "algebraic-fx/adt/task";
+import type { AppEnv, Msg } from "./types";
+
 export const saveCountEffect = (value: number): RawEffect<AppEnv, Msg> =>
-  Reader.from<AppEnv>()
-    .chain(env =>
-      IO.fromPromise(() => env.saveCount(value))
+  Reader<AppEnv, Task<unknown, void>>((env) =>
+    TaskModule.fromPromise(
+      () => env.saveCount(value),
+      (error) => error
     )
-    .map<Msg>(() => ({ type: "NOOP" as const }));
+  );
 ```
 
-You wire these effects into `init` and `update`.
+You wire these effects into `init` and `update`. The runtime dispatches successful `Task` results. It ignores `Left` failures. It does not map `E` to `Msg`, and this README does not cover that mapping.
 
 ---
 
@@ -134,10 +143,10 @@ You wire these effects into `init` and `update`.
 The core runtime connects a program to a renderer and an environment:
 
 ```typescript
-import { renderApp } from "algebraic-fx/runtime";
-import { createRenderer } from "algebraic-fx/mithril-lite";
-import type { Program } from "./program";
-import type { AppEnv } from "./env";
+import { render, renderApp } from "algebraic-fx";
+import type { Program, Renderer } from "algebraic-fx";
+import type { AppEnv, Model, Msg } from "./types";
+import { program } from "./program";
 
 const env: AppEnv = {
   loadCount: async () => {
@@ -149,11 +158,14 @@ const env: AppEnv = {
   },
 };
 
-const mount = (root: Element, program: Program) => {
-  const renderer = createRenderer(root);
-  const run = renderApp(program, renderer, env);
-  run();
-};
+const root = document.getElementById("app");
+if (root === null) throw new Error("Missing app root");
+
+const renderer: Renderer = (element, vnode) =>
+  render(element as HTMLElement, vnode);
+
+const typedProgram: Program<Model, Msg, AppEnv> = program;
+renderApp(root, typedProgram, env, renderer);
 ```
 
 **`renderApp`:**
@@ -180,7 +192,7 @@ algebraic-fx includes a minimal virtual DOM tailored to the runtime:
 ### Example view
 
 ```typescript
-import { m } from "algebraic-fx/mithril-lite";
+import { m } from "algebraic-fx";
 import type { Model, Msg } from "./types";
 import type { Dispatch } from "algebraic-fx";
 
@@ -202,7 +214,7 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) =>
 
 This section describes the behavior as a deterministic pipeline:
 
-```
+```text
 Init → Render → Interpret Effects → Dispatch → Reduce → Render → ...
 ```
 
@@ -217,20 +229,25 @@ Init → Render → Interpret Effects → Dispatch → Reduce → Render → ...
 ### Runtime State
 
 ```typescript
-type RuntimeState<M, Msg> = {
+import type { RawEffect } from "algebraic-fx";
+
+type RuntimeState<M, Msg, Env> = {
   model: M;
-  pending: Eff[];    // effects waiting to be interpreted
-  queue: Msg[];      // messages waiting to be reduced
+  pending: RawEffect<Env, Msg>[];
+  queue: Msg[];
 };
 ```
 
 ### Functions
+
+```text
 
 - `init: () => [M, Eff[]]`
 - `update: (Msg, M) => [M, Eff[]]`
 - `view: (M, Dispatch<Msg>) => VNode`
 - `render: (VNode) => void`
 - `interpret: (Eff, Env, Dispatch<Msg>) => void`
+```
 
 The `interpret` function may call `Dispatch` zero or more times, possibly asynchronously.
 
@@ -354,52 +371,74 @@ export type AppEnv = {
 ### effects.ts
 
 ```typescript
-import { IO, Reader } from "algebraic-fx";
+import { Reader } from "algebraic-fx/adt/reader";
+import { TaskModule } from "algebraic-fx/adt/task";
 import type { RawEffect } from "algebraic-fx";
+import type { Task } from "algebraic-fx/adt/task";
 import type { AppEnv, Msg } from "./types";
 
 export const loadCountEffect = (): RawEffect<AppEnv, Msg> =>
-  Reader.from<AppEnv>()
-    .chain(env => IO.fromPromise(() => env.loadCount()))
-    .map<Msg>(value => ({ type: "SET", value }));
+  Reader<AppEnv, Task<unknown, Msg>>((env) =>
+    TaskModule.map<unknown, number, Msg>((value) => ({
+      type: "SET",
+      value,
+    }))(
+      TaskModule.fromPromise(() => env.loadCount(), (error) => error)
+    )
+  );
 
 export const saveCountEffect = (value: number): RawEffect<AppEnv, Msg> =>
-  Reader.from<AppEnv>()
-    .chain(env => IO.fromPromise(() => env.saveCount(value)))
-    .map<Msg>(() => ({ type: "SET_LOADING", value: false }));
+  Reader<AppEnv, Task<unknown, Msg>>((env) =>
+    TaskModule.map<unknown, void, Msg>(
+      () => ({ type: "SET_LOADING", value: false })
+    )(
+      TaskModule.fromPromise(
+        () => env.saveCount(value),
+        (error) => error
+      )
+    )
+  );
 ```
 
 ### program.ts
 
 ```typescript
+import { IO } from "algebraic-fx/adt/io";
 import type { Program } from "algebraic-fx";
-import type { Model, Msg } from "./types";
+import type { RawEffect } from "algebraic-fx";
+import type { AppEnv, Model, Msg } from "./types";
 import { loadCountEffect, saveCountEffect } from "./effects";
 import { view } from "./view";
 
-export const init = (): [Model, any[]] => [
-  { count: 0, isLoading: true },
-  [loadCountEffect()],
-];
+export const init = IO<{
+  model: Model;
+  effects: RawEffect<AppEnv, Msg>[];
+}>(() => ({
+  model: { count: 0, isLoading: true },
+  effects: [loadCountEffect()],
+}));
 
-export const update = (msg: Msg, model: Model): [Model, any[]] => {
+export const update = (
+  msg: Msg,
+  model: Model
+): { model: Model; effects: RawEffect<AppEnv, Msg>[] } => {
   switch (msg.type) {
     case "INC": {
       const next = { ...model, count: model.count + 1, isLoading: true };
-      return [next, [saveCountEffect(next.count)]];
+      return { model: next, effects: [saveCountEffect(next.count)] };
     }
     case "DEC": {
       const next = { ...model, count: model.count - 1, isLoading: true };
-      return [next, [saveCountEffect(next.count)]];
+      return { model: next, effects: [saveCountEffect(next.count)] };
     }
     case "SET":
-      return [{ ...model, count: msg.value, isLoading: false }, []];
+      return { model: { ...model, count: msg.value, isLoading: false }, effects: [] };
     case "SET_LOADING":
-      return [{ ...model, isLoading: msg.value }, []];
+      return { model: { ...model, isLoading: msg.value }, effects: [] };
   }
 };
 
-export const program: Program<Model, Msg, any> = {
+export const program: Program<Model, Msg, AppEnv> = {
   init,
   update,
   view,
@@ -409,7 +448,7 @@ export const program: Program<Model, Msg, any> = {
 ### view.ts
 
 ```typescript
-import { m } from "algebraic-fx/mithril-lite";
+import { m } from "algebraic-fx";
 import type { Model, Msg } from "./types";
 import type { Dispatch } from "algebraic-fx";
 
@@ -439,7 +478,11 @@ export const view = (model: Model, dispatch: Dispatch<Msg>) =>
 The runtime does not assume a DOM. It only depends on a `Renderer`:
 
 ```typescript
-export type Renderer = (root: Element, vnode: any) => void;
+import { render } from "algebraic-fx";
+import type { Renderer } from "algebraic-fx";
+
+export const renderer: Renderer = (root, vnode) =>
+  render(root as HTMLElement, vnode);
 ```
 
 **For NativeScript or React Native**, you can write an adapter that:

@@ -80,8 +80,10 @@ const VOID = new Set([
  * @returns Escaped HTML string.
  *
  * @example
- * renderToString(m("div", "Hello")) === "<div>Hello</div>"
- * renderToString(m("div", { class: "test" }, "Hi")) === '<div class="test">Hi</div>'
+ * import { m, renderToString } from "algebraic-fx";
+ *
+ * const greeting = renderToString(m("div", "Hello"));
+ * const labeled = renderToString(m("div", { class: "test" }, "Hi"));
  */
 export const renderToString = (node: unknown): string => {
   if (node === null || node === false || node === true) return "";
